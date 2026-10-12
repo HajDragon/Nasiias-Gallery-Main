@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -46,5 +48,13 @@ class Artwork extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * @return HasMany<ArtworkView, $this>
+     */
+    public function artworkViews(): HasMany
+    {
+        return $this->hasMany(ArtworkView::class);
     }
 }
