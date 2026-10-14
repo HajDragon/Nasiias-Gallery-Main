@@ -19,6 +19,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 /**
  * @property int $id
  * @property int $category_id
+ * @property string|null $title
+ * @property string|null $description
  * @property string $image_url
  * @property string $alt_text
  * @property int $view_count
@@ -26,7 +28,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['category_id', 'image_url', 'alt_text', 'view_count', 'like_count'])]
+#[Fillable(['category_id', 'title', 'description', 'image_url', 'alt_text', 'view_count', 'like_count'])]
 class Artwork extends Model implements HasMedia
 {
     /** @use HasFactory<ArtworkFactory> */

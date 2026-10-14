@@ -46,4 +46,4 @@ yarn-error.log
 /opencode.json
 /opencode.jsonc
 /nul
-/testing
+/testing*
