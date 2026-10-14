@@ -152,6 +152,6 @@ class ArtworkResourceTest extends TestCase
 
         // Assert
         $response->assertOk();
-        $response->assertSee('/css/filament-nastiia.css');
+        $response->assertSee('/css/nastia.css');
     }
 }
