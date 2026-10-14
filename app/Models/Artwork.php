@@ -1,15 +1,20 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Database\Factories\ArtworkFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Spatie\Image\Enums\Fit;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * @property int $id
@@ -22,10 +27,39 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  */
 #[Fillable(['category_id', 'image_url', 'alt_text', 'view_count', 'like_count'])]
-class Artwork extends Model
+class Artwork extends Model implements HasMedia
 {
     /** @use HasFactory<ArtworkFactory> */
     use HasFactory;
+
+    use InteractsWithMedia;
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('images')
+            ->singleFile();
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('compressed')
+            ->nonQueued()
+            ->quality(80);
+
+        $this->addMediaConversion('main')
+            ->nonQueued()
+            ->quality(80);
+
+        $this->addMediaConversion('thumbnail')
+            ->nonQueued()
+            ->fit(Fit::Crop, 300, 300)
+            ->quality(80);
+
+        $this->addMediaConversion('thumb')
+            ->nonQueued()
+            ->fit(Fit::Crop, 300, 300)
+            ->quality(80);
+    }
 
     /**
      * @return BelongsTo<Category, $this>
