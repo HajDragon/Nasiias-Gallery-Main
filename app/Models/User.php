@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
+use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -33,12 +35,17 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  */
 #[Fillable(['display_name', 'email', 'password_hash', 'role'])]
 #[Hidden(['password_hash', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable implements HasName, MustVerifyEmail, PasskeyUser
+class User extends Authenticatable implements FilamentUser, HasName, MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     protected $authPasswordName = 'password_hash';
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return in_array($this->role, [UserRole::Admin, UserRole::SuperAdmin], true);
+    }
 
     public function getFilamentName(): string
     {
