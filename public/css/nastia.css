@@ -31,10 +31,11 @@
   font-display: swap;
 }
 
-/* Magilio — Display / Heading font from nastiia's gallery */
+/* Magilio — Display / Heading font */
 @font-face {
   font-family: "Magilio";
-  src: url("/fonts/Magilio-DEMO.ttf") format("truetype");
+  src: url("/fonts/Magilio.otf") format("opentype"),
+       url("/fonts/Magilio.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
