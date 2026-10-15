@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('artworks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
+            $table->string('title')->nullable();
+            $table->text('description')->nullable();
             $table->string('image_url', 2048);
             $table->string('alt_text');
             $table->unsignedBigInteger('view_count')->default(0);
