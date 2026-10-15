@@ -48,16 +48,7 @@ class Artwork extends Model implements HasMedia
             ->nonQueued()
             ->quality(80);
 
-        $this->addMediaConversion('main')
-            ->nonQueued()
-            ->quality(80);
-
         $this->addMediaConversion('thumbnail')
-            ->nonQueued()
-            ->fit(Fit::Crop, 300, 300)
-            ->quality(80);
-
-        $this->addMediaConversion('thumb')
             ->nonQueued()
             ->fit(Fit::Crop, 300, 300)
             ->quality(80);

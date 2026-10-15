@@ -7,6 +7,7 @@ use App\Filament\Resources\Artworks\Pages\EditArtwork;
 use App\Filament\Resources\Artworks\Pages\ListArtworks;
 use App\Filament\Resources\Artworks\RelationManagers\CommentsRelationManager;
 use App\Models\Artwork;
+use App\Models\Category;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -19,12 +20,15 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ArtworkResource extends Resource
 {
@@ -51,7 +55,8 @@ class ArtworkResource extends Resource
                             ->label('Title')
                             ->required()
                             ->maxLength(255)
-                            ->placeholder('e.g., Vermilion Weather'),
+                            ->placeholder('e.g., Vermilion Weather')
+                            ->live(onBlur: true),
 
                         Select::make('category_id')
                             ->label('Category')
@@ -59,26 +64,31 @@ class ArtworkResource extends Resource
                             ->searchable()
                             ->preload()
                             ->required()
+                            ->live()
                             ->createOptionForm([
                                 TextInput::make('name')
                                     ->required()
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->unique(Category::class, 'name'),
                             ])
                             ->editOptionForm([
                                 TextInput::make('name')
                                     ->required()
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->unique(Category::class, 'name', ignoreRecord: true),
                             ]),
 
                         Textarea::make('description')
                             ->label('Description')
                             ->rows(4)
-                            ->placeholder('Describe the artwork piece...'),
+                            ->placeholder('Describe the artwork piece...')
+                            ->live(onBlur: true),
 
                         TextInput::make('alt_text')
                             ->label('Alt Text')
                             ->maxLength(255)
-                            ->helperText('Defaults to title if left blank.'),
+                            ->helperText('Defaults to title if left blank.')
+                            ->live(onBlur: true),
 
                         FileUpload::make('file')
                             ->label(fn (string $operation): string => $operation === 'edit' ? 'Replace Artwork File' : 'Artwork File')
@@ -86,6 +96,7 @@ class ArtworkResource extends Resource
                             ->disk('public')
                             ->directory('artworks')
                             ->required(fn (string $operation): bool => $operation === 'create')
+                            ->live()
                             ->helperText(fn (string $operation): string => $operation === 'edit'
                                 ? 'Upload a new image only if you want to replace the current artwork image.'
                                 : 'Upload the high-resolution artwork image.'),
@@ -97,9 +108,38 @@ class ArtworkResource extends Resource
                     ->components([
                         Placeholder::make('showcase')
                             ->hiddenLabel()
-                            ->content(function (?Artwork $record): HtmlString {
-                                $media = $record?->getFirstMedia('images');
-                                $rawUrl = $media?->getUrl() ?? $record?->image_url;
+                            ->content(function (Get $get, ?Artwork $record): HtmlString {
+                                $uploadedFile = $get('file');
+                                $rawUrl = null;
+                                $fileSize = null;
+
+                                if (! empty($uploadedFile)) {
+                                    $firstFile = is_array($uploadedFile) ? reset($uploadedFile) : $uploadedFile;
+
+                                    if ($firstFile instanceof TemporaryUploadedFile) {
+                                        try {
+                                            $rawUrl = $firstFile->temporaryUrl();
+                                            $fileSize = $firstFile->getSize();
+                                        } catch (\Throwable) {
+                                            $rawUrl = null;
+                                        }
+                                    } elseif (is_string($firstFile)) {
+                                        $rawUrl = Storage::disk('public')->url($firstFile);
+                                        try {
+                                            $fileSize = Storage::disk('public')->size($firstFile);
+                                        } catch (\Throwable) {
+                                            $fileSize = null;
+                                        }
+                                    }
+                                }
+
+                                if (blank($rawUrl)) {
+                                    $media = $record?->getFirstMedia('images');
+                                    $rawUrl = $media?->getUrl() ?? $record?->image_url;
+                                    if ($media !== null) {
+                                        $fileSize = $media->size;
+                                    }
+                                }
 
                                 if (blank($rawUrl)) {
                                     return new HtmlString(<<<'HTML'
@@ -115,7 +155,6 @@ class ArtworkResource extends Resource
                                     HTML);
                                 }
 
-                                /** @var Artwork $record */
                                 $imageUrl = $rawUrl;
                                 if (str_starts_with($imageUrl, '/')) {
                                     $imageUrl = request()->getSchemeAndHttpHost().$imageUrl;
@@ -123,12 +162,30 @@ class ArtworkResource extends Resource
                                     $imageUrl = str_replace('localhost', request()->getHost(), $imageUrl);
                                 }
 
-                                $title = e($record->title ?? $record->alt_text ?? 'Untitled Artwork');
-                                $categoryName = e($record->category->name ?? 'Gallery Piece');
-                                $description = e($record->description ?? '');
-                                $viewCount = number_format((float) $record->view_count);
-                                $likeCount = number_format((float) $record->like_count);
-                                $size = e($media !== null ? $media->human_readable_size : '');
+                                $titleValue = $get('title') ?? ($record !== null ? $record->title : null) ?? $get('alt_text') ?? ($record !== null ? $record->alt_text : null) ?? 'Untitled Artwork';
+                                $categoryId = $get('category_id') ?? ($record !== null ? $record->category_id : null);
+                                $categoryName = 'Gallery Piece';
+                                if ($categoryId) {
+                                    $category = Category::query()->find($categoryId);
+                                    if ($category instanceof Category) {
+                                        $categoryName = $category->name;
+                                    }
+                                }
+                                $descValue = $get('description') ?? ($record !== null ? $record->description : null) ?? '';
+                                $viewCount = number_format((float) ($record !== null ? $record->view_count : 0));
+                                $likeCount = number_format((float) ($record !== null ? $record->like_count : 0));
+
+                                $formattedSize = '';
+                                if ($fileSize) {
+                                    $formattedSize = $fileSize >= 1048576
+                                        ? number_format($fileSize / 1048576, 2).' MB'
+                                        : number_format($fileSize / 1024, 2).' KB';
+                                }
+
+                                $title = e($titleValue);
+                                $categoryName = e($categoryName);
+                                $description = e($descValue);
+                                $size = e($formattedSize);
                                 $src = e($imageUrl);
 
                                 $descBlock = $description !== ''

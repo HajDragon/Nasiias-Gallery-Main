@@ -50,9 +50,7 @@ class ProcessArtworkImageActionTest extends TestCase
 
         // Assert
         $this->assertTrue($media->hasGeneratedConversion('compressed'));
-        $this->assertTrue($media->hasGeneratedConversion('main'));
         $this->assertTrue($media->hasGeneratedConversion('thumbnail'));
-        $this->assertTrue($media->hasGeneratedConversion('thumb'));
     }
 
     public function test_single_file_collection_replaces_previous_image(): void
