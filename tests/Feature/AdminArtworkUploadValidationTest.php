@@ -93,6 +93,40 @@ class AdminArtworkUploadValidationTest extends TestCase
         $this->assertFalse($this->passesValidation($file));
     }
 
+    public function test_image_bomb_with_huge_dimensions_is_rejected(): void
+    {
+        // A ~40-byte PNG whose IHDR declares 9000x9000: a decompression bomb
+        // that would exhaust memory if decoded at process time.
+        $ihdr = pack('N2', 9000, 9000).chr(8).chr(2).chr(0).chr(0).chr(0);
+        $png = "\x89PNG\r\n\x1a\n".pack('N', 13).'IHDR'.$ihdr.pack('N', 0);
+        $file = UploadedFile::fake()->createWithContent('bomb.png', $png);
+
+        $errors = Validator::make(
+            ['image' => $file],
+            ['image' => [new ValidArtworkImage]],
+        )->errors();
+
+        $this->assertStringContainsString('dimensions', $errors->first());
+    }
+
+    public function test_error_messages_are_resolved_from_translation_keys(): void
+    {
+        $file = UploadedFile::fake()->createWithContent('shell.jpg', '<?php phpinfo(); ?>');
+
+        $errors = Validator::make(
+            ['image' => $file],
+            ['image' => [new ValidArtworkImage]],
+        )->errors();
+
+        // The raw translation key must never surface to the user.
+        $this->assertStringNotContainsString('validation.artwork_image', $errors->first());
+        // And the message must come from lang/en/validation.php.
+        $this->assertSame(
+            'The image must be a JPEG, PNG, WebP, or GIF image.',
+            $errors->first(),
+        );
+    }
+
     public function test_upload_form_rejects_disguised_file_and_does_not_create_artwork(): void
     {
         // Arrange
