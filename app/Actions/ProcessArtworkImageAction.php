@@ -1,0 +1,47 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Actions;
+
+use App\Models\Artwork;
+use Illuminate\Http\UploadedFile;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+
+class ProcessArtworkImageAction
+{
+    /**
+     * Process and attach an uploaded image to the artwork.
+     */
+    public function execute(Artwork $artwork, UploadedFile $file, string $collection = 'images'): Media
+    {
+        if (! $artwork->exists) {
+            $artwork->save();
+        }
+
+        $media = $artwork->addMedia($file)
+            ->toMediaCollection($collection);
+
+        $artwork->forceFill([
+            'image_url' => $media->getUrl(),
+        ])->save();
+
+        return $media;
+    }
+
+    /**
+     * Handle the action.
+     */
+    public function handle(Artwork $artwork, UploadedFile $file, string $collection = 'images'): Media
+    {
+        return $this->execute($artwork, $file, $collection);
+    }
+
+    /**
+     * Invoke the action as an invokable class.
+     */
+    public function __invoke(Artwork $artwork, UploadedFile $file, string $collection = 'images'): Media
+    {
+        return $this->execute($artwork, $file, $collection);
+    }
+}
