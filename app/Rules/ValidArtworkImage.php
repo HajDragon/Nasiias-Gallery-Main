@@ -22,9 +22,6 @@ use Illuminate\Http\UploadedFile;
  */
 class ValidArtworkImage implements ValidationRule
 {
-    /**
-     * Maximum allowed upload size in kilobytes (10 MB).
-     */
     public const MAX_SIZE_KB = 10240;
 
     /**
