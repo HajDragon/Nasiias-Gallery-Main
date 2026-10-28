@@ -6,9 +6,15 @@ export default function Hero() {
     return (
         <section
             className="relative flex h-screen items-center justify-center overflow-hidden bg-[#0a0a14]"
-            onMouseMove={(event) =>
-                setPos({ x: event.clientX, y: event.clientY })
-            }
+            onMouseMove={(event) => {
+                // clientX/Y are viewport-based; the gradient is painted in
+                // section-local coordinates — subtract the section origin
+                const rect = event.currentTarget.getBoundingClientRect();
+                setPos({
+                    x: event.clientX - rect.left,
+                    y: event.clientY - rect.top,
+                });
+            }}
         >
             {/* Blue cursor glow — z-0, BEHIND the card, so the opaque red box
           blocks its center and light only spills out past the edges */}

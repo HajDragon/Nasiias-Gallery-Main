@@ -316,52 +316,76 @@ export function createLiveOrb(
   })
   if (!gl) return null
 
-  const vs = compile(gl, gl.VERTEX_SHADER, VERT)
-  const fs = compile(gl, gl.FRAGMENT_SHADER, FRAG)
-  if (!vs || !fs) return null
+  let vs: WebGLShader | null = null
+  let fs: WebGLShader | null = null
+  let program: WebGLProgram | null = null
+  let buf: WebGLBuffer | null = null
+  let uResolution: WebGLUniformLocation | null = null
+  let uTime: WebGLUniformLocation | null = null
+  let uSpeed: WebGLUniformLocation | null = null
+  let uLook: WebGLUniformLocation | null = null
+  let uBlink: WebGLUniformLocation | null = null
+  let uMode: WebGLUniformLocation | null = null
+  let uBody: WebGLUniformLocation | null = null
+  let uEye: WebGLUniformLocation | null = null
+  let uC1: WebGLUniformLocation | null = null
+  let uC2: WebGLUniformLocation | null = null
+  let uC3: WebGLUniformLocation | null = null
+  let glOk = true
 
-  const program = gl.createProgram()
-  if (!program) return null
-  gl.attachShader(program, vs)
-  gl.attachShader(program, fs)
-  gl.linkProgram(program)
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    if (isDev()) {
-      console.warn(
-        "LiveOrb: program failed to link\n",
-        gl.getProgramInfoLog(program),
-      )
+  // (Re)build all GL resources — runs at setup and again on webglcontextrestored
+  const initResources = (): boolean => {
+    vs = compile(gl, gl.VERTEX_SHADER, VERT)
+    fs = compile(gl, gl.FRAGMENT_SHADER, FRAG)
+    if (!vs || !fs) return false
+
+    program = gl.createProgram()
+    if (!program) return false
+    gl.attachShader(program, vs)
+    gl.attachShader(program, fs)
+    gl.linkProgram(program)
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      if (isDev()) {
+        console.warn(
+          "LiveOrb: program failed to link\n",
+          gl.getProgramInfoLog(program),
+        )
+      }
+      return false
     }
-    return null
+    gl.useProgram(program)
+
+    buf = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf)
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
+      gl.STATIC_DRAW,
+    )
+    const loc = gl.getAttribLocation(program, "a_position")
+    gl.enableVertexAttribArray(loc)
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0)
+
+    uResolution = gl.getUniformLocation(program, "u_resolution")
+    uTime = gl.getUniformLocation(program, "u_time")
+    uSpeed = gl.getUniformLocation(program, "u_speed")
+    uLook = gl.getUniformLocation(program, "u_look")
+    uBlink = gl.getUniformLocation(program, "u_blink")
+    uMode = gl.getUniformLocation(program, "u_mode")
+    uBody = gl.getUniformLocation(program, "u_body")
+    uEye = gl.getUniformLocation(program, "u_eye")
+    uC1 = gl.getUniformLocation(program, "u_c1")
+    uC2 = gl.getUniformLocation(program, "u_c2")
+    uC3 = gl.getUniformLocation(program, "u_c3")
+
+    gl.enable(gl.BLEND)
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+    gl.viewport(0, 0, canvas.width, canvas.height)
+    return true
   }
-  gl.useProgram(program)
+
+  if (!initResources()) return null
   options.onHasGl?.(true)
-
-  const buf = gl.createBuffer()
-  gl.bindBuffer(gl.ARRAY_BUFFER, buf)
-  gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
-    gl.STATIC_DRAW,
-  )
-  const loc = gl.getAttribLocation(program, "a_position")
-  gl.enableVertexAttribArray(loc)
-  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0)
-
-  const uResolution = gl.getUniformLocation(program, "u_resolution")
-  const uTime = gl.getUniformLocation(program, "u_time")
-  const uSpeed = gl.getUniformLocation(program, "u_speed")
-  const uLook = gl.getUniformLocation(program, "u_look")
-  const uBlink = gl.getUniformLocation(program, "u_blink")
-  const uMode = gl.getUniformLocation(program, "u_mode")
-  const uBody = gl.getUniformLocation(program, "u_body")
-  const uEye = gl.getUniformLocation(program, "u_eye")
-  const uC1 = gl.getUniformLocation(program, "u_c1")
-  const uC2 = gl.getUniformLocation(program, "u_c2")
-  const uC3 = gl.getUniformLocation(program, "u_c3")
-
-  gl.enable(gl.BLEND)
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
   let raf = 0
   let running = true
@@ -409,6 +433,44 @@ export function createLiveOrb(
   const ro = new ResizeObserver(resize)
   if (canvas.parentElement) ro.observe(canvas.parentElement)
 
+  // Pause the draw loop while the orb can't be seen: tab hidden, scrolled
+  // out of the viewport, or an ancestor hidden (e.g. opacity 0 / display none)
+  let inView = true
+  const io = new IntersectionObserver((entries) => {
+    inView = entries[0]?.isIntersecting ?? true
+  })
+  io.observe(canvas)
+
+  const isShown = () => {
+    for (let el: Element | null = canvas; el; el = el.parentElement) {
+      const style = window.getComputedStyle(el)
+      if (
+        style.display === "none" ||
+        style.visibility === "hidden" ||
+        parseFloat(style.opacity) === 0
+      ) {
+        return false
+      }
+    }
+    return true
+  }
+
+  const onContextLost = (e: Event) => {
+    // preventDefault tells the browser we can handle a restore
+    e.preventDefault()
+    glOk = false
+    options.onHasGl?.(false)
+  }
+  const onContextRestored = () => {
+    glOk = initResources()
+    if (glOk) {
+      resize()
+      options.onHasGl?.(true)
+    }
+  }
+  canvas.addEventListener("webglcontextlost", onContextLost)
+  canvas.addEventListener("webglcontextrestored", onContextRestored)
+
   const mqReduce = window.matchMedia("(prefers-reduced-motion: reduce)")
   const onReduce = () => {
     reduce = mqReduce.matches
@@ -437,6 +499,10 @@ export function createLiveOrb(
 
   const tick = (now: number) => {
     if (!running) return
+    if (!glOk || document.hidden || !inView || !isShown()) {
+      raf = requestAnimationFrame(tick)
+      return
+    }
 
     const resolved = resolveVariant(
       options.variant,
@@ -524,6 +590,9 @@ export function createLiveOrb(
       running = false
       cancelAnimationFrame(raf)
       ro.disconnect()
+      io.disconnect()
+      canvas.removeEventListener("webglcontextlost", onContextLost)
+      canvas.removeEventListener("webglcontextrestored", onContextRestored)
       mqReduce.removeEventListener("change", onReduce)
       window.removeEventListener("pointermove", onMove)
       options.onHasGl?.(false)

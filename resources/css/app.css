@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '../../public/css/fonts.css';
 @import '../../vendor/filament/support/resources/css/index.css';
 @import '../../vendor/filament/actions/resources/css/index.css';
 @import '../../vendor/filament/forms/resources/css/index.css';

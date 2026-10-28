@@ -291,9 +291,22 @@ export default function IntroAnimation({
   }, [stage])
   const [orbitPaused, setOrbitPaused] = useState(false)
   const [orbitAngle, setOrbitAngle] = useState(0)
+  const [reduceMotion, setReduceMotion] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  )
 
   useEffect(() => {
-    if (stage !== 1 || introPhase !== "circle" || orbitPaused) return
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const onChange = () => setReduceMotion(mq.matches)
+    mq.addEventListener("change", onChange)
+    return () => mq.removeEventListener("change", onChange)
+  }, [])
+
+  useEffect(() => {
+    if (stage !== 1 || introPhase !== "circle" || orbitPaused || reduceMotion)
+      return
     let raf = 0
     let last = performance.now()
     const tick = (now: number) => {
@@ -303,7 +316,7 @@ export default function IntroAnimation({
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [stage, introPhase, orbitPaused])
+  }, [stage, introPhase, orbitPaused, reduceMotion])
   const morphProgress = useTransform(virtualScroll, [0, 600], [0, 1])
   const smoothMorph = useSpring(morphProgress, { stiffness: 90, damping: 22 })
   const scrollRotate = useTransform(virtualScroll, [600, 3000], [0, 360])
@@ -412,6 +425,7 @@ export default function IntroAnimation({
                 : { opacity: 0 }
             }
             transition={{ duration: 1, delay: 0.2 }}
+            disabled={!(introPhase === "circle" && morphValue < 0.5)}
             onClick={(event) => {
               event.stopPropagation()
               advanceStage()
@@ -454,6 +468,7 @@ export default function IntroAnimation({
           </p>
           <button
             type="button"
+            disabled={stage !== 2}
             onClick={(event) => {
               event.stopPropagation()
               advanceStage()
@@ -506,8 +521,10 @@ export default function IntroAnimation({
               const arcApexY = containerSize.height * (isMobile ? 0.35 : 0.25)
               const arcCenterY = arcApexY + arcRadius
               const spreadAngle = isMobile ? 100 : 130
-              const startAngle = -90 - spreadAngle / 2
-              const step = spreadAngle / (TOTAL_IMAGES - 1)
+              // Single item: center it on top — a one-element spread would divide by zero (step → Infinity, i*step → NaN)
+              const startAngle = TOTAL_IMAGES > 1 ? -90 - spreadAngle / 2 : -90
+              const step =
+                TOTAL_IMAGES > 1 ? spreadAngle / (TOTAL_IMAGES - 1) : 0
               const scrollProgress = Math.min(Math.max(rotateValue / 360, 0), 1)
               const maxRotation = spreadAngle * 0.8
               const boundedRotation = -scrollProgress * maxRotation
