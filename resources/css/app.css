@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '../../public/css/fonts.css';
 @import '../../vendor/filament/support/resources/css/index.css';
 @import '../../vendor/filament/actions/resources/css/index.css';
 @import '../../vendor/filament/forms/resources/css/index.css';
@@ -14,11 +15,50 @@
 @source '../**/*.js';
 @source '../**/*.vue';
 
+/* Design palette — ported from nastiia's gallery handoff (ontwerp-overdracht.html) */
+:root {
+    --main-canvas: #eef3fb;
+    --main-surface: #ffffff;
+    --main-ink: #1e2533;
+    --main-muted: #4c5a70;
+    --main-blue: #2563eb;
+    --main-on-blue: #ffffff;
+    --main-line: #ccd8ec;
+    --main-chip: #dce8fb;
+    --main-red: #c0392b;
+}
+
+.dark {
+    --main-canvas: #141b2b;
+    --main-surface: #1e2533;
+    --main-ink: #e9eefb;
+    --main-muted: #aab8d2;
+    --main-blue: #a8c7e0;
+    --main-on-blue: #101828;
+    --main-line: #35415c;
+    --main-chip: #273149;
+    /* --main-red: handoff defines no dark error color */
+}
+
 @theme {
+    /* Fonts ported from nastiia's gallery (@font-face in public/css/nastia.css) */
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        'Libron', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
+    --font-display: 'Magilio', Georgia, serif;
+}
+
+@theme inline {
+    --color-main-canvas: var(--main-canvas);
+    --color-main-surface: var(--main-surface);
+    --color-main-ink: var(--main-ink);
+    --color-main-muted: var(--main-muted);
+    --color-main-blue: var(--main-blue);
+    --color-main-on-blue: var(--main-on-blue);
+    --color-main-line: var(--main-line);
+    --color-main-chip: var(--main-chip);
+    --color-main-red: var(--main-red);
 }
 
 @variant dark (&:where(.dark, .dark *));
