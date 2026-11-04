@@ -7,39 +7,41 @@ namespace App\Actions;
 use App\Models\Artwork;
 use App\Models\ArtworkView;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
+use Throwable;
 
 class RecordArtworkViewAction
 {
     /**
      * Record a view and update the artwork's view count.
      */
-    public function execute(Artwork $artwork, ?User $user = null): ArtworkView
+    public function __invoke(Artwork $artwork, ?User $user = null): ?ArtworkView
     {
-        return $artwork->getConnection()->transaction(function () use ($artwork, $user): ArtworkView {
-            $view = $artwork->artworkViews()->create([
-                'user_id' => $user?->id,
-                'viewed_at' => now(),
-            ]);
+        $request = request();
+        $visitor = $user !== null
+            ? 'user:'.$user->id
+            : 'guest:'.hash('sha256', $request->hasSession() ? $request->session()->getId() : (string) $request->ip());
+        $key = 'artwork-view:'.$artwork->id.':'.$visitor;
 
-            $artwork->increment('view_count');
+        if (! Cache::add($key, true, 60)) {
+            return null;
+        }
 
-            return $view;
-        });
-    }
+        try {
+            return $artwork->getConnection()->transaction(function () use ($artwork, $user): ArtworkView {
+                $view = $artwork->artworkViews()->create([
+                    'user_id' => $user?->id,
+                    'viewed_at' => now(),
+                ]);
 
-    /**
-     * Handle the action.
-     */
-    public function handle(Artwork $artwork, ?User $user = null): ArtworkView
-    {
-        return $this->execute($artwork, $user);
-    }
+                $artwork->increment('view_count');
 
-    /**
-     * Invoke the action as an invokable class.
-     */
-    public function __invoke(Artwork $artwork, ?User $user = null): ArtworkView
-    {
-        return $this->execute($artwork, $user);
+                return $view;
+            });
+        } catch (Throwable $exception) {
+            Cache::forget($key);
+
+            throw $exception;
+        }
     }
 }

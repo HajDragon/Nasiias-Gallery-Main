@@ -12,10 +12,11 @@ class ToggleLikeAction
     /**
      * Toggle the user's like and return whether the artwork is now liked.
      */
-    public function execute(User $user, Artwork $artwork): bool
+    public function __invoke(User $user, Artwork $artwork): bool
     {
         return $artwork->getConnection()->transaction(function () use ($user, $artwork): bool {
             $artwork->newQuery()->whereKey($artwork->getKey())->lockForUpdate()->firstOrFail();
+            $artwork->refresh();
 
             $like = $artwork->likes()->where('user_id', $user->id)->first();
 
@@ -31,21 +32,5 @@ class ToggleLikeAction
 
             return true;
         });
-    }
-
-    /**
-     * Handle the action.
-     */
-    public function handle(User $user, Artwork $artwork): bool
-    {
-        return $this->execute($user, $artwork);
-    }
-
-    /**
-     * Invoke the action as an invokable class.
-     */
-    public function __invoke(User $user, Artwork $artwork): bool
-    {
-        return $this->execute($user, $artwork);
     }
 }

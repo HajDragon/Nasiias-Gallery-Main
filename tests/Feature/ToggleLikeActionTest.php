@@ -18,7 +18,7 @@ class ToggleLikeActionTest extends TestCase
         $user = User::factory()->create();
         $artwork = Artwork::factory()->create();
 
-        $liked = (new ToggleLikeAction)->execute($user, $artwork);
+        $liked = (new ToggleLikeAction)($user, $artwork);
 
         $this->assertTrue($liked);
         $this->assertDatabaseHas('likes', [
@@ -35,7 +35,7 @@ class ToggleLikeActionTest extends TestCase
         Like::factory()->create(['user_id' => $user->id, 'artwork_id' => $artwork->id]);
         $otherLike = Like::factory()->create(['artwork_id' => $artwork->id]);
 
-        $liked = (new ToggleLikeAction)->handle($user, $artwork);
+        $liked = (new ToggleLikeAction)($user, $artwork);
 
         $this->assertFalse($liked);
         $this->assertDatabaseMissing('likes', [
@@ -57,6 +57,25 @@ class ToggleLikeActionTest extends TestCase
         $this->assertTrue($action($user, $artwork));
 
         $this->assertSame(1, $artwork->likes()->count());
+        $this->assertSame(1, $artwork->fresh()->like_count);
+    }
+
+    public function test_stale_model_count_is_synchronized_when_adding_and_removing_a_like(): void
+    {
+        $user = User::factory()->create();
+        $artwork = Artwork::factory()->create();
+        Like::factory()->create(['artwork_id' => $artwork->id]);
+        $artwork->newQuery()->whereKey($artwork->id)->update(['like_count' => 1]);
+        $action = new ToggleLikeAction;
+
+        $this->assertTrue($action($user, $artwork));
+        $this->assertSame(2, $artwork->like_count);
+        $this->assertSame(2, $artwork->fresh()->like_count);
+
+        $artwork->like_count = 0;
+
+        $this->assertFalse($action($user, $artwork));
+        $this->assertSame(1, $artwork->like_count);
         $this->assertSame(1, $artwork->fresh()->like_count);
     }
 }
