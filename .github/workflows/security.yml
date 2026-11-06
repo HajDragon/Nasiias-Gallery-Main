@@ -1,0 +1,151 @@
+name: Security
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly on Monday at 02:00
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  composer-audit:
+    name: Composer Audit (SCA)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-progress --no-interaction
+
+      - name: Run Composer Audit
+        run: composer audit --format=json --no-dev > composer-audit.json || true
+
+      - name: Upload Composer Audit Report
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a6839fbde0e093274888f43c # v4.6.1
+        with:
+          name: composer-audit-report
+          path: composer-audit.json
+          retention-days: 30
+
+  npm-audit:
+    name: NPM Audit (SCA)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run NPM Audit
+        run: npm audit --json > npm-audit.json || true
+
+      - name: Upload NPM Audit Report
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a6839fbde0e093274888f43c # v4.6.1
+        with:
+          name: npm-audit-report
+          path: npm-audit.json
+          retention-days: 30
+
+  phpstan:
+    name: PHPStan (SAST)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-progress --no-interaction
+
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --error-format=github
+
+  semgrep:
+    name: Semgrep (SAST + Secrets)
+    runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run Semgrep
+        run: semgrep ci --config=p/laravel --config=p/secrets --config=p/owasp-top-ten --error --json=semgrep-results.json || true
+
+      - name: Upload Semgrep Results
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a6839fbde0e093274888f43c # v4.6.1
+        with:
+          name: semgrep-results
+          path: semgrep-results.json
+          retention-days: 30
+
+  security-tests:
+    name: Security Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install PHP dependencies
+        run: composer install --no-progress --no-interaction
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Setup Application
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan migrate --force
+
+      - name: Run Security Tests
+        run: php artisan test --filter=Security
