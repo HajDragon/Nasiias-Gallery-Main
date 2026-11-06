@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Security;
 
-use App\Models\User;
+use App\Enums\UserRole;
 use App\Models\Artwork;
 use App\Models\Category;
-use App\Enums\UserRole;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
@@ -17,6 +17,7 @@ class FileUploadTest extends TestCase
     use RefreshDatabase;
 
     protected User $admin;
+
     protected Category $category;
 
     protected function setUp(): void
@@ -28,6 +29,7 @@ class FileUploadTest extends TestCase
 
     public function test_invalid_mime_type_rejected(): void
     {
+        // Arrange
         $invalidFiles = [
             'test.php' => 'application/x-php',
             'test.exe' => 'application/x-msdownload',
@@ -45,6 +47,7 @@ class FileUploadTest extends TestCase
         foreach ($invalidFiles as $filename => $mimeType) {
             $file = UploadedFile::fake()->create($filename, 100, $mimeType);
 
+            // Act
             $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
                 'title' => 'Test',
                 'category_id' => $this->category->id,
@@ -52,13 +55,14 @@ class FileUploadTest extends TestCase
                 'file' => $file,
             ]);
 
-            // Should be rejected by ValidArtworkImage rule
+            // Assert: Should be rejected by ValidArtworkImage rule
             $response->assertSessionHasErrors('file');
         }
     }
 
     public function test_valid_mime_types_accepted(): void
     {
+        // Arrange
         $validFiles = [
             'test.jpg' => 'image/jpeg',
             'test.jpeg' => 'image/jpeg',
@@ -70,6 +74,7 @@ class FileUploadTest extends TestCase
         foreach ($validFiles as $filename => $mimeType) {
             $file = UploadedFile::fake()->image($filename, 800, 600);
 
+            // Act
             $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
                 'title' => 'Test',
                 'category_id' => $this->category->id,
@@ -77,7 +82,7 @@ class FileUploadTest extends TestCase
                 'file' => $file,
             ]);
 
-            // Should be accepted (302 redirect on success)
+            // Assert: Should be accepted (302 redirect on success)
             $this->assertNotEquals(500, $response->status());
             if ($response->status() === 302) {
                 $this->assertDatabaseHas('artworks', ['title' => 'Test']);
@@ -87,9 +92,10 @@ class FileUploadTest extends TestCase
 
     public function test_oversize_file_rejected(): void
     {
-        // Create file larger than 10MB (MAX_SIZE_KB = 10240)
+        // Arrange: Create file larger than 10MB (MAX_SIZE_KB = 10240)
         $oversizeFile = UploadedFile::fake()->create('large.jpg', 11 * 1024, 'image/jpeg');
 
+        // Act
         $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
             'title' => 'Test',
             'category_id' => $this->category->id,
@@ -97,14 +103,16 @@ class FileUploadTest extends TestCase
             'file' => $oversizeFile,
         ]);
 
+        // Assert
         $response->assertSessionHasErrors('file');
     }
 
     public function test_file_at_max_size_accepted(): void
     {
-        // Create file at exactly 10MB
+        // Arrange: Create file at exactly 10MB
         $maxSizeFile = UploadedFile::fake()->create('max.jpg', 10240, 'image/jpeg');
 
+        // Act
         $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
             'title' => 'Test',
             'category_id' => $this->category->id,
@@ -112,24 +120,18 @@ class FileUploadTest extends TestCase
             'file' => $maxSizeFile,
         ]);
 
-        // Should be accepted (at boundary)
+        // Assert: Should be accepted (at boundary)
         $this->assertNotEquals(500, $response->status());
     }
 
     public function test_polyglot_file_rejected(): void
     {
-        // Polyglot files that are valid as multiple formats
-        // e.g., GIFAR (GIF + JAR), Phar-JPEG, etc.
-        // We test by creating files with fake content that might pass initial checks
-
-        // Test file with PHP code appended to image
-        $phpInImage = "GIF89a" . str_repeat("x", 100) . "<?php system('id'); ?>";
-        $file = UploadedFile::fake()->create('polyglot.jpg', strlen($phpInImage), 'image/jpeg');
+        // Arrange: Polyglot files that are valid as multiple formats
         // Note: UploadedFile::fake()->create doesn't allow custom content easily
         // This test documents the expectation that ValidArtworkImage catches this via getimagesize()
-
         $file = UploadedFile::fake()->image('test.jpg', 100, 100);
 
+        // Act
         $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
             'title' => 'Test',
             'category_id' => $this->category->id,
@@ -137,16 +139,17 @@ class FileUploadTest extends TestCase
             'file' => $file,
         ]);
 
-        // Valid image should pass
+        // Assert: Valid image should pass
         $this->assertNotEquals(500, $response->status());
     }
 
     public function test_corrupt_image_rejected(): void
     {
-        // Create a file with image extension but corrupt content
-        $corruptContent = "This is not an image at all";
+        // Arrange: Create a file with image extension but corrupt content
+        $corruptContent = 'This is not an image at all';
         $file = UploadedFile::fake()->create('corrupt.jpg', strlen($corruptContent), 'image/jpeg');
 
+        // Act
         $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
             'title' => 'Test',
             'category_id' => $this->category->id,
@@ -154,19 +157,16 @@ class FileUploadTest extends TestCase
             'file' => $file,
         ]);
 
-        // ValidArtworkImage should reject via getimagesize()
+        // Assert: ValidArtworkImage should reject via getimagesize()
         $response->assertSessionHasErrors('file');
     }
 
     public function test_image_dimension_limits_enforced(): void
     {
-        // ValidArtworkImage::MAX_DIMENSION_PX = 8000
-        // Creating an image with dimensions > 8000 should be rejected
-        // Note: Laravel's fake image creates actual image data, so we test the boundary
-
-        // Test normal dimensions (should pass)
+        // Arrange: Test normal dimensions (should pass)
         $file = UploadedFile::fake()->image('normal.jpg', 1920, 1080);
 
+        // Act
         $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
             'title' => 'Test',
             'category_id' => $this->category->id,
@@ -174,15 +174,17 @@ class FileUploadTest extends TestCase
             'file' => $file,
         ]);
 
+        // Assert
         $this->assertNotEquals(500, $response->status());
     }
 
     public function test_extension_mime_mismatch_rejected(): void
     {
-        // File with .jpg extension but PNG content (or vice versa)
+        // Arrange: File with .jpg extension but PNG content (or vice versa)
         // ValidArtworkImage checks both extension and actual MIME type
         $file = UploadedFile::fake()->image('mismatch.jpg', 100, 100);
 
+        // Act
         $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
             'title' => 'Test',
             'category_id' => $this->category->id,
@@ -190,12 +192,13 @@ class FileUploadTest extends TestCase
             'file' => $file,
         ]);
 
-        // Valid image should pass (fake creates valid images)
+        // Assert: Valid image should pass (fake creates valid images)
         $this->assertNotEquals(500, $response->status());
     }
 
     public function test_executable_file_rejected(): void
     {
+        // Arrange
         $executableFiles = [
             'script.php' => '<?php echo "hacked"; ?>',
             'script.phtml' => '<?php echo "hacked"; ?>',
@@ -209,6 +212,7 @@ class FileUploadTest extends TestCase
         foreach ($executableFiles as $filename => $content) {
             $file = UploadedFile::fake()->create($filename, strlen($content), 'application/x-php');
 
+            // Act
             $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
                 'title' => 'Test',
                 'category_id' => $this->category->id,
@@ -216,14 +220,17 @@ class FileUploadTest extends TestCase
                 'file' => $file,
             ]);
 
+            // Assert
             $response->assertSessionHasErrors('file');
         }
     }
 
     public function test_file_upload_stored_in_correct_location(): void
     {
+        // Arrange
         $file = UploadedFile::fake()->image('test-storage.jpg', 800, 600);
 
+        // Act
         $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
             'title' => 'Storage Test',
             'category_id' => $this->category->id,
@@ -231,6 +238,7 @@ class FileUploadTest extends TestCase
             'file' => $file,
         ]);
 
+        // Assert
         if ($response->status() === 302) {
             $artwork = Artwork::where('title', 'Storage Test')->first();
             $this->assertNotNull($artwork);

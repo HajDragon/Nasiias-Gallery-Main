@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Security;
 
-use App\Models\User;
+use App\Enums\UserRole;
 use App\Models\Artwork;
 use App\Models\Category;
-use App\Enums\UserRole;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,17 +17,18 @@ class ArtworkAuthorizationTest extends TestCase
 
     public function test_regular_user_cannot_access_artwork_crud_in_admin(): void
     {
+        // Arrange
         $user = User::factory()->create(['role' => UserRole::User]);
 
-        // List
+        // Act & Assert: List
         $response = $this->actingAs($user)->get('/admin/artworks');
         $response->assertStatus(404);
 
-        // Create
+        // Act & Assert: Create
         $response = $this->actingAs($user)->get('/admin/artworks/create');
         $response->assertStatus(404);
 
-        // Edit (if any artwork exists)
+        // Act & Assert: Edit
         $artwork = Artwork::factory()->create();
         $response = $this->actingAs($user)->get("/admin/artworks/{$artwork->id}/edit");
         $response->assertStatus(404);
@@ -35,18 +36,19 @@ class ArtworkAuthorizationTest extends TestCase
 
     public function test_admin_can_manage_all_artworks(): void
     {
+        // Arrange
         $admin = User::factory()->create(['role' => UserRole::Admin]);
         $category = Category::factory()->create();
 
-        // Create
+        // Act & Assert: Create
         $response = $this->actingAs($admin)->get('/admin/artworks/create');
         $response->assertOk();
 
-        // List
+        // Act & Assert: List
         $response = $this->actingAs($admin)->get('/admin/artworks');
         $response->assertOk();
 
-        // Edit
+        // Act & Assert: Edit
         $artwork = Artwork::factory()->create(['category_id' => $category->id]);
         $response = $this->actingAs($admin)->get("/admin/artworks/{$artwork->id}/edit");
         $response->assertOk();
@@ -54,40 +56,49 @@ class ArtworkAuthorizationTest extends TestCase
 
     public function test_super_admin_has_full_access(): void
     {
+        // Arrange
         $superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin]);
 
+        // Act
         $response = $this->actingAs($superAdmin)->get('/admin/artworks');
+
+        // Assert
         $response->assertOk();
     }
 
     public function test_artwork_policy_enforced_on_delete(): void
     {
+        // Arrange
         $admin = User::factory()->create(['role' => UserRole::Admin]);
         $artwork = Artwork::factory()->create();
 
-        // Admin should be able to delete
+        // Act
         $response = $this->actingAs($admin)->delete("/admin/artworks/{$artwork->id}");
-        // Filament uses a different route for delete, typically via Livewire
-        // This test verifies the policy is checked
+
+        // Assert: Policy allows admin to delete
         $this->assertTrue($admin->can('delete', $artwork));
     }
 
     public function test_regular_user_cannot_delete_artwork(): void
     {
+        // Arrange
         $user = User::factory()->create(['role' => UserRole::User]);
         $artwork = Artwork::factory()->create();
 
-        // Regular user cannot access admin panel at all
+        // Act: Regular user cannot access admin panel at all
         $response = $this->actingAs($user)->delete("/admin/artworks/{$artwork->id}");
+
+        // Assert
         $response->assertStatus(404);
     }
 
     public function test_artwork_form_validation_enforced(): void
     {
+        // Arrange
         $admin = User::factory()->create(['role' => UserRole::Admin]);
         $category = Category::factory()->create();
 
-        // Test title required
+        // Act & Assert: Test title required
         $response = $this->actingAs($admin)->from('/admin/artworks/create')->post('/admin/artworks', [
             'title' => '',
             'category_id' => $category->id,
@@ -95,7 +106,7 @@ class ArtworkAuthorizationTest extends TestCase
         ]);
         $response->assertSessionHasErrors('title');
 
-        // Test category required
+        // Act & Assert: Test category required
         $response = $this->actingAs($admin)->from('/admin/artworks/create')->post('/admin/artworks', [
             'title' => 'Test',
             'category_id' => '',
