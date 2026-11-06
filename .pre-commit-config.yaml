@@ -2,76 +2,76 @@
 # Install: pipx install pre-commit && pre-commit install
 
 repos:
-  # PHPStan with security rules
-  - repo: local
-    hooks:
-      - id: phpstan
-        name: PHPStan (SAST + Security)
-        entry: vendor/bin/phpstan analyse --error-format=table
-        language: system
-        types: [php]
-        require_serial: true
-        pass_filenames: false
-        always_run: true
+    # PHPStan with security rules
+    - repo: local
+      hooks:
+          - id: phpstan
+            name: PHPStan (SAST + Security)
+            entry: vendor/bin/phpstan analyse --error-format=table
+            language: system
+            types: [php]
+            require_serial: true
+            pass_filenames: false
+            always_run: true
 
-  # Laravel Pint (code style)
-  - repo: local
-    hooks:
-      - id: pint
-        name: Laravel Pint
-        entry: vendor/bin/pint --parallel --test
-        language: system
-        types: [php]
-        require_serial: true
-        pass_filenames: false
-        always_run: true
+    # Laravel Pint (code style)
+    - repo: local
+      hooks:
+          - id: pint
+            name: Laravel Pint
+            entry: vendor/bin/pint --parallel --test
+            language: system
+            types: [php]
+            require_serial: true
+            pass_filenames: false
+            always_run: true
 
-  # Composer Audit (SCA)
-  - repo: local
-    hooks:
-      - id: composer-audit
-        name: Composer Audit (SCA)
-        entry: composer audit --no-dev
-        language: system
-        types: [php]
-        require_serial: true
-        pass_filenames: false
-        always_run: true
+    # Composer Audit (SCA)
+    - repo: local
+      hooks:
+          - id: composer-audit
+            name: Composer Audit (SCA)
+            entry: composer audit --no-dev
+            language: system
+            types: [php]
+            require_serial: true
+            pass_filenames: false
+            always_run: true
 
-  # NPM Audit (SCA)
-  - repo: local
-    hooks:
-      - id: npm-audit
-        name: NPM Audit (SCA)
-        entry: npm audit --audit-level=high
-        language: system
-        types: [javascript, typescript]
-        require_serial: true
-        pass_filenames: false
-        always_run: true
+    # NPM Audit (SCA)
+    - repo: local
+      hooks:
+          - id: npm-audit
+            name: NPM Audit (SCA)
+            entry: npm audit --audit-level=high
+            language: system
+            types: [javascript, typescript]
+            require_serial: true
+            pass_filenames: false
+            always_run: true
 
-  # Semgrep Secrets Scan
-  - repo: https://github.com/returntocorp/semgrep
-    rev: v1.95.0
-    hooks:
-      - id: semgrep
-        name: Semgrep Secrets Scan
-        entry: semgrep scan --config=p/secrets --error
-        language: system
-        types: [php, javascript, typescript, yaml, json]
-        require_serial: true
-        pass_filenames: false
-        always_run: true
+    # Semgrep Secrets Scan
+    - repo: https://github.com/returntocorp/semgrep
+      rev: v1.95.0
+      hooks:
+          - id: semgrep
+            name: Semgrep Secrets Scan
+            entry: semgrep scan --config=p/secrets --error
+            language: system
+            types: [php, javascript, typescript, yaml, json]
+            require_serial: true
+            pass_filenames: false
+            always_run: true
 
-  # Semgrep Laravel Security Rules
-  - repo: https://github.com/returntocorp/semgrep
-    rev: v1.95.0
-    hooks:
-      - id: semgrep-laravel
-        name: Semgrep Laravel Security
-        entry: semgrep scan --config=p/laravel --error
-        language: system
-        types: [php]
-        require_serial: true
-        pass_filenames: false
-        always_run: true
+    # Semgrep Laravel Security Rules
+    - repo: https://github.com/returntocorp/semgrep
+      rev: v1.95.0
+      hooks:
+          - id: semgrep-laravel
+            name: Semgrep Laravel Security
+            entry: semgrep scan --config=p/laravel --error
+            language: system
+            types: [php]
+            require_serial: true
+            pass_filenames: false
+            always_run: true
