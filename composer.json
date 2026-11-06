@@ -15,6 +15,7 @@
         "laravel/telescope": "^5.25",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.14",
+        "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-medialibrary": "^11.23"
     },
     "require-dev": {
@@ -30,6 +31,7 @@
         "pestphp/pest": "^4.7",
         "pestphp/pest-plugin-browser": "^4.3",
         "pestphp/pest-plugin-laravel": "^4.1",
+        "nth-root/phpstan-security": "^0.3",
         "phpunit/phpunit": "^12.5.23"
     },
     "autoload": {
@@ -53,6 +55,10 @@
             "npm install",
             "npm run build"
         ],
+        "pre-commit:install": [
+            "@php -r \"file_exists('vendor/bin/pre-commit') || echo 'pre-commit not installed via composer, use pipx install pre-commit';\"",
+            "pre-commit install"
+        ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
             "@php artisan dev"
@@ -70,7 +76,7 @@
             "@test"
         ],
         "types:check": [
-            "phpstan analyse"
+            "phpstan analyse --memory-limit=512M"
         ],
         "test": [
             "@php artisan config:clear --ansi",
