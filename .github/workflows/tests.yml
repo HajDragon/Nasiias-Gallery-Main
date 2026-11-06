@@ -32,7 +32,12 @@ jobs:
           node-version: '22'
 
       - name: Setup Application
-        run: composer setup
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan config:clear
+          php artisan migrate --force --database=sqlite
+          composer setup
 
       - name: Run CI Checks
         run: composer ci:check

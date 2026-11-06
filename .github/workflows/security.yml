@@ -33,7 +33,9 @@ jobs:
         run: composer install --no-progress --no-interaction
 
       - name: Run Composer Audit
-        run: composer audit --format=json --no-dev > composer-audit.json || true
+        run: |
+          composer audit --format=json --no-dev > composer-audit.json 2>&1 || true
+          cat composer-audit.json
 
       - name: Upload Composer Audit Report
         uses: actions/upload-artifact@4cec3d8aa04e39d1a6839fbde0e093274888f43c # v4.6.1
@@ -61,7 +63,9 @@ jobs:
         run: npm ci
 
       - name: Run NPM Audit
-        run: npm audit --json > npm-audit.json || true
+        run: |
+          npm audit --json > npm-audit.json 2>&1 || true
+          cat npm-audit.json
 
       - name: Upload NPM Audit Report
         uses: actions/upload-artifact@4cec3d8aa04e39d1a6839fbde0e093274888f43c # v4.6.1
@@ -90,21 +94,24 @@ jobs:
         run: composer install --no-progress --no-interaction
 
       - name: Run PHPStan
-        run: vendor/bin/phpstan analyse --error-format=github
+        run: vendor/bin/phpstan analyse --memory-limit=512M --error-format=github
 
   semgrep:
     name: Semgrep (SAST + Secrets)
     runs-on: ubuntu-latest
-    container:
-      image: returntocorp/semgrep:latest
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Run Semgrep
-        run: semgrep ci --config=p/laravel --config=p/secrets --config=p/owasp-top-ten --error --json=semgrep-results.json || true
+      - name: Setup Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/laravel
+            p/secrets
+            p/owasp-top-ten
 
       - name: Upload Semgrep Results
         uses: actions/upload-artifact@4cec3d8aa04e39d1a6839fbde0e093274888f43c # v4.6.1
@@ -145,7 +152,8 @@ jobs:
         run: |
           cp .env.example .env
           php artisan key:generate
-          php artisan migrate --force
+          php artisan config:clear
+          php artisan migrate --force --database=sqlite
 
       - name: Run Security Tests
         run: php artisan test --filter=Security
