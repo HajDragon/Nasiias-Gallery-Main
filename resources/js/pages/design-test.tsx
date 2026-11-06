@@ -1,4 +1,4 @@
-    import { Head } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import LiveOrb from '@/components/ui/live-orb';
 import { useAppearance } from '@/hooks/use-appearance';
 
