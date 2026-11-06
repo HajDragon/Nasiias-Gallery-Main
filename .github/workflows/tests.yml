@@ -31,13 +31,21 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Install PHP dependencies
+        run: composer install --no-progress --no-interaction
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
       - name: Setup Application
         run: |
           cp .env.example .env
           php artisan key:generate
           php artisan config:clear
           php artisan migrate --force --database=sqlite
-          composer setup
 
       - name: Run CI Checks
         run: composer ci:check
