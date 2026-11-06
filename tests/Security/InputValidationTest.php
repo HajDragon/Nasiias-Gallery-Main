@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Security;
 
-use App\Models\User;
+use App\Enums\UserRole;
 use App\Models\Artwork;
 use App\Models\Category;
-use App\Enums\UserRole;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class InputValidationTest extends TestCase
@@ -16,6 +17,7 @@ class InputValidationTest extends TestCase
     use RefreshDatabase;
 
     protected User $admin;
+
     protected Category $category;
 
     protected function setUp(): void
@@ -27,6 +29,7 @@ class InputValidationTest extends TestCase
 
     public function test_xss_payload_in_title_blocked(): void
     {
+        // Arrange
         $xssPayloads = [
             '<script>alert("xss")</script>',
             '<img src=x onerror=alert(1)>',
@@ -49,13 +52,14 @@ class InputValidationTest extends TestCase
         ];
 
         foreach ($xssPayloads as $payload) {
+            // Act
             $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
                 'title' => $payload,
                 'category_id' => $this->category->id,
                 'description' => 'Test description',
             ]);
 
-            // Should either reject or sanitize
+            // Assert: Should either reject or sanitize
             if ($response->status() === 302) {
                 $artwork = Artwork::latest()->first();
                 $this->assertStringNotContainsString('<script', $artwork->title);
@@ -69,6 +73,7 @@ class InputValidationTest extends TestCase
 
     public function test_xss_payload_in_description_blocked(): void
     {
+        // Arrange
         $xssPayloads = [
             '<script>alert("xss")</script>',
             '<img src=x onerror=alert(1)>',
@@ -78,12 +83,14 @@ class InputValidationTest extends TestCase
         ];
 
         foreach ($xssPayloads as $payload) {
+            // Act
             $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
                 'title' => 'Test Artwork',
                 'category_id' => $this->category->id,
                 'description' => $payload,
             ]);
 
+            // Assert
             if ($response->status() === 302) {
                 $artwork = Artwork::latest()->first();
                 $this->assertStringNotContainsString('<script', $artwork->description);
@@ -98,6 +105,7 @@ class InputValidationTest extends TestCase
 
     public function test_sql_injection_payloads_blocked(): void
     {
+        // Arrange
         $sqlPayloads = [
             "' OR '1'='1",
             "'; DROP TABLE artworks; --",
@@ -111,13 +119,14 @@ class InputValidationTest extends TestCase
         ];
 
         foreach ($sqlPayloads as $payload) {
+            // Act
             $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
                 'title' => $payload,
                 'category_id' => $this->category->id,
                 'description' => 'Test',
             ]);
 
-            // Should not cause SQL errors - either rejected or safely stored
+            // Assert: Should not cause SQL errors - either rejected or safely stored
             if ($response->status() === 302) {
                 $artwork = Artwork::latest()->first();
                 $this->assertEquals($payload, $artwork->title); // Stored as-is, parameterized queries protect
@@ -129,6 +138,7 @@ class InputValidationTest extends TestCase
 
     public function test_path_traversal_in_file_upload_blocked(): void
     {
+        // Arrange
         $pathTraversalPayloads = [
             '../../../etc/passwd',
             '..\\..\\..\\windows\\system32\\drivers\\etc\\hosts',
@@ -141,8 +151,8 @@ class InputValidationTest extends TestCase
         ];
 
         foreach ($pathTraversalPayloads as $payload) {
-            // Test via filename in file upload
-            $file = \Illuminate\Http\UploadedFile::fake()->create($payload, 100, 'image/png');
+            // Act: Test via filename in file upload
+            $file = UploadedFile::fake()->create($payload, 100, 'image/png');
 
             $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
                 'title' => 'Test',
@@ -151,45 +161,53 @@ class InputValidationTest extends TestCase
                 'file' => $file,
             ]);
 
-            // ValidArtworkImage rule should reject invalid files
-            // Either validation error or file not stored with malicious path
+            // Assert: ValidArtworkImage rule should reject invalid files
             $this->assertNotEquals(500, $response->status());
         }
     }
 
     public function test_long_input_handling(): void
     {
-        // Test very long title (255 char limit)
+        // Arrange: Test very long title (255 char limit)
         $longTitle = str_repeat('a', 300);
+
+        // Act
         $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
             'title' => $longTitle,
             'category_id' => $this->category->id,
             'description' => 'Test',
         ]);
+
+        // Assert
         $response->assertSessionHasErrors('title');
 
-        // Test very long description
+        // Arrange: Test very long description
         $longDescription = str_repeat('b', 10000);
+
+        // Act
         $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
             'title' => 'Test',
             'category_id' => $this->category->id,
             'description' => $longDescription,
         ]);
-        // Description may not have a strict limit, but shouldn't crash
+
+        // Assert: Description may not have a strict limit, but shouldn't crash
         $this->assertNotEquals(500, $response->status());
     }
 
     public function test_null_byte_injection_blocked(): void
     {
+        // Arrange
         $nullBytePayloads = [
             "test\0.png",
             "test\0.jpg",
-            "test%00.png",
+            'test%00.png',
             "test\0.php",
         ];
 
         foreach ($nullBytePayloads as $payload) {
-            $file = \Illuminate\Http\UploadedFile::fake()->create($payload, 100, 'image/png');
+            // Act
+            $file = UploadedFile::fake()->create($payload, 100, 'image/png');
 
             $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
                 'title' => 'Test',
@@ -198,12 +216,14 @@ class InputValidationTest extends TestCase
                 'file' => $file,
             ]);
 
+            // Assert
             $this->assertNotEquals(500, $response->status());
         }
     }
 
     public function test_unicode_and_special_characters_handled(): void
     {
+        // Arrange
         $specialPayloads = [
             '🎨🖼️📸', // Emojis
             '测试标题', // Chinese
@@ -219,13 +239,14 @@ class InputValidationTest extends TestCase
         ];
 
         foreach ($specialPayloads as $payload) {
+            // Act
             $response = $this->actingAs($this->admin)->from('/admin/artworks/create')->post('/admin/artworks', [
                 'title' => $payload,
                 'category_id' => $this->category->id,
                 'description' => 'Test',
             ]);
 
-            // Should handle gracefully
+            // Assert: Should handle gracefully
             $this->assertNotEquals(500, $response->status());
         }
     }
