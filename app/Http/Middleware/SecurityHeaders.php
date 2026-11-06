@@ -6,7 +6,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class SecurityHeaders
@@ -78,53 +77,53 @@ class SecurityHeaders
             // Vite HMR in development
             $scriptSrc[] = "'unsafe-inline'"; // Inertia needs inline scripts
             $scriptSrc[] = "'unsafe-eval'"; // Vite HMR uses eval
-            $scriptSrc[] = "http://localhost:*"; // Vite dev server
-            $scriptSrc[] = "ws://localhost:*"; // Vite HMR websocket
+            $scriptSrc[] = 'http://localhost:*'; // Vite dev server
+            $scriptSrc[] = 'ws://localhost:*'; // Vite HMR websocket
         } else {
             // Production: allow inline scripts for Inertia (nonce-based would be better but requires more setup)
             $scriptSrc[] = "'unsafe-inline'"; // TODO: Replace with nonce-based approach
         }
 
-        $directives[] = "script-src " . implode(' ', $scriptSrc);
+        $directives[] = 'script-src '.implode(' ', $scriptSrc);
 
         // Style sources
         $styleSrc = [
             "'self'",
             "'unsafe-inline'", // Tailwind/Filament need inline styles
-            "fonts.googleapis.com",
+            'fonts.googleapis.com',
         ];
 
         if ($isDev) {
-            $styleSrc[] = "http://localhost:*";
+            $styleSrc[] = 'http://localhost:*';
         }
 
-        $directives[] = "style-src " . implode(' ', $styleSrc);
+        $directives[] = 'style-src '.implode(' ', $styleSrc);
 
         // Font sources
         $fontSrc = [
             "'self'",
-            "data:",
-            "fonts.gstatic.com",
+            'data:',
+            'fonts.gstatic.com',
         ];
 
         if ($isDev) {
-            $fontSrc[] = "http://localhost:*";
+            $fontSrc[] = 'http://localhost:*';
         }
 
-        $directives[] = "font-src " . implode(' ', $fontSrc);
+        $directives[] = 'font-src '.implode(' ', $fontSrc);
 
         // Image sources
         $imgSrc = [
             "'self'",
-            "data:",
-            "blob:",
+            'data:',
+            'blob:',
         ];
 
         if ($isDev) {
-            $imgSrc[] = "http://localhost:*";
+            $imgSrc[] = 'http://localhost:*';
         }
 
-        $directives[] = "img-src " . implode(' ', $imgSrc);
+        $directives[] = 'img-src '.implode(' ', $imgSrc);
 
         // Connect sources (for fetch, websocket, etc.)
         $connectSrc = [
@@ -132,12 +131,12 @@ class SecurityHeaders
         ];
 
         if ($isDev) {
-            $connectSrc[] = "ws://localhost:*";
-            $connectSrc[] = "wss://localhost:*";
-            $connectSrc[] = "http://localhost:*";
+            $connectSrc[] = 'ws://localhost:*';
+            $connectSrc[] = 'wss://localhost:*';
+            $connectSrc[] = 'http://localhost:*';
         }
 
-        $directives[] = "connect-src " . implode(' ', $connectSrc);
+        $directives[] = 'connect-src '.implode(' ', $connectSrc);
 
         // Media sources
         $directives[] = "media-src 'self' blob: data:";
