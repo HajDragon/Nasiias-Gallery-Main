@@ -17,9 +17,13 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
+        User::firstOrCreate([
+            'email' => 'test@example.com',
+        ], [
             'display_name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        $this->call(ArtworkSeeder::class);
     }
 }
