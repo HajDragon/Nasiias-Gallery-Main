@@ -77,8 +77,10 @@ class SecurityHeaders
             // Vite HMR in development
             $scriptSrc[] = "'unsafe-inline'"; // Inertia needs inline scripts
             $scriptSrc[] = "'unsafe-eval'"; // Vite HMR uses eval
-            $scriptSrc[] = 'http://localhost:*'; // Vite dev server
-            $scriptSrc[] = 'ws://localhost:*'; // Vite HMR websocket
+            $scriptSrc[] = 'http://localhost:*';
+            $scriptSrc[] = 'http://127.0.0.1:*';
+            $scriptSrc[] = 'ws://localhost:*';
+            $scriptSrc[] = 'ws://127.0.0.1:*';
         } else {
             // Production: allow inline scripts for Inertia (nonce-based would be better but requires more setup)
             $scriptSrc[] = "'unsafe-inline'"; // TODO: Replace with nonce-based approach
@@ -95,6 +97,7 @@ class SecurityHeaders
 
         if ($isDev) {
             $styleSrc[] = 'http://localhost:*';
+            $styleSrc[] = 'http://127.0.0.1:*';
         }
 
         $directives[] = 'style-src '.implode(' ', $styleSrc);
@@ -108,6 +111,7 @@ class SecurityHeaders
 
         if ($isDev) {
             $fontSrc[] = 'http://localhost:*';
+            $fontSrc[] = 'http://127.0.0.1:*';
         }
 
         $directives[] = 'font-src '.implode(' ', $fontSrc);
@@ -117,10 +121,12 @@ class SecurityHeaders
             "'self'",
             'data:',
             'blob:',
+            'https://images.unsplash.com', // Artwork images from seeder
         ];
 
         if ($isDev) {
             $imgSrc[] = 'http://localhost:*';
+            $imgSrc[] = 'http://127.0.0.1:*';
         }
 
         $directives[] = 'img-src '.implode(' ', $imgSrc);
@@ -133,7 +139,10 @@ class SecurityHeaders
         if ($isDev) {
             $connectSrc[] = 'ws://localhost:*';
             $connectSrc[] = 'wss://localhost:*';
+            $connectSrc[] = 'ws://127.0.0.1:*';
+            $connectSrc[] = 'wss://127.0.0.1:*';
             $connectSrc[] = 'http://localhost:*';
+            $connectSrc[] = 'http://127.0.0.1:*';
         }
 
         $directives[] = 'connect-src '.implode(' ', $connectSrc);

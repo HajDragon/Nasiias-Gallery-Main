@@ -1,576 +1,229 @@
 "use client"
 
-// --- Utility ---
-// function cn(...inputs: ClassValue[]) {
-//     return twMerge(clsx(inputs));
-// }
+import { useEffect, useRef, useState } from "react"
+import { motion, useScroll, useTransform } from "framer-motion"
+import { LiveOrb } from "./live-orb"
+import { cn } from "@/lib/utils"
 
-// --- Types ---
-
-// --- FlipCard Component ---
-// Reduced from 100
-// Reduced from 140
-// Smoothly animate to the coordinates defined by the parent
-
-// Initial style
-// Essential for the 3D hover effect
-/* Front Face */ /* Back Face */
-
-// --- Main Hero Component ---
-// Virtual scroll range
-
-// Unsplash Images
-
-// Helper for linear interpolation
-
-// --- Container Size ---
-
-// Initial set
-
-// --- Virtual Scroll Logic ---
-// Keep track of scroll value without re-renders
-// At either end of the virtual range, release the wheel so the
-// page below the hero can scroll normally
-
-// Prevent default to stop browser overscroll/bounce
-
-// Touch support
-
-// Attach listeners to container instead of window for portability
-
-// 1. Morph Progress: 0 (Circle) -> 1 (Bottom Arc)
-// Happens between scroll 0 and 600
-
-// 2. Scroll Rotation (Shuffling): Starts after morph (e.g., > 600)
-// Rotates the bottom arc as user continues scrolling
-
-// --- Mouse Parallax ---
-
-// Normalize -1 to 1
-// Move +/- 100px
-
-// --- Intro Sequence ---
-
-// --- Random Scatter Positions ---
-
-// --- Render Loop (Manual Calculation for Morph) ---
-
-// --- Content Opacity ---
-// Fade in content when arc is formed (morphValue > 0.8)
-/* Container */ /* Intro Text (Fades out) */ /* Arc Active Content (Fades in) */ /* Main Container */
-
-// 1. Intro Phases (Scatter -> Line)
-// Adjusted for smaller images (60px width + 10px gap)
-// 2. Circle Phase & Morph Logic
-
-// Responsive Calculations
-
-// A. Calculate Circle Position
-
-// B. Calculate Bottom Arc Position
-// "Rainbow" Arch: Convex up. Center is highest point.
-
-// Radius:
-
-// Position:
-
-// Spread angle:
-
-// Apply Scroll Rotation (Shuffle) with Bounds
-// We want to clamp rotation so images don't disappear.
-// Map scroll range [600, 3000] to a limited rotation range.
-// Range: [-spreadAngle/2, spreadAngle/2] keeps them roughly in view.
-// We map 0 -> 1 (progress of scroll loop) to this range.
-
-// Note: rotateValue comes from smoothScrollRotate which maps [600, 3000] -> [0, 360]
-// We need to adjust that mapping in the hook above, OR adjust it here.
-// Better to adjust it here relative to the spread.
-
-// Let's interpret rotateValue (0 to 360) as a progress 0 to 1
-
-// Calculate bounded rotation:
-// Move from 0 (centered) to -spreadAngle (all the way left) or similar.
-// Let's allow scrolling through the list.
-// Total sweep needed to see all items if we start at one end?
-// If we start centered, we can go +/- spreadAngle/2.
-
-// User wants to "stop on the last image".
-// Let's map scroll to: 0 -> -spreadAngle (shifts items left)
-// Don't go all the way, keep last item visible
-// Increased scale for active state
-
-// C. Interpolate (Morph)
-// Pass intro phase for initial animations
-// Virtual scroll value for each of the 3 stages: circle quote, arc quote, exit
-// Skip the auto intro if the user clicks before it finishes
-
-// Capture wheel/touch until the final stage, where the hero releases
-// the page and the user can scroll past it
-// Stage 3: cards fall out of view
-// Quote 2: fades in for stage 2, out for stage 3
-
-// Stage 3: fall out of view while fading
-
-// Stage 3 plays the exit, then snaps back to stage 1
-
-// Stage 1: orbit the circle, frozen while the user hovers
-// Third click: snap down to the art library and reset the cycle
-// Second click: cards exit while the page snaps to the art library
-// First click: scroll just far enough to tuck the header away
-
-import { useState, useEffect, useMemo, useRef } from "react"
-import type { MouseEvent as ReactMouseEvent } from "react"
-import { motion, useTransform, useSpring, useMotionValue } from "framer-motion"
-import LiveOrb from "@/components/ui/live-orb"
-export type AnimationPhase = "scatter" | "line" | "circle" | "bottom-strip"
-
-type FlipTarget = {
-  x: number
-  y: number
-  rotation: number
-  scale: number
-  opacity: number
+interface ScrollMorphHeroProps {
+  className?: string
 }
 
-interface FlipCardProps {
-  src: string
-  alt: string
-  index: number
-  total: number
-  phase: AnimationPhase
-  target: FlipTarget
-  onClick: (event: ReactMouseEvent<HTMLButtonElement>) => void
-  onHoverChange: (hovering: boolean) => void
-}
-const IMG_WIDTH = 60
-const IMG_HEIGHT = 85
-
-function FlipCard({
-  src,
-  alt,
-  onClick,
-  onHoverChange,
-  index,
-  total,
-  phase,
-  target,
-}: FlipCardProps) {
-  return (
-    <motion.button
-      type="button"
-      onClick={onClick}
-      onMouseEnter={() => onHoverChange(true)}
-      onMouseLeave={() => onHoverChange(false)}
-      animate={{
-        x: target.x,
-        y: target.y,
-        rotate: target.rotation,
-        scale: target.scale,
-        opacity: target.opacity,
-      }}
-      transition={{
-        type: "spring",
-        stiffness: 90,
-        damping: 20,
-      }}
-      style={{
-        position: "absolute",
-        width: IMG_WIDTH,
-        height: IMG_HEIGHT,
-        transformStyle: "preserve-3d",
-        perspective: "1000px",
-      }}
-      className="cursor-pointer group"
-    >
-      <motion.div
-        className="relative h-full w-full"
-        style={{ transformStyle: "preserve-3d" }}
-        transition={{
-          duration: 0.6,
-          type: "spring",
-          stiffness: 260,
-          damping: 20,
-        }}
-        whileHover={{ rotateY: 180 }}
-      >
-        {}
-        <div
-          className="absolute inset-0 h-full w-full overflow-hidden rounded-xl shadow-lg bg-gray-200"
-          style={{ backfaceVisibility: "hidden" }}
-        >
-          <img src={src} alt={alt} className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-transparent" />
-        </div>
-
-        {}
-        <div
-          className="absolute inset-0 h-full w-full overflow-hidden rounded-xl shadow-lg bg-gray-900 flex flex-col items-center justify-center p-4 border border-gray-700"
-          style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
-        >
-          <div className="text-center">
-            <p className="text-[8px] font-bold text-blue-400 uppercase tracking-widest mb-1">
-              View
-            </p>
-            <p className="text-xs font-medium text-white">Details</p>
-          </div>
-        </div>
-      </motion.div>
-    </motion.button>
-  )
-}
-const STAGE_SCROLL = [0, 600, 1400]
-const lerp = (start: number, end: number, t: number) =>
-  start * (1 - t) + end * t
-
-type HeroItem = {
-  image: string
-  alt: string
-}
-
-interface IntroAnimationProps {
-  items: HeroItem[]
-  onSelect: (index: number) => void
-}
-
-export default function IntroAnimation({
-  items,
-  onSelect,
-}: IntroAnimationProps) {
-  const [introPhase, setIntroPhase] = useState<AnimationPhase>("scatter")
-  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
+export function ScrollMorphHero({ className }: ScrollMorphHeroProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const TOTAL_IMAGES = items.length
-  useEffect(() => {
-    if (!containerRef.current) return
-
-    const handleResize = (entries: ResizeObserverEntry[]) => {
-      for (const entry of entries) {
-        setContainerSize({
-          width: entry.contentRect.width,
-          height: entry.contentRect.height,
-        })
-      }
-    }
-
-    const observer = new ResizeObserver(handleResize)
-    observer.observe(containerRef.current)
-    setContainerSize({
-      width: containerRef.current.offsetWidth,
-      height: containerRef.current.offsetHeight,
-    })
-
-    return () => observer.disconnect()
-  }, [])
-  const virtualScroll = useMotionValue(0)
-  const [stage, setStage] = useState(1)
-  const [clicks, setClicks] = useState(0)
-
-  const advanceStage = () => {
-    setIntroPhase("circle")
-    if (clicks >= 1) {
-      setClicks(0)
-      setStage(3)
-      document
-        .getElementById("art-library")
-        ?.scrollIntoView({ behavior: "smooth" })
-      return
-    }
-    setClicks(1)
-    setStage((current) => (current >= 3 ? 1 : current + 1))
-    const heroTop = containerRef.current?.getBoundingClientRect().top ?? 0
-    if (heroTop > 0) window.scrollBy({ top: heroTop, behavior: "smooth" })
-  }
+  const [isVisible, setIsVisible] = useState(false)
+  const [animating, setAnimating] = useState(false)
+  const [showOrb, setShowOrb] = useState(false)
 
   useEffect(() => {
-    virtualScroll.set(STAGE_SCROLL[stage - 1])
-  }, [stage, virtualScroll])
-  useEffect(() => {
-    if (stage !== 3) return
-    const timer = setTimeout(() => setStage(1), 700)
+    const timer = setTimeout(() => {
+      setIsVisible(true)
+      setTimeout(() => setAnimating(true), 100)
+      setTimeout(() => setShowOrb(true), 300)
+    }, 200)
     return () => clearTimeout(timer)
-  }, [stage])
-  const [orbitPaused, setOrbitPaused] = useState(false)
-  const [orbitAngle, setOrbitAngle] = useState(0)
-  const [reduceMotion, setReduceMotion] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-  )
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
-    const onChange = () => setReduceMotion(mq.matches)
-    mq.addEventListener("change", onChange)
-    return () => mq.removeEventListener("change", onChange)
   }, [])
 
-  useEffect(() => {
-    if (stage !== 1 || introPhase !== "circle" || orbitPaused || reduceMotion)
-      return
-    let raf = 0
-    let last = performance.now()
-    const tick = (now: number) => {
-      setOrbitAngle((angle) => (angle + ((now - last) / 30000) * 360) % 360)
-      last = now
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [stage, introPhase, orbitPaused, reduceMotion])
-  const morphProgress = useTransform(virtualScroll, [0, 600], [0, 1])
-  const smoothMorph = useSpring(morphProgress, { stiffness: 90, damping: 22 })
-  const scrollRotate = useTransform(virtualScroll, [600, 3000], [0, 360])
-  const smoothScrollRotate = useSpring(scrollRotate, {
-    stiffness: 90,
-    damping: 22,
-  })
-  const exitProgress = useTransform(virtualScroll, [900, 1400], [0, 1])
-  const smoothExit = useSpring(exitProgress, { stiffness: 90, damping: 22 })
-  const mouseX = useMotionValue(0)
-  const smoothMouseX = useSpring(mouseX, { stiffness: 30, damping: 20 })
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] })
 
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
+  // Phase 1: Scatter (0-0.2)
+  const scatterProgress = useTransform(scrollYProgress, [0, 0.2], [0, 1], { clamp: true })
+  // Phase 2: Line (0.2-0.4)
+  const lineProgress = useTransform(scrollYProgress, [0.2, 0.4], [0, 1], { clamp: true })
+  // Phase 3: Circle/Orbit (0.4-0.7)
+  const circleProgress = useTransform(scrollYProgress, [0.4, 0.7], [0, 1], { clamp: true })
+  // Phase 4: Bottom strip/arc (0.7-1)
+  const arcProgress = useTransform(scrollYProgress, [0.7, 1], [0, 1], { clamp: true })
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect()
-      const relativeX = e.clientX - rect.left
-      const normalizedX = (relativeX / rect.width) * 2 - 1
-      mouseX.set(normalizedX * 100)
-    }
-    container.addEventListener("mousemove", handleMouseMove)
-    return () => container.removeEventListener("mousemove", handleMouseMove)
-  }, [mouseX])
-  useEffect(() => {
-    const timer1 = setTimeout(
-      () =>
-        setIntroPhase((current) => (current === "scatter" ? "line" : current)),
-      500,
-    )
-    const timer2 = setTimeout(
-      () =>
-        setIntroPhase((current) => (current === "line" ? "circle" : current)),
-      2500,
-    )
-    return () => {
-      clearTimeout(timer1)
-      clearTimeout(timer2)
-    }
-  }, [])
-  const scatterPositions = useMemo(() => {
-    return items.map(() => ({
-      x: (Math.random() - 0.5) * 1500,
-      y: (Math.random() - 0.5) * 1000,
-      rotation: (Math.random() - 0.5) * 180,
-      scale: 0.6,
-      opacity: 0,
-    }))
-  }, [items])
-  const [morphValue, setMorphValue] = useState(0)
-  const [rotateValue, setRotateValue] = useState(0)
-  const [parallaxValue, setParallaxValue] = useState(0)
-  const [exitValue, setExitValue] = useState(0)
-
-  useEffect(() => {
-    const unsubscribeMorph = smoothMorph.on("change", setMorphValue)
-    const unsubscribeRotate = smoothScrollRotate.on("change", setRotateValue)
-    const unsubscribeParallax = smoothMouseX.on("change", setParallaxValue)
-    const unsubscribeExit = smoothExit.on("change", setExitValue)
-    return () => {
-      unsubscribeMorph()
-      unsubscribeRotate()
-      unsubscribeParallax()
-      unsubscribeExit()
-    }
-  }, [smoothMorph, smoothScrollRotate, smoothMouseX, smoothExit])
-  const contentFade = useTransform(
-    virtualScroll,
-    [500, 600, 1050, 1350],
-    [0, 1, 1, 0],
-  )
-  const contentOpacity = useSpring(contentFade, { stiffness: 90, damping: 22 })
-  const contentY = useTransform(smoothMorph, [0.8, 1], [20, 0])
+  const orbScale = useTransform(scrollYProgress, [0, 0.2, 0.4, 0.7, 1], [0, 1, 1, 0.8, 0])
+  const orbOpacity = useTransform(scrollYProgress, [0, 0.1, 0.7, 0.8], [0, 1, 1, 0])
+  const textOpacity = useTransform(scrollYProgress, [0, 0.2, 0.4, 0.7, 1], [1, 1, 0.5, 0, 0])
 
   return (
-    <div
+    <motion.div
       ref={containerRef}
-      className="relative w-full h-full bg-[#F0F7FF] overflow-hidden"
-      onClick={advanceStage}
+      className={cn("relative w-full min-h-screen overflow-hidden bg-[#EEF3F8]", className)}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: isVisible ? 1 : 0 }}
+      transition={{ duration: 1.5, ease: [0.25, 0.46, 0.45, 0.94] }}
     >
-      {}
-      <div className="flex h-full w-full flex-col items-center justify-center perspective-1000">
-        {}
-        <div className="absolute z-0 flex flex-col items-center justify-center text-center pointer-events-none top-1/2 -translate-y-1/2">
-          <motion.h1
-            initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-            animate={
-              introPhase === "circle" && morphValue < 0.5
-                ? { opacity: 1 - morphValue * 2, y: 0, filter: "blur(0px)" }
-                : { opacity: 0, filter: "blur(10px)" }
-            }
-            transition={{ duration: 1 }}
-            className="text-2xl font-medium tracking-tight text-gray-800 md:text-4xl"
-          >
-            Nastiia's Gallery.
-          </motion.h1>
-          <motion.button
-            type="button"
-            initial={{ opacity: 0 }}
-            animate={
-              introPhase === "circle" && morphValue < 0.5
-                ? {
-                    opacity: 0.5 - morphValue,
-                  }
-                : { opacity: 0 }
-            }
-            transition={{ duration: 1, delay: 0.2 }}
-            disabled={!(introPhase === "circle" && morphValue < 0.5)}
-            onClick={(event) => {
-              event.stopPropagation()
-              advanceStage()
-            }}
-            className="pointer-events-auto mt-4 text-xs font-bold tracking-[0.2em] text-gray-500"
-          >
-            CLICK TO EXPLORE
-          </motion.button>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={
-              introPhase === "circle" && morphValue < 0.5
-                ? { opacity: 1 - morphValue * 2, scale: 1 }
-                : { opacity: 0, scale: 0.85 }
-            }
-            transition={{ duration: 1, delay: 0.3 }}
-            className="mt-5"
-          >
-            <LiveOrb
-              size={96}
-              variant="custom"
-              color="#98C1D9"
-              eyeColor="#293241"
-            />
-          </motion.div>
-        </div>
-
-        {}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Ambient background blobs */}
         <motion.div
-          style={{ opacity: contentOpacity, y: contentY }}
-          className="absolute top-[10%] z-10 flex flex-col items-center justify-center text-center pointer-events-none px-4"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          style={{
+            width: "clamp(280px, 60vw, 600px)",
+            height: "clamp(280px, 60vw, 600px)",
+          }}
+          animate={{
+            scale: [1, 1.1, 1.2, 1.15, 1],
+            borderRadius: [
+              "50%",
+              "40% 60% 50% 50%",
+              "30% 70% 40% 60%",
+              "45% 55% 55% 45%",
+              "50%",
+            ],
+          }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         >
-          <h2 className="text-3xl md:text-5xl font-semibold text-gray-900 tracking-tight mb-4">
-            The Collection
-          </h2>
-          <p className="text-sm md:text-base text-gray-600 max-w-lg leading-relaxed">
-            "A painting is only half finished until someone stands before it.
-            <br className="hidden md:block" />
-            The rest of the art happens entirely within you."
-          </p>
-          <button
-            type="button"
-            disabled={stage !== 2}
-            onClick={(event) => {
-              event.stopPropagation()
-              advanceStage()
-            }}
-            className="pointer-events-auto mt-6 text-xs font-bold tracking-[0.2em] text-gray-500"
-          >
-            CLICK TO CONTINUE
-          </button>
-          <div className="mt-5 flex justify-center">
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#7C6AF7]/20 via-[#7DD3C7]/20 to-[#E8B4D4]/20 blur-[100px]" />
+        </motion.div>
+
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-gradient-to-br from-[#7C6AF7]/10 to-transparent blur-[150px]"
+          animate={{ x: [0, 100, -50, 0], y: [0, -80, 60, 0] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-gradient-to-br from-[#7DD3C7]/10 to-transparent blur-[150px]"
+          animate={{ x: [0, -80, 40, 0], y: [0, 60, -40, 0] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        />
+      </div>
+
+      <div className="relative z-10 flex h-screen flex-col items-center justify-center px-5">
+        {/* LiveOrb - shown during intro phases */}
+        <motion.div
+          style={{ opacity: orbOpacity, scale: orbScale }}
+          className="flex items-center justify-center"
+        >
+          {showOrb && (
             <LiveOrb
-              size={96}
               variant="custom"
               color="#98C1D9"
               eyeColor="#293241"
+              size={96}
+              interactive={true}
+              blink={true}
+            />
+          )}
+        </motion.div>
+
+        <motion.div
+          className="flex flex-col items-center gap-4 text-center"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: isVisible ? 1 : 0, y: 0 }}
+          style={{ opacity: textOpacity }}
+          transition={{ delay: 0.3, duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
+        >
+          <p className="flex items-center gap-3 text-[10px] font-semibold tracking-[0.24em] uppercase text-[#293241]/60">
+            <span className="h-px w-8 bg-[#98C1D9]" />
+            Welcome to
+          </p>
+          <h1 className="font-display text-[clamp(3rem,12vw,7rem)] leading-[0.85] tracking-[-0.04em] text-[#293241]">
+            nastiia.gallery
+            <br />
+            <span className="italic text-[#98C1D9]">art library</span>
+          </h1>
+        </motion.div>
+
+        {/* Flip Card: Scroll → Explore */}
+        <motion.div
+          style={{
+            width: "clamp(280px, 50vw, 500px)",
+            height: "clamp(280px, 50vw, 500px)",
+            perspective: 1000,
+            transformOrigin: "center center",
+          }}
+          className="relative mt-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: animating ? 1 : 0 }}
+          transition={{ delay: 0.5, duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+        >
+          <motion.div
+            style={{
+              width: "100%",
+              height: "100%",
+              transformStyle: "preserve-3d",
+              transformOrigin: "center center",
+            }}
+            animate={{
+              rotateX: [
+                0,      // Scroll visible
+                -90,    // Edge
+                -90,    // Edge
+                -180,   // Explore visible
+                -180,   // Explore visible
+                -270,   // Edge
+                -270,   // Edge
+                -360,   // Back to Scroll
+              ],
+            }}
+            transition={{
+              duration: 6,
+              repeat: Infinity,
+              ease: "linear",
+              delay: 0.5,
+            }}
+          >
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center rounded-[30px] bg-gradient-to-br from-[#7C6AF7] via-[#7DD3C7] to-[#E8B4D4]"
+              style={{ backfaceVisibility: "hidden" }}
+            >
+              <p className="font-display text-[clamp(2.5rem,8vw,5rem)] leading-[0.9] tracking-[-0.03em] text-[#F0F7FF]">
+                Scroll
+              </p>
+            </motion.div>
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center rounded-[30px] bg-[#293241]"
+              style={{ backfaceVisibility: "hidden", transform: "rotateX(180deg)" }}
+            >
+              <p className="font-display text-[clamp(2.5rem,8vw,5rem)] leading-[0.9] tracking-[-0.03em] text-[#F0F7FF]">
+                Explore
+              </p>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+
+        <motion.div
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isVisible ? 1 : 0 }}
+          transition={{ delay: 1.5, duration: 1 }}
+        >
+          <motion.div
+            className="flex items-center gap-2 rounded-full bg-[#293241]/10 px-4 py-2"
+            animate={{ x: [0, 10, -5, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <svg className="h-4 w-4 text-[#293241]/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+              <path d="M12 5v14M19 12l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[#293241]/60">
+              Scroll to begin
+            </span>
+          </motion.div>
+        </motion.div>
+      </div>
+
+      {/* Bottom Arc - transitions to art library */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-[600px] pointer-events-none"
+        style={{
+          maskImage: "linear-gradient(to top, black 30%, transparent)",
+          WebkitMaskImage: "linear-gradient(to top, black 30%, transparent)",
+        }}
+      >
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center"
+          style={{ transformOrigin: "center center" }}
+          animate={{
+            scale: [1, 1.02, 1],
+            y: [0, 20, 0],
+          }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <div className="relative flex w-full max-w-[1440px] h-full items-end justify-center px-5">
+            <motion.div
+              className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[90%] max-w-[1200px] h-[400px] rounded-t-[60px] bg-gradient-to-t from-[#293241] via-[#293241]/80 to-transparent"
+              style={{ opacity: arcProgress }}
             />
           </div>
         </motion.div>
-
-        {}
-        <div className="relative flex items-center justify-center w-full h-full">
-          {items.map((item, i) => {
-            let target = { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1 }
-            if (introPhase === "scatter") {
-              target = scatterPositions[i]
-            } else if (introPhase === "line") {
-              const lineSpacing = 70
-              const lineTotalWidth = TOTAL_IMAGES * lineSpacing
-              const lineX = i * lineSpacing - lineTotalWidth / 2
-              target = { x: lineX, y: 0, rotation: 0, scale: 1, opacity: 1 }
-            } else {
-              const isMobile = containerSize.width < 768
-              const minDimension = Math.min(
-                containerSize.width,
-                containerSize.height,
-              )
-              const circleRadius = Math.min(minDimension * 0.35, 350)
-
-              const circleAngle = (i / TOTAL_IMAGES) * 360 + orbitAngle
-              const circleRad = (circleAngle * Math.PI) / 180
-              const circlePos = {
-                x: Math.cos(circleRad) * circleRadius,
-                y: Math.sin(circleRad) * circleRadius,
-                rotation: circleAngle + 90,
-              }
-              const baseRadius = Math.min(
-                containerSize.width,
-                containerSize.height * 1.5,
-              )
-              const arcRadius = baseRadius * (isMobile ? 1.4 : 1.1)
-              const arcApexY = containerSize.height * (isMobile ? 0.35 : 0.25)
-              const arcCenterY = arcApexY + arcRadius
-              const spreadAngle = isMobile ? 100 : 130
-              // Single item: center it on top — a one-element spread would divide by zero (step → Infinity, i*step → NaN)
-              const startAngle = TOTAL_IMAGES > 1 ? -90 - spreadAngle / 2 : -90
-              const step =
-                TOTAL_IMAGES > 1 ? spreadAngle / (TOTAL_IMAGES - 1) : 0
-              const scrollProgress = Math.min(Math.max(rotateValue / 360, 0), 1)
-              const maxRotation = spreadAngle * 0.8
-              const boundedRotation = -scrollProgress * maxRotation
-
-              const currentArcAngle = startAngle + i * step + boundedRotation
-              const arcRad = (currentArcAngle * Math.PI) / 180
-
-              const arcPos = {
-                x: Math.cos(arcRad) * arcRadius + parallaxValue,
-                y: Math.sin(arcRad) * arcRadius + arcCenterY,
-                rotation: currentArcAngle + 90,
-                scale: isMobile ? 1.4 : 1.8,
-              }
-              target = {
-                x: lerp(circlePos.x, arcPos.x, morphValue),
-                y: lerp(circlePos.y, arcPos.y, morphValue),
-                rotation: lerp(circlePos.rotation, arcPos.rotation, morphValue),
-                scale: lerp(1, arcPos.scale, morphValue),
-                opacity: 1,
-              }
-            }
-            target = {
-              ...target,
-              y: target.y + exitValue * containerSize.height * 1.1,
-              opacity: target.opacity * (1 - exitValue),
-            }
-
-            return (
-              <FlipCard
-                key={i}
-                src={item.image}
-                alt={item.alt}
-                index={i}
-                total={TOTAL_IMAGES}
-                phase={introPhase}
-                target={target}
-                onClick={(event) => {
-                  event.stopPropagation()
-                  onSelect(i)
-                }}
-                onHoverChange={setOrbitPaused}
-              />
-            )
-          })}
-        </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
+
+export default ScrollMorphHero
