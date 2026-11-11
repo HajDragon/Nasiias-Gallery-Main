@@ -1,10 +1,21 @@
 import { Link, usePage } from '@inertiajs/react';
+import type { User } from '@/types';
+
+type PageProps = {
+    auth: {
+        user: User | null;
+    };
+};
 
 export default function Header() {
-    const url = usePage().url;
+    const page = usePage<PageProps>();
+    const url = page.url;
     const path = url.split('?')[0] ?? '/';
     const isHome = path === '/';
     const isGallery = path.startsWith('/gallery');
+    const isSettings = path.startsWith('/settings');
+    const user = page.props.auth?.user ?? null;
+    const isAccount = isSettings && user !== null;
 
     const scrollToContact = (event: React.MouseEvent<HTMLAnchorElement>) => {
         const target = document.getElementById('contact');
@@ -62,6 +73,17 @@ export default function Header() {
                     >
                         Contact us
                     </a>
+                    <Link
+                        href={user ? '/settings/profile' : '/login'}
+                        className={`shrink-0 rounded-full px-3 py-2 text-xs font-semibold tracking-[0.14em] whitespace-nowrap uppercase transition-colors sm:px-5 sm:py-2.5 sm:text-sm ${
+                            isAccount
+                                ? 'bg-[#EEF3F8] text-[#293241]'
+                                : 'hover:bg-[#EEF3F8]/10'
+                        }`}
+                        aria-current={isAccount ? 'page' : undefined}
+                    >
+                        Account
+                    </Link>
                 </nav>
             </div>
         </header>
