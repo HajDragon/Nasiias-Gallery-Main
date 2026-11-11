@@ -39,11 +39,12 @@ export default function DeleteUser() {
                         <Button
                             variant="destructive"
                             data-test="delete-user-button"
+                            className="bg-[#C0392B] text-white hover:bg-[#C0392B]/90"
                         >
                             Delete account
                         </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="border-[#293241]/15 bg-white text-[#293241]">
                         <DialogTitle>
                             Are you sure you want to delete your account?
                         </DialogTitle>
@@ -88,6 +89,7 @@ export default function DeleteUser() {
                                         <DialogClose asChild>
                                             <Button
                                                 variant="secondary"
+                                                className="border border-[#293241]/25 text-[#293241] hover:bg-[#EEF3F8]"
                                                 onClick={() =>
                                                     resetAndClearErrors()
                                                 }
@@ -98,6 +100,7 @@ export default function DeleteUser() {
 
                                         <Button
                                             variant="destructive"
+                                            className="bg-[#C0392B] text-white hover:bg-[#C0392B]/90"
                                             disabled={processing}
                                             asChild
                                         >

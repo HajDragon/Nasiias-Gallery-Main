@@ -28,8 +28,6 @@ export default function Profile({
         <>
             <Head title="Profile settings" />
 
-            <h1 className="sr-only">Profile settings</h1>
-
             <div className="space-y-6">
                 <Heading
                     variant="small"
@@ -53,7 +51,7 @@ export default function Profile({
 
                                 <Input
                                     id="display_name"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block w-full border-[#293241]/25 bg-white focus-visible:border-[#293241]"
                                     defaultValue={auth.user.display_name}
                                     name="display_name"
                                     required
@@ -73,7 +71,7 @@ export default function Profile({
                                 <Input
                                     id="email"
                                     type="email"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block w-full border-[#293241]/25 bg-white focus-visible:border-[#293241]"
                                     defaultValue={auth.user.email}
                                     name="email"
                                     required
@@ -90,7 +88,7 @@ export default function Profile({
                             {mustVerifyEmail &&
                                 auth.user.email_verified_at === null && (
                                     <div>
-                                        <p className="text-muted-foreground -mt-4 text-sm">
+                                        <p className="-mt-4 text-sm text-muted-foreground">
                                             Your email address is unverified.{' '}
                                             <Link
                                                 href={send()}
@@ -116,6 +114,7 @@ export default function Profile({
                                 <Button
                                     disabled={processing}
                                     data-test="update-profile-button"
+                                    className="bg-[#293241] text-[#F0F7FF] transition-colors hover:bg-[#293241]/90"
                                 >
                                     Save
                                 </Button>

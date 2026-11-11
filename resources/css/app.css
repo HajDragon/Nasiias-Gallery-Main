@@ -59,6 +59,30 @@
     --color-main-line: var(--main-line);
     --color-main-chip: var(--main-chip);
     --color-main-red: var(--main-red);
+
+    /* shadcn semantic tokens mapped onto the handoff palette. Without these,
+       utilities like bg-card / text-foreground / bg-primary generate no CSS
+       and components render transparent. The public site (welcome, gallery)
+       uses none of these, so it is unaffected. */
+    --color-background: #eef3fb;
+    --color-foreground: #293241;
+    --color-card: #ffffff;
+    --color-card-foreground: #293241;
+    --color-popover: #ffffff;
+    --color-popover-foreground: #293241;
+    --color-primary: #293241;
+    --color-primary-foreground: #f0f7ff;
+    --color-secondary: #eef3fb;
+    --color-secondary-foreground: #293241;
+    --color-muted: #eef3fb;
+    --color-muted-foreground: #4c5a70;
+    --color-accent: #dce8fb;
+    --color-accent-foreground: #293241;
+    --color-destructive: #c0392b;
+    --color-destructive-foreground: #ffffff;
+    --color-border: #ccd8ec;
+    --color-input: #ccd8ec;
+    --color-ring: #2563eb;
 }
 
 @variant dark (&:where(.dark, .dark *));
