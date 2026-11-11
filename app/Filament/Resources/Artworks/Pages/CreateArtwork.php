@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Artworks\Pages;
 
 use App\Actions\ProcessArtworkImageAction;
 use App\Filament\Resources\Artworks\ArtworkResource;
+use App\Jobs\NotifySubscribersOfNewArtwork;
 use App\Models\Artwork;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
@@ -51,5 +52,16 @@ class CreateArtwork extends CreateRecord
         }
 
         return $artwork;
+    }
+
+    /**
+     * Notify opted-in users that a new artwork has been uploaded.
+     */
+    protected function afterCreate(): void
+    {
+        /** @var Artwork $artwork */
+        $artwork = $this->getRecord();
+
+        NotifySubscribersOfNewArtwork::dispatch($artwork);
     }
 }
