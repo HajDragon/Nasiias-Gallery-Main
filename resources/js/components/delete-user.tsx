@@ -1,5 +1,6 @@
 import { Form } from '@inertiajs/react';
-import { useRef } from 'react';
+import { Link } from '@inertiajs/react';
+import { usePage, useRef } from 'react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
@@ -15,9 +16,16 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { send } from '@/routes/verification';
+import type { User } from '@/types';
 
-export default function DeleteUser() {
+type Props = {
+    user: User;
+};
+
+export default function DeleteUser({ user }: Props) {
     const passwordInput = useRef<HTMLInputElement>(null);
+    const isVerified = user.email_verified_at !== null;
 
     return (
         <div className="space-y-6">
@@ -34,12 +42,48 @@ export default function DeleteUser() {
                     </p>
                 </div>
 
+                {!isVerified && (
+                    <div className="space-y-2 rounded-md border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/30">
+                        <div className="flex items-start gap-2 text-amber-800 dark:text-amber-200">
+                            <svg
+                                className="mt-0.5 shrink-0 size-4"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    fillRule="evenodd"
+                                    d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
+                                    clipRule="evenodd"
+                                />
+                            </svg>
+                            <div>
+                                <p className="font-medium">Email not verified</p>
+                                <p className="text-sm">
+                                    You must verify your email address before you can delete your account.
+                                    {' '}
+                                    <Link
+                                        href={send()}
+                                        as="button"
+                                        className="underline hover:no-underline"
+                                    >
+                                        Click here to re-send the verification email.
+                                    </Link>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <Dialog>
                     <DialogTrigger asChild>
                         <Button
                             variant="destructive"
                             data-test="delete-user-button"
                             className="bg-[#C0392B] text-white hover:bg-[#C0392B]/90"
+                            disabled={!isVerified}
+                            aria-disabled={!isVerified}
                         >
                             Delete account
                         </Button>
@@ -80,6 +124,7 @@ export default function DeleteUser() {
                                             ref={passwordInput}
                                             placeholder="Password"
                                             autoComplete="current-password"
+                                            disabled={!isVerified}
                                         />
 
                                         <InputError message={errors.password} />
@@ -101,12 +146,13 @@ export default function DeleteUser() {
                                         <Button
                                             variant="destructive"
                                             className="bg-[#C0392B] text-white hover:bg-[#C0392B]/90"
-                                            disabled={processing}
+                                            disabled={processing || !isVerified}
                                             asChild
                                         >
                                             <button
                                                 type="submit"
                                                 data-test="confirm-delete-user-button"
+                                                disabled={!isVerified}
                                             >
                                                 Delete account
                                             </button>

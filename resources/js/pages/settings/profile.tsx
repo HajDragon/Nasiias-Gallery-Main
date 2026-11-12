@@ -28,7 +28,7 @@ export default function Profile({
         <>
             <Head title="Profile settings" />
 
-            <div className="space-y-6">
+            <div className="max-w-2xl mx-auto space-y-6">
                 <Heading
                     variant="small"
                     title="Profile"
@@ -119,12 +119,13 @@ export default function Profile({
                                     Save
                                 </Button>
                             </div>
+                            <hr className="border-gray-300 my-5"/>
                         </>
                     )}
                 </Form>
             </div>
 
-            <DeleteUser />
+            <DeleteUser user={auth.user} />
         </>
     );
 }

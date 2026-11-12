@@ -1,4 +1,18 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, router } from '@inertiajs/react';
+import { LogOut, Settings } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useInitials } from '@/hooks/use-initials';
+import { edit } from '@/routes/profile';
+import { logout } from '@/routes';
 import type { User } from '@/types';
 
 type PageProps = {
@@ -16,12 +30,17 @@ export default function Header() {
     const isSettings = path.startsWith('/settings');
     const user = page.props.auth?.user ?? null;
     const isAccount = isSettings && user !== null;
+    const getInitials = useInitials();
 
     const scrollToContact = (event: React.MouseEvent<HTMLAnchorElement>) => {
         const target = document.getElementById('contact');
         if (!target) return;
         event.preventDefault();
         target.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const handleLogout = () => {
+        router.flushAll();
     };
 
     return (
@@ -73,17 +92,64 @@ export default function Header() {
                     >
                         Contact us
                     </a>
-                    <Link
-                        href={user ? '/settings/profile' : '/login'}
-                        className={`shrink-0 rounded-full px-3 py-2 text-xs font-semibold tracking-[0.14em] whitespace-nowrap uppercase transition-colors sm:px-5 sm:py-2.5 sm:text-sm ${
-                            isAccount
-                                ? 'bg-[#EEF3F8] text-[#293241]'
-                                : 'hover:bg-[#EEF3F8]/10'
-                        }`}
-                        aria-current={isAccount ? 'page' : undefined}
-                    >
-                        Account
-                    </Link>
+                    {user ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    className="size-10 rounded-full p-1"
+                                >
+                                    <Avatar className="size-8 overflow-hidden rounded-full">
+                                        <AvatarImage
+                                            src={user.avatar}
+                                            alt={user.display_name}
+                                        />
+                                        <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                            {getInitials(user.display_name ?? '')}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56" align="end">
+                                <DropdownMenuLabel className="p-0 font-normal">
+                                    <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                                        <span className="font-medium">{user.display_name}</span>
+                                        <span className="text-muted-foreground text-xs">{user.email}</span>
+                                    </div>
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild>
+                                    <Link
+                                        className="block w-full cursor-pointer flex items-center gap-2"
+                                        href={edit()}
+                                        prefetch
+                                    >
+                                        <Settings className="mr-2 size-4" />
+                                        Settings
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild>
+                                    <Link
+                                        className="block w-full cursor-pointer flex items-center gap-2 text-destructive focus:text-destructive-foreground"
+                                        href={logout()}
+                                        as="button"
+                                        onClick={handleLogout}
+                                    >
+                                        <LogOut className="mr-2 size-4" />
+                                        Log out
+                                    </Link>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : (
+                        <Link
+                            href="/login"
+                            className={`shrink-0 rounded-full px-3 py-2 text-xs font-semibold tracking-[0.14em] whitespace-nowrap uppercase transition-colors sm:px-5 sm:py-2.5 sm:text-sm hover:bg-[#EEF3F8]/10`}
+                        >
+                            Account
+                        </Link>
+                    )}
                 </nav>
             </div>
         </header>
