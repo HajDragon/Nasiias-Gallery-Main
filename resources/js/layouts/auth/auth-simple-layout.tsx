@@ -1,5 +1,4 @@
 import { Link } from '@inertiajs/react';
-import AppLogoIcon from '@/components/app-logo-icon';
 import { home } from '@/routes';
 import type { AuthLayoutProps } from '@/types';
 
@@ -26,7 +25,7 @@ export default function AuthSimpleLayout({
                         </Link>
 
                         <div className="space-y-2 text-center">
-                            <h1 className="text-2xl font-display text-foreground">
+                            <h1 className="font-display text-2xl text-foreground">
                                 {title}
                             </h1>
                             <p className="text-center text-sm text-muted-foreground">

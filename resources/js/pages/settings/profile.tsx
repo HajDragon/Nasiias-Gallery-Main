@@ -28,7 +28,7 @@ export default function Profile({
         <>
             <Head title="Profile settings" />
 
-            <div className="max-w-2xl mx-auto space-y-6">
+            <div className="mx-auto max-w-2xl space-y-6">
                 <Heading
                     variant="small"
                     title="Profile"
@@ -119,7 +119,7 @@ export default function Profile({
                                     Save
                                 </Button>
                             </div>
-                            <hr className="border-gray-300 my-5"/>
+                            <hr className="my-5 border-gray-300" />
                         </>
                     )}
                 </Form>

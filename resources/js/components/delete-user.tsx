@@ -1,6 +1,6 @@
 import { Form } from '@inertiajs/react';
 import { Link } from '@inertiajs/react';
-import { usePage, useRef } from 'react';
+import { useRef } from 'react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
@@ -46,7 +46,7 @@ export default function DeleteUser({ user }: Props) {
                     <div className="space-y-2 rounded-md border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/30">
                         <div className="flex items-start gap-2 text-amber-800 dark:text-amber-200">
                             <svg
-                                className="mt-0.5 shrink-0 size-4"
+                                className="mt-0.5 size-4 shrink-0"
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 20 20"
                                 fill="currentColor"
@@ -59,16 +59,19 @@ export default function DeleteUser({ user }: Props) {
                                 />
                             </svg>
                             <div>
-                                <p className="font-medium">Email not verified</p>
+                                <p className="font-medium">
+                                    Email not verified
+                                </p>
                                 <p className="text-sm">
-                                    You must verify your email address before you can delete your account.
-                                    {' '}
+                                    You must verify your email address before
+                                    you can delete your account.{' '}
                                     <Link
                                         href={send()}
                                         as="button"
                                         className="underline hover:no-underline"
                                     >
-                                        Click here to re-send the verification email.
+                                        Click here to re-send the verification
+                                        email.
                                     </Link>
                                 </p>
                             </div>

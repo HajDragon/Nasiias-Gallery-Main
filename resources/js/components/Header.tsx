@@ -27,9 +27,7 @@ export default function Header() {
     const path = url.split('?')[0] ?? '/';
     const isHome = path === '/';
     const isGallery = path.startsWith('/gallery');
-    const isSettings = path.startsWith('/settings');
     const user = page.props.auth?.user ?? null;
-    const isAccount = isSettings && user !== null;
     const getInitials = useInitials();
 
     const scrollToContact = (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -105,7 +103,9 @@ export default function Header() {
                                             alt={user.display_name}
                                         />
                                         <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
-                                            {getInitials(user.display_name ?? '')}
+                                            {getInitials(
+                                                user.display_name ?? '',
+                                            )}
                                         </AvatarFallback>
                                     </Avatar>
                                 </Button>
@@ -113,14 +113,18 @@ export default function Header() {
                             <DropdownMenuContent className="w-56" align="end">
                                 <DropdownMenuLabel className="p-0 font-normal">
                                     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                                        <span className="font-medium">{user.display_name}</span>
-                                        <span className="text-muted-foreground text-xs">{user.email}</span>
+                                        <span className="font-medium">
+                                            {user.display_name}
+                                        </span>
+                                        <span className="text-xs text-muted-foreground">
+                                            {user.email}
+                                        </span>
                                     </div>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem asChild>
                                     <Link
-                                        className="block w-full cursor-pointer flex items-center gap-2"
+                                        className="block flex w-full cursor-pointer items-center gap-2"
                                         href={edit()}
                                         prefetch
                                     >
@@ -131,7 +135,7 @@ export default function Header() {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem asChild>
                                     <Link
-                                        className="block w-full cursor-pointer flex items-center gap-2 text-destructive focus:text-destructive-foreground"
+                                        className="block flex w-full cursor-pointer items-center gap-2 text-destructive focus:text-destructive-foreground"
                                         href={logout()}
                                         as="button"
                                         onClick={handleLogout}
@@ -145,7 +149,7 @@ export default function Header() {
                     ) : (
                         <Link
                             href="/login"
-                            className={`shrink-0 rounded-full px-3 py-2 text-xs font-semibold tracking-[0.14em] whitespace-nowrap uppercase transition-colors sm:px-5 sm:py-2.5 sm:text-sm hover:bg-[#EEF3F8]/10`}
+                            className={`shrink-0 rounded-full px-3 py-2 text-xs font-semibold tracking-[0.14em] whitespace-nowrap uppercase transition-colors hover:bg-[#EEF3F8]/10 sm:px-5 sm:py-2.5 sm:text-sm`}
                         >
                             Account
                         </Link>
