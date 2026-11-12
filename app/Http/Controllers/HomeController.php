@@ -22,7 +22,12 @@ class HomeController extends Controller
             ->orderBy('id')
             ->get();
 
-        $categories = Category::query()->orderBy('name')->get();
+        // Pills follow the design: seed order, and only categories that
+        // actually have a painting (no empty filters).
+        $categories = Category::query()
+            ->whereHas('artworks')
+            ->orderBy('id')
+            ->get();
 
         return inertia('welcome', [
             'artworks' => $artworks,
