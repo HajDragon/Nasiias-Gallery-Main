@@ -20,14 +20,21 @@
             })();
         </script>
 
-        {{-- Inline style to set the HTML background color based on our theme in app.css --}}
+        {{-- Inline style: set the colour scheme and the HTML background from the
+             same source of truth as the theme, before the stylesheet loads.
+             `color-scheme` decides how the browser paints UA defaults (form
+             controls, scrollbars, and the initial `canvastext` text colour),
+             so it must agree with the `.dark` class that the script above and
+             initializeTheme() apply. --}}
         <style>
-            html {
-                background-color: oklch(1 0 0);
+            :root {
+                color-scheme: light;
+                background-color: var(--background);
             }
 
             html.dark {
-                background-color: oklch(0.145 0 0);
+                color-scheme: dark;
+                background-color: var(--background);
             }
         </style>
 

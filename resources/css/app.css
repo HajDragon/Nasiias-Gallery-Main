@@ -40,6 +40,62 @@
     /* --main-red: handoff defines no dark error color */
 }
 
+    /*
+ * shadcn semantic tokens.
+ *
+ * These are declared as plain custom properties and mapped into @theme inline
+ * with var() — never as literals inside @theme inline. Tailwind inlines the
+ * *declared value* into the generated utility, so a literal such as
+ * `--color-background: #eef3fb` compiles to a light background in both modes.
+ * With `var(--background)` the utility resolves at the element, so `.dark`
+ * flips it. Without this, dark mode renders white/inherited text
+ * (color: canvastext) on a light background — the login/register bug.
+ */
+:root {
+    --background: #eef3fb;
+    --foreground: #293241;
+    --card: #ffffff;
+    --card-foreground: #293241;
+    --popover: #ffffff;
+    --popover-foreground: #293241;
+    --primary: #293241;
+    --primary-foreground: #f0f7ff;
+    --secondary: #eef3fb;
+    --secondary-foreground: #293241;
+    --muted: #eef3fb;
+    --muted-foreground: #4c5a70;
+    --accent: #dce8fb;
+    --accent-foreground: #293241;
+    --destructive: #c0392b;
+    --destructive-foreground: #ffffff;
+    --border: #ccd8ec;
+    --input: #ccd8ec;
+    --ring: #2563eb;
+    color-scheme: light;
+}
+
+.dark {
+    --background: #141b2b;
+    --foreground: #e9eefb;
+    --card: #1e2533;
+    --card-foreground: #e9eefb;
+    --popover: #1e2533;
+    --popover-foreground: #e9eefb;
+    --primary: #e9eefb;
+    --primary-foreground: #141b2b;
+    --secondary: #1e2533;
+    --secondary-foreground: #e9eefb;
+    --muted: #1e2533;
+    --muted-foreground: #aab8d2;
+    --accent: #273149;
+    --accent-foreground: #e9eefb;
+    --border: #35415c;
+    --input: #35415c;
+    --ring: #a8c7e0;
+    /* --destructive: handoff defines no dark error colour; red is kept. */
+    color-scheme: dark;
+}
+
 @theme {
     /* Fonts ported from nastiia's gallery (@font-face in public/css/nastia.css) */
     --font-sans:
@@ -60,29 +116,30 @@
     --color-main-chip: var(--main-chip);
     --color-main-red: var(--main-red);
 
-    /* shadcn semantic tokens mapped onto the handoff palette. Without these,
-       utilities like bg-card / text-foreground / bg-primary generate no CSS
-       and components render transparent. The public site (welcome, gallery)
-       uses none of these, so it is unaffected. */
-    --color-background: #eef3fb;
-    --color-foreground: #293241;
-    --color-card: #ffffff;
-    --color-card-foreground: #293241;
-    --color-popover: #ffffff;
-    --color-popover-foreground: #293241;
-    --color-primary: #293241;
-    --color-primary-foreground: #f0f7ff;
-    --color-secondary: #eef3fb;
-    --color-secondary-foreground: #293241;
-    --color-muted: #eef3fb;
-    --color-muted-foreground: #4c5a70;
-    --color-accent: #dce8fb;
-    --color-accent-foreground: #293241;
-    --color-destructive: #c0392b;
-    --color-destructive-foreground: #ffffff;
-    --color-border: #ccd8ec;
-    --color-input: #ccd8ec;
-    --color-ring: #2563eb;
+    /* shadcn semantic tokens mapped onto the handoff palette through var(),
+       so `.dark` can flip them. A literal here would be baked into the
+       generated utility and the light background would survive dark mode.
+       The public site (welcome, gallery) hardcodes its own colours, so it is
+       unaffected. */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
 }
 
 @variant dark (&:where(.dark, .dark *));
