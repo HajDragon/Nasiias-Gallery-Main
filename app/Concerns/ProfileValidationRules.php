@@ -18,6 +18,7 @@ trait ProfileValidationRules
         return [
             'display_name' => $this->displayNameRules(),
             'email' => $this->emailRules($userId),
+            'locale' => $this->localeRules(),
         ];
     }
 
@@ -29,6 +30,20 @@ trait ProfileValidationRules
     protected function displayNameRules(): array
     {
         return ['required', 'string', 'max:255'];
+    }
+
+    /**
+     * Get the validation rules used to validate the user's locale.
+     *
+     * @return array<int, ValidationRule|array<mixed>|string>
+     */
+    protected function localeRules(): array
+    {
+        return [
+            'nullable',
+            'string',
+            Rule::in(array_keys((array) config('app.available_locales'))),
+        ];
     }
 
     /**

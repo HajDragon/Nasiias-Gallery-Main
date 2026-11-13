@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import FilterBar from '@/components/FilterBar';
 import ArtworkHoverCue from '@/components/ArtworkHoverCue';
 import ContactFooter from '@/components/ContactFooter';
+import { useTranslation } from '@/lib/i18n';
 
 interface Artwork {
     id: number;
@@ -45,6 +46,8 @@ export default function GalleryIndex({
     categories,
     selectedCategory,
 }: GalleryIndexProps) {
+    const { t } = useTranslation();
+
     const handleFilterChange = (category: string) => {
         const url = new URL(window.location.href);
         if (category) {
@@ -60,7 +63,7 @@ export default function GalleryIndex({
 
     return (
         <>
-            <Head title="Gallery" />
+            <Head title={t('gallery.title')} />
             <div className="min-h-screen bg-[#EEF3F8] text-[#293241]">
                 <Header />
                 <main id="gallery">
@@ -68,19 +71,18 @@ export default function GalleryIndex({
                         <div className="lg:text-center">
                             <p className="mb-5 flex items-center gap-3 text-[10px] font-semibold tracking-[0.24em] uppercase sm:text-xs lg:justify-center">
                                 <span className="h-px w-8 bg-[#98C1D9]" />
-                                The dense hang
+                                {t('gallery.eyebrow')}
                             </p>
                             <h1 className="max-w-4xl font-display text-[clamp(3.75rem,10vw,8.75rem)] leading-[0.82] tracking-[-0.055em] lg:mx-auto">
-                                Wall to
+                                {t('gallery.heading_1')}
                                 <br />
                                 <span className="text-[#98C1D9] italic">
-                                    wall.
+                                    {t('gallery.heading_2')}
                                 </span>
                             </h1>
                             <div className="mt-8 flex items-end justify-between border-t border-[#293241]/20 pt-4 lg:mx-auto lg:mt-12 lg:w-72 lg:flex-col lg:items-center lg:gap-3 lg:text-center">
                                 <p className="max-w-48 text-sm leading-6 text-[#293241]/70 lg:max-w-none">
-                                    Art washes away from the soul the dust of
-                                    everyday life
+                                    {t('gallery.quote')}
                                 </p>
                             </div>
                         </div>
@@ -88,7 +90,7 @@ export default function GalleryIndex({
 
                     <section
                         className="mx-auto max-w-[1440px] px-5 pb-20 sm:px-8 sm:pb-28 lg:px-12"
-                        aria-label="Painting masonry collection"
+                        aria-label={t('gallery.aria_collection')}
                     >
                         <FilterBar
                             active={selectedCategory}
@@ -107,7 +109,11 @@ export default function GalleryIndex({
                                     <Link
                                         href={`/gallery/${artwork.id}`}
                                         className="group/image relative block w-full cursor-zoom-in overflow-hidden hover:z-10"
-                                        aria-label={`Open ${artwork.title || 'Untitled'}`}
+                                        aria-label={t('artwork.open', {
+                                            title:
+                                                artwork.title ||
+                                                t('artwork.untitled'),
+                                        })}
                                     >
                                         <div
                                             className={`bg-white ${masonryAspects[index % masonryAspects.length]}`}
@@ -124,7 +130,8 @@ export default function GalleryIndex({
                                     <div className="border-t border-[#293241]/15 p-4">
                                         <div className="flex items-center justify-between gap-2">
                                             <h2 className="font-display text-base leading-tight tracking-[-0.02em] sm:text-lg">
-                                                {artwork.title || 'Untitled'}
+                                                {artwork.title ||
+                                                    t('artwork.untitled')}
                                             </h2>
                                             <span
                                                 className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#98C1D9] transition-transform duration-300 group-hover:scale-150"
@@ -133,7 +140,7 @@ export default function GalleryIndex({
                                         </div>
                                         <p className="mt-1.5 text-[9px] font-semibold tracking-[0.18em] text-[#293241]/55 uppercase">
                                             {artwork.category?.name ||
-                                                'Gallery Piece'}
+                                                t('artwork.gallery_piece')}
                                         </p>
                                     </div>
                                 </article>
@@ -160,14 +167,16 @@ export default function GalleryIndex({
                                             );
                                         }}
                                         className="flex h-10 w-10 items-center justify-center rounded-full border border-[#293241]/15 text-[#293241] transition-colors hover:bg-[#EEF3F8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#293241]"
-                                        aria-label="Previous page"
+                                        aria-label={t('gallery.previous_page')}
                                     >
                                         <ChevronLeft className="h-5 w-5" />
                                     </button>
                                 )}
                                 <span className="text-sm text-[#293241]/60">
-                                    Page {artworks.current_page} of{' '}
-                                    {artworks.last_page}
+                                    {t('gallery.page_of', {
+                                        current: artworks.current_page,
+                                        last: artworks.last_page,
+                                    })}
                                 </span>
                                 {artworks.current_page < artworks.last_page && (
                                     <button
@@ -187,7 +196,7 @@ export default function GalleryIndex({
                                             );
                                         }}
                                         className="flex h-10 w-10 items-center justify-center rounded-full border border-[#293241]/15 text-[#293241] transition-colors hover:bg-[#EEF3F8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#293241]"
-                                        aria-label="Next page"
+                                        aria-label={t('gallery.next_page')}
                                     >
                                         <ChevronLeft className="h-5 w-5 rotate-180" />
                                     </button>

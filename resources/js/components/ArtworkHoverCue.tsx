@@ -1,4 +1,8 @@
+import { useTranslation } from '@/lib/i18n';
+
 export default function ArtworkHoverCue() {
+    const { t } = useTranslation();
+
     return (
         <span
             className="artwork-hover-cue pointer-events-none absolute inset-0 z-10 grid place-items-center bg-[#293241]/10 opacity-0 group-hover/image:animate-[fadeCue_1.5s_ease-in-out_forwards]"
@@ -23,7 +27,7 @@ export default function ArtworkHoverCue() {
                     />
                 </svg>
                 <span className="text-[9px] font-semibold tracking-[0.14em] uppercase">
-                    Click me!
+                    {t('home.click_me')}
                 </span>
             </span>
         </span>

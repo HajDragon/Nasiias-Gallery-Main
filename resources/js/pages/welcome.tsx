@@ -5,6 +5,7 @@ import FilterBar from '@/components/FilterBar';
 import ArtworkHoverCue from '@/components/ArtworkHoverCue';
 import ContactFooter from '@/components/ContactFooter';
 import IntroAnimation from '@/components/ui/intro-animation';
+import { useTranslation } from '@/lib/i18n';
 
 interface Artwork {
     id: number;
@@ -34,6 +35,7 @@ function FeedCard({
     onSelect: (artwork: Artwork) => void;
     onLike: (artwork: Artwork) => void;
 }) {
+    const { t } = useTranslation();
     const lastTapRef = useRef(0);
     const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -74,7 +76,9 @@ function FeedCard({
                 type="button"
                 onClick={handleTap}
                 className="group/image absolute inset-0 block w-full text-left"
-                aria-label={`Double-tap ${artwork.title || 'Untitled'} to like, tap to open`}
+                aria-label={t('welcome.double_tap_to_like', {
+                    title: artwork.title || t('artwork.untitled'),
+                })}
             >
                 <div className="h-full w-full bg-white">
                     <img
@@ -90,10 +94,11 @@ function FeedCard({
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-5 pb-8">
                     <div className="min-w-0">
                         <h2 className="font-display text-3xl text-[#F0F7FF] drop-shadow-sm">
-                            {artwork.title || 'Untitled'}
+                            {artwork.title || t('artwork.untitled')}
                         </h2>
                         <p className="mt-1.5 text-[10px] font-semibold tracking-[0.18em] text-[#F0F7FF]/75 uppercase">
-                            {artwork.category?.name || 'Gallery Piece'}
+                            {artwork.category?.name ||
+                                t('artwork.gallery_piece')}
                         </p>
                     </div>
                     <svg
@@ -141,6 +146,7 @@ function FeedCard({
 }
 
 export default function Welcome({ artworks, categories }: WelcomeProps) {
+    const { t } = useTranslation();
     const [activeCategory, setActiveCategory] = useState('');
     const [likedIds, setLikedIds] = useState<Set<number>>(new Set());
 
@@ -173,7 +179,7 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                 <main id="top">
                     <section
                         className="h-[100dvh] overflow-hidden"
-                        aria-label="Intro animation"
+                        aria-label={t('welcome.aria_intro')}
                     >
                         <IntroAnimation
                             items={artworks.map((artwork) => ({
@@ -190,19 +196,16 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                     <section
                         id="art-library"
                         className="mx-auto max-w-[1440px] px-5 pb-20 sm:px-8 sm:pb-28 lg:px-12"
-                        aria-label="Painting collection"
+                        aria-label={t('welcome.aria_collection')}
                     >
                         <h2 className="mb-6 pt-8 font-display text-[clamp(2.5rem,7vw,4.5rem)] leading-[0.9] tracking-[-0.045em] sm:mb-8">
-                            My{' '}
+                            {t('welcome.my')}{' '}
                             <span className="text-[#98C1D9] italic">
-                                Art library
+                                {t('welcome.art_library')}
                             </span>
                         </h2>
                         <p className="mb-8 max-w-2xl text-sm leading-7 text-[#293241]/70 sm:text-base sm:leading-8">
-                            Every canvas here is a quiet invitation — to pause,
-                            to feel, and to find the piece that speaks the
-                            moment you see it. Stay a while; the right work has
-                            a way of finding you.
+                            {t('welcome.intro')}
                         </p>
 
                         <div className="sticky top-0 z-30 -mx-5 bg-[#EEF3F8] px-5 sm:static sm:z-auto sm:mx-0 sm:px-0">
@@ -216,7 +219,7 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                         </div>
 
                         <p className="mt-2 mb-2 text-center text-[11px] font-semibold tracking-[0.3em] text-[#293241]/55 uppercase sm:hidden">
-                            Scroll ! ↓
+                            {t('welcome.scroll')}
                         </p>
 
                         <div className="h-[100dvh] snap-y snap-mandatory [scrollbar-width:none] overflow-y-scroll sm:hidden [&::-webkit-scrollbar]:hidden">
@@ -241,7 +244,11 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                                         type="button"
                                         onClick={() => openArtwork(artwork)}
                                         className="group/image relative block w-full cursor-zoom-in overflow-hidden text-left hover:z-10"
-                                        aria-label={`Open ${artwork.title || 'Untitled'}`}
+                                        aria-label={t('artwork.open', {
+                                            title:
+                                                artwork.title ||
+                                                t('artwork.untitled'),
+                                        })}
                                     >
                                         <div className="aspect-[4/5] w-full bg-white">
                                             <img
@@ -266,7 +273,8 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                                     <div className="border-t border-[#293241]/15 p-4">
                                         <div className="flex items-baseline justify-between gap-4">
                                             <h2 className="font-display text-xl leading-tight tracking-[-0.02em] sm:text-[1.5rem]">
-                                                {artwork.title || 'Untitled'}
+                                                {artwork.title ||
+                                                    t('artwork.untitled')}
                                             </h2>
                                             <span
                                                 className="h-2 w-2 shrink-0 rounded-full bg-[#98C1D9] transition-transform duration-300 group-hover:scale-150"
@@ -275,7 +283,7 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                                         </div>
                                         <p className="mt-1.5 text-[10px] font-semibold tracking-[0.18em] text-[#293241]/55 uppercase">
                                             {artwork.category?.name ||
-                                                'Gallery Piece'}
+                                                t('artwork.gallery_piece')}
                                         </p>
                                     </div>
                                 </article>

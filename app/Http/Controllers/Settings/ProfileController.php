@@ -38,9 +38,20 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile updated.')]);
+        $locale = $request->user()->getAttribute('locale');
 
-        return to_route('profile.edit');
+        if (is_string($locale)) {
+            $request->session()->put('locale', $locale);
+            app()->setLocale($locale);
+        }
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('app.profile_updated')]);
+
+        $response = to_route('profile.edit');
+
+        return is_string($locale)
+            ? $response->withCookie(cookie()->forever('locale', $locale))
+            : $response;
     }
 
     /**
