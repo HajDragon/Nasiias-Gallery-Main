@@ -27,6 +27,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string $password_hash
  * @property UserRole $role
  * @property string|null $locale
+ * @property bool|null $notify_on_new_artwork
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
@@ -34,7 +35,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['display_name', 'email', 'password_hash', 'role', 'locale'])]
+#[Fillable(['display_name', 'email', 'password_hash', 'role', 'locale', 'notify_on_new_artwork'])]
 #[Hidden(['password_hash', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser, HasName, MustVerifyEmail, PasskeyUser
 {
@@ -88,6 +89,7 @@ class User extends Authenticatable implements FilamentUser, HasName, MustVerifyE
             'email_verified_at' => 'datetime',
             'password_hash' => 'hashed',
             'role' => UserRole::class,
+            'notify_on_new_artwork' => 'boolean',
             'two_factor_confirmed_at' => 'datetime',
         ];
     }

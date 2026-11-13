@@ -113,7 +113,7 @@ export default function TwoFactorRecoveryCodes({
                             <>
                                 <div
                                     ref={codesSectionRef}
-                                    className="bg-muted grid gap-1 rounded-lg p-4 font-mono text-sm"
+                                    className="grid gap-1 rounded-lg bg-muted p-4 font-mono text-sm"
                                     role="list"
                                     aria-label={t('two_factor.recovery_aria')}
                                 >
@@ -139,7 +139,7 @@ export default function TwoFactorRecoveryCodes({
                                                 (_, index) => (
                                                     <div
                                                         key={index}
-                                                        className="bg-muted-foreground/20 h-4 animate-pulse rounded"
+                                                        className="h-4 animate-pulse rounded bg-muted-foreground/20"
                                                         aria-hidden="true"
                                                     />
                                                 ),
@@ -148,7 +148,7 @@ export default function TwoFactorRecoveryCodes({
                                     )}
                                 </div>
 
-                                <div className="text-muted-foreground text-xs select-none">
+                                <div className="text-xs text-muted-foreground select-none">
                                     <p id="regenerate-warning">
                                         {t('two_factor.recovery_note')}
                                     </p>

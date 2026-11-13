@@ -11,3 +11,4 @@ Route::post('locale/{locale}', LocaleController::class)->name('locale.update');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/gallery.php';
+require __DIR__.'/notifications.php';

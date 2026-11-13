@@ -25,9 +25,7 @@ export default function Profile({
         <>
             <Head title={t('profile.title')} />
 
-            <h1 className="sr-only">{t('profile.title')}</h1>
-
-            <div className="space-y-6">
+            <div className="mx-auto max-w-2xl space-y-6">
                 <Heading
                     variant="small"
                     title={t('profile.heading')}
@@ -50,7 +48,7 @@ export default function Profile({
 
                                 <Input
                                     id="display_name"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block w-full border-[#293241]/25 bg-white focus-visible:border-[#293241]"
                                     defaultValue={auth.user.display_name}
                                     name="display_name"
                                     required
@@ -74,7 +72,7 @@ export default function Profile({
                                 <Input
                                     id="email"
                                     type="email"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block w-full border-[#293241]/25 bg-white focus-visible:border-[#293241]"
                                     defaultValue={auth.user.email}
                                     name="email"
                                     required
@@ -97,7 +95,7 @@ export default function Profile({
                                     id="locale"
                                     name="locale"
                                     defaultValue={auth.user.locale ?? locale}
-                                    className="border-input focus-visible:border-ring focus-visible:ring-ring/50 mt-1 block h-9 w-full rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] md:text-sm"
+                                    className="mt-1 block h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm"
                                 >
                                     {Object.entries(availableLocales).map(
                                         ([code, label]) => (
@@ -108,7 +106,7 @@ export default function Profile({
                                     )}
                                 </select>
 
-                                <p className="text-muted-foreground text-sm">
+                                <p className="text-sm text-muted-foreground">
                                     {t('profile.language_hint')}
                                 </p>
 
@@ -121,7 +119,7 @@ export default function Profile({
                             {mustVerifyEmail &&
                                 auth.user.email_verified_at === null && (
                                     <div>
-                                        <p className="text-muted-foreground -mt-4 text-sm">
+                                        <p className="-mt-4 text-sm text-muted-foreground">
                                             {t('profile.unverified')}{' '}
                                             <Link
                                                 href={send()}
@@ -145,16 +143,18 @@ export default function Profile({
                                 <Button
                                     disabled={processing}
                                     data-test="update-profile-button"
+                                    className="bg-[#293241] text-[#F0F7FF] transition-colors hover:bg-[#293241]/90"
                                 >
                                     {t('profile.save')}
                                 </Button>
                             </div>
+                            <hr className="my-5 border-gray-300" />
                         </>
                     )}
                 </Form>
             </div>
 
-            <DeleteUser />
+            <DeleteUser user={auth.user} />
         </>
     );
 }

@@ -28,8 +28,6 @@ export default function Security(props: Props) {
         <>
             <Head title={t('security.title')} />
 
-            <h1 className="sr-only">{t('security.title')}</h1>
-
             <div className="space-y-6">
                 <Heading
                     variant="small"
@@ -70,7 +68,7 @@ export default function Security(props: Props) {
                                     id="current_password"
                                     ref={currentPasswordInput}
                                     name="current_password"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block w-full border-[#293241]/25 bg-white focus-visible:border-[#293241]"
                                     autoComplete="current-password"
                                     placeholder={t('security.current_password')}
                                 />
@@ -87,7 +85,7 @@ export default function Security(props: Props) {
                                     id="password"
                                     ref={passwordInput}
                                     name="password"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block w-full border-[#293241]/25 bg-white focus-visible:border-[#293241]"
                                     autoComplete="new-password"
                                     placeholder={t('security.new_password')}
                                     passwordrules={props.passwordRules}
@@ -104,7 +102,7 @@ export default function Security(props: Props) {
                                 <PasswordInput
                                     id="password_confirmation"
                                     name="password_confirmation"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block w-full border-[#293241]/25 bg-white focus-visible:border-[#293241]"
                                     autoComplete="new-password"
                                     placeholder={t('security.confirm_password')}
                                     passwordrules={props.passwordRules}
@@ -119,6 +117,7 @@ export default function Security(props: Props) {
                                 <Button
                                     disabled={processing}
                                     data-test="update-password-button"
+                                    className="bg-[#293241] text-[#F0F7FF] transition-colors hover:bg-[#293241]/90"
                                 >
                                     {t('security.save')}
                                 </Button>

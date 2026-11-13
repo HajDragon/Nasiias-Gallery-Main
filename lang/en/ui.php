@@ -28,6 +28,7 @@ return [
         'home' => 'Home',
         'gallery' => 'Gallery',
         'contact' => 'Contact us',
+        'account' => 'Account',
         'settings' => 'Settings',
         'log_out' => 'Log out',
         'platform' => 'Platform',
@@ -205,6 +206,8 @@ return [
     'settings' => [
         'title' => 'Settings',
         'description' => 'Manage your profile and account settings',
+        'heading_prefix' => 'Account',
+        'heading_accent' => 'settings',
         'profile' => 'Profile',
         'security' => 'Security',
         'appearance' => 'Appearance',
@@ -255,6 +258,8 @@ return [
         'confirm_description' => 'Once your account is deleted, all of its resources and data will also be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.',
         'password' => 'Password',
         'cancel' => 'Cancel',
+        'email_not_verified' => 'Email not verified',
+        'verify_required' => 'You must verify your email address before you can delete your account.',
     ],
 
     'two_factor' => [
@@ -304,6 +309,17 @@ return [
         'remove_description' => 'Are you sure you want to remove the ":name" passkey? You will no longer be able to use it to sign in.',
         'removing' => 'Removing...',
         'remove_confirm' => 'Remove passkey',
+    ],
+
+    'notifications' => [
+        'new_artwork_aria' => 'New artwork email notifications',
+        'new_artwork_heading' => 'New artwork alerts',
+        'new_artwork_description' => 'Want to get an email when a new artwork is uploaded to the gallery?',
+        'decline' => 'No thanks',
+        'accept' => 'Yes, notify me',
+        'subscribed' => "Great — we'll email you when a new artwork is uploaded.",
+        'unsubscribed' => "No problem — you won't receive new artwork emails.",
+        'error' => 'Something went wrong. Please try again.',
     ],
 
     'errors' => [

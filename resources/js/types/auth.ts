@@ -6,6 +6,7 @@ export type User = {
     locale?: string | null;
     avatar?: string;
     email_verified_at: string | null;
+    notify_on_new_artwork: boolean | null;
     two_factor_enabled?: boolean;
     created_at: string;
     updated_at: string;

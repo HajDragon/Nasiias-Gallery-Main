@@ -114,7 +114,7 @@ export default function Register({ passwordRules }: Props) {
                             </Button>
                         </div>
 
-                        <div className="text-muted-foreground text-center text-sm">
+                        <div className="text-center text-sm text-muted-foreground">
                             {t('auth.register.have_account')}{' '}
                             <TextLink href={login()} tabIndex={6}>
                                 {t('auth.register.log_in')}

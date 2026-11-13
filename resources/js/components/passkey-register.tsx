@@ -60,7 +60,7 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
 
     if (!isSupported) {
         return (
-            <div className="text-muted-foreground text-sm">
+            <div className="text-sm text-muted-foreground">
                 {t('passkeys.unsupported')}
             </div>
         );
@@ -77,7 +77,7 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
     return (
         <form
             onSubmit={handleSubmit}
-            className="border-border bg-muted/50 space-y-4 rounded-lg border p-4"
+            className="space-y-4 rounded-lg border border-border bg-muted/50 p-4"
         >
             <div className="grid gap-2">
                 <Label htmlFor="passkey-name">{t('passkeys.name')}</Label>
@@ -87,10 +87,10 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder={t('passkeys.name_placeholder')}
-                    className="border-foreground/20 mt-1 block w-full"
+                    className="mt-1 block w-full border-foreground/20"
                     autoFocus
                 />
-                <p className="text-muted-foreground text-xs">
+                <p className="text-xs text-muted-foreground">
                     {t('passkeys.name_hint')}
                 </p>
             </div>

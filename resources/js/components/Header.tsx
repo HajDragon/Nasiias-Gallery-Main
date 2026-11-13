@@ -1,19 +1,40 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, router } from '@inertiajs/react';
+import { LogOut, Settings } from 'lucide-react';
 import LanguageSwitcher from '@/components/language-switcher';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useInitials } from '@/hooks/use-initials';
 import { useTranslation } from '@/lib/i18n';
+import { edit } from '@/routes/profile';
+import { logout } from '@/routes';
 
 export default function Header() {
+    const page = usePage();
     const { t } = useTranslation();
-    const url = usePage().url;
+    const url = page.url;
     const path = url.split('?')[0] ?? '/';
     const isHome = path === '/';
     const isGallery = path.startsWith('/gallery');
+    const user = page.props.auth?.user ?? null;
+    const getInitials = useInitials();
 
     const scrollToContact = (event: React.MouseEvent<HTMLAnchorElement>) => {
         const target = document.getElementById('contact');
         if (!target) return;
         event.preventDefault();
         target.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const handleLogout = () => {
+        router.flushAll();
     };
 
     return (
@@ -66,6 +87,70 @@ export default function Header() {
                         {t('nav.contact')}
                     </a>
                     <LanguageSwitcher className="ml-auto sm:ml-2" />
+                    {user ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    className="size-10 rounded-full p-1"
+                                >
+                                    <Avatar className="size-8 overflow-hidden rounded-full">
+                                        <AvatarImage
+                                            src={user.avatar}
+                                            alt={user.display_name}
+                                        />
+                                        <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                            {getInitials(
+                                                user.display_name ?? '',
+                                            )}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56" align="end">
+                                <DropdownMenuLabel className="p-0 font-normal">
+                                    <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                                        <span className="font-medium">
+                                            {user.display_name}
+                                        </span>
+                                        <span className="text-xs text-muted-foreground">
+                                            {user.email}
+                                        </span>
+                                    </div>
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild>
+                                    <Link
+                                        className="block flex w-full cursor-pointer items-center gap-2"
+                                        href={edit()}
+                                        prefetch
+                                    >
+                                        <Settings className="mr-2 size-4" />
+                                        {t('nav.settings')}
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild>
+                                    <Link
+                                        className="block flex w-full cursor-pointer items-center gap-2 text-destructive focus:text-destructive-foreground"
+                                        href={logout()}
+                                        as="button"
+                                        onClick={handleLogout}
+                                    >
+                                        <LogOut className="mr-2 size-4" />
+                                        {t('nav.log_out')}
+                                    </Link>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : (
+                        <Link
+                            href="/login"
+                            className={`shrink-0 rounded-full px-3 py-2 text-xs font-semibold tracking-[0.14em] whitespace-nowrap uppercase transition-colors hover:bg-[#EEF3F8]/10 sm:px-5 sm:py-2.5 sm:text-sm`}
+                        >
+                            {t('nav.account')}
+                        </Link>
+                    )}
                 </nav>
             </div>
         </header>
