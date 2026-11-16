@@ -8,3 +8,4 @@ Route::inertia('design-test', 'design-test')->name('design-test');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/gallery.php';
+require __DIR__.'/notifications.php';

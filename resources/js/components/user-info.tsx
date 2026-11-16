@@ -24,7 +24,7 @@ export function UserInfo({
                     {user.display_name}
                 </span>
                 {showEmail && (
-                    <span className="text-muted-foreground truncate text-xs">
+                    <span className="truncate text-xs text-muted-foreground">
                         {user.email}
                     </span>
                 )}

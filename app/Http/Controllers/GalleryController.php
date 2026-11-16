@@ -28,7 +28,11 @@ class GalleryController extends Controller
         }
 
         $artworks = $query->paginate(18)->withQueryString();
-        $categories = Category::query()->orderBy('name')->get();
+        // Same pill list as the home page: seed order, artwork-backed only.
+        $categories = Category::query()
+            ->whereHas('artworks')
+            ->orderBy('id')
+            ->get();
 
         return inertia('gallery/index', [
             'artworks' => $artworks,
