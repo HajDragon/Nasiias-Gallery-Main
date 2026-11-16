@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Rules\ValidArtworkImage;
 use Database\Factories\ArtworkFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -39,7 +40,8 @@ class Artwork extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('images')
-            ->singleFile();
+            ->singleFile()
+            ->acceptsMimeTypes(array_keys(ValidArtworkImage::ACCEPTED_MIME_TYPES));
     }
 
     public function registerMediaConversions(?Media $media = null): void

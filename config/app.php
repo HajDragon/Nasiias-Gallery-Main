@@ -82,6 +82,21 @@ return [
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Available Locales
+    |--------------------------------------------------------------------------
+    |
+    | The locales visitors can choose from in the interface. The keys are the
+    | locale codes used by Laravel, the values are the names shown to users.
+    |
+    */
+
+    'available_locales' => [
+        'en' => 'English',
+        'uk' => 'Українська',
+    ],
+
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
     /*

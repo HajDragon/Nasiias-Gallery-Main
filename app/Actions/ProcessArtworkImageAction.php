@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Models\Artwork;
+use App\Rules\ValidArtworkImage;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Validator;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ProcessArtworkImageAction
@@ -15,6 +17,13 @@ class ProcessArtworkImageAction
      */
     public function execute(Artwork $artwork, UploadedFile $file, string $collection = 'images'): Media
     {
+        // Defense in depth: never attach a file that fails the security
+        // checks, even when this action is called outside the admin form.
+        Validator::make(
+            ['image' => $file],
+            ['image' => [new ValidArtworkImage]],
+        )->validate();
+
         if (! $artwork->exists) {
             $artwork->save();
         }

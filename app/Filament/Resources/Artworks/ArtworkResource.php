@@ -8,6 +8,7 @@ use App\Filament\Resources\Artworks\Pages\ListArtworks;
 use App\Filament\Resources\Artworks\RelationManagers\CommentsRelationManager;
 use App\Models\Artwork;
 use App\Models\Category;
+use App\Rules\ValidArtworkImage;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -92,14 +93,23 @@ class ArtworkResource extends Resource
 
                         FileUpload::make('file')
                             ->label(fn (string $operation): string => $operation === 'edit' ? 'Replace Artwork File' : 'Artwork File')
-                            ->image()
+                            ->acceptedFileTypes(array_keys(ValidArtworkImage::ACCEPTED_MIME_TYPES))
+                            ->rules([new ValidArtworkImage])
+                            ->maxSize(ValidArtworkImage::MAX_SIZE_KB)
+                            ->preventFilePathTampering()
                             ->disk('public')
                             ->directory('artworks')
                             ->required(fn (string $operation): bool => $operation === 'create')
                             ->live()
-                            ->helperText(fn (string $operation): string => $operation === 'edit'
-                                ? 'Upload a new image only if you want to replace the current artwork image.'
-                                : 'Upload the high-resolution artwork image.'),
+                            ->helperText(function (string $operation): string {
+                                $formats = strtoupper(implode(', ', ValidArtworkImage::ACCEPTED_EXTENSIONS));
+
+                                return ($operation === 'edit'
+                                        ? 'Upload a new image only if you want to replace the current artwork image. '
+                                        : 'Upload the high-resolution artwork image. ')
+                                    ."Accepted formats: {$formats}. Maximum size: "
+                                    .(ValidArtworkImage::MAX_SIZE_KB / 1024).' MB.';
+                            }),
                     ]),
 
                 Section::make('Artwork Showcase')

@@ -61,6 +61,44 @@ class ProfileUpdateTest extends TestCase
         $this->assertNotNull($user->refresh()->email_verified_at);
     }
 
+    public function test_user_can_opt_in_to_new_artwork_notifications()
+    {
+        $user = User::factory()->create(['notify_on_new_artwork' => null]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'display_name' => $user->display_name,
+                'email' => $user->email,
+                'notify_on_new_artwork' => true,
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('profile.edit'));
+
+        $this->assertTrue($user->refresh()->notify_on_new_artwork);
+    }
+
+    public function test_user_can_opt_out_of_new_artwork_notifications()
+    {
+        $user = User::factory()->create(['notify_on_new_artwork' => true]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch(route('profile.update'), [
+                'display_name' => $user->display_name,
+                'email' => $user->email,
+                'notify_on_new_artwork' => false,
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('profile.edit'));
+
+        $this->assertFalse($user->refresh()->notify_on_new_artwork);
+    }
+
     public function test_user_can_delete_their_account()
     {
         $user = User::factory()->create();

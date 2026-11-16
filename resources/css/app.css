@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '../../public/css/fonts.css';
 @import '../../vendor/filament/support/resources/css/index.css';
 @import '../../vendor/filament/actions/resources/css/index.css';
 @import '../../vendor/filament/forms/resources/css/index.css';
@@ -14,11 +15,218 @@
 @source '../**/*.js';
 @source '../**/*.vue';
 
+/* Design palette — ported from nastiia's gallery handoff (ontwerp-overdracht.html) */
+:root {
+    --main-canvas: #eef3fb;
+    --main-surface: #ffffff;
+    --main-ink: #1e2533;
+    --main-muted: #4c5a70;
+    --main-blue: #2563eb;
+    --main-on-blue: #ffffff;
+    --main-line: #ccd8ec;
+    --main-chip: #dce8fb;
+    --main-red: #c0392b;
+}
+
+.dark {
+    --main-canvas: #141b2b;
+    --main-surface: #1e2533;
+    --main-ink: #e9eefb;
+    --main-muted: #aab8d2;
+    --main-blue: #a8c7e0;
+    --main-on-blue: #101828;
+    --main-line: #35415c;
+    --main-chip: #273149;
+    /* --main-red: handoff defines no dark error color */
+}
+
+/*
+ * shadcn semantic tokens.
+ *
+ * These are declared as plain custom properties and mapped into @theme inline
+ * with var() — never as literals inside @theme inline. Tailwind inlines the
+ * *declared value* into the generated utility, so a literal such as
+ * `--color-background: #eef3fb` compiles to a light background in both modes.
+ * With `var(--background)` the utility resolves at the element, so `.dark`
+ * flips it. Without this, dark mode renders white/inherited text
+ * (color: canvastext) on a light background — the login/register bug.
+ */
+:root {
+    --background: #eef3fb;
+    --foreground: #293241;
+    --card: #ffffff;
+    --card-foreground: #293241;
+    --popover: #ffffff;
+    --popover-foreground: #293241;
+    --primary: #293241;
+    --primary-foreground: #f0f7ff;
+    --secondary: #eef3fb;
+    --secondary-foreground: #293241;
+    --muted: #eef3fb;
+    --muted-foreground: #4c5a70;
+    --accent: #dce8fb;
+    --accent-foreground: #293241;
+    --destructive: #c0392b;
+    --destructive-foreground: #ffffff;
+    --border: #ccd8ec;
+    --input: #ccd8ec;
+    --ring: #2563eb;
+    color-scheme: light;
+}
+
+.dark {
+    --background: #141b2b;
+    --foreground: #e9eefb;
+    --card: #1e2533;
+    --card-foreground: #e9eefb;
+    --popover: #1e2533;
+    --popover-foreground: #e9eefb;
+    --primary: #e9eefb;
+    --primary-foreground: #141b2b;
+    --secondary: #1e2533;
+    --secondary-foreground: #e9eefb;
+    --muted: #1e2533;
+    --muted-foreground: #aab8d2;
+    --accent: #273149;
+    --accent-foreground: #e9eefb;
+    --border: #35415c;
+    --input: #35415c;
+    --ring: #a8c7e0;
+    /* --destructive: handoff defines no dark error colour; red is kept. */
+    color-scheme: dark;
+}
+
 @theme {
+    /* Fonts ported from nastiia's gallery (@font-face in public/css/nastia.css) */
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        'Libron', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
+    --font-display: 'Magilio', Georgia, serif;
+}
+
+@theme inline {
+    --color-main-canvas: var(--main-canvas);
+    --color-main-surface: var(--main-surface);
+    --color-main-ink: var(--main-ink);
+    --color-main-muted: var(--main-muted);
+    --color-main-blue: var(--main-blue);
+    --color-main-on-blue: var(--main-on-blue);
+    --color-main-line: var(--main-line);
+    --color-main-chip: var(--main-chip);
+    --color-main-red: var(--main-red);
+
+    /* shadcn semantic tokens mapped onto the handoff palette through var(),
+       so `.dark` can flip them. A literal here would be baked into the
+       generated utility and the light background would survive dark mode.
+       The public site (welcome, gallery) hardcodes its own colours, so it is
+       unaffected. */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
 }
 
 @variant dark (&:where(.dark, .dark *));
+
+/* Animations ported from nastiia's gallery (src/index.css) */
+@keyframes artwork-click-cue {
+    0%,
+    35% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 0.8;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.55);
+    }
+}
+
+.artwork-click-ring {
+    animation: artwork-click-cue 1.35s ease-out infinite;
+}
+
+@keyframes fadeCue {
+    0% {
+        opacity: 0;
+    }
+    15% {
+        opacity: 1;
+    }
+    75% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Canvas + heart burst ported from nastiia's gallery (src/index.css).
+   The body background is scoped to the gallery pages so the admin theme keeps
+   its own canvas colour. */
+body:has(.gallery-surface) {
+    background: #eef3f8;
+}
+
+::selection {
+    background: #98c1d9;
+    color: #293241;
+}
+
+@keyframes heartBurst {
+    0% {
+        opacity: 0;
+        transform: scale(0.4);
+    }
+    15% {
+        opacity: 1;
+        transform: scale(1.3);
+    }
+    25% {
+        transform: scale(1);
+    }
+    75% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.15);
+    }
+}
+
+.heart-burst {
+    animation: heartBurst 1s ease-in-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .artwork-click-ring {
+        animation: none;
+    }
+    .artwork-hover-cue {
+        animation: none;
+    }
+    /* liked badge still gives feedback without the burst */
+    .heart-burst {
+        animation: none;
+        opacity: 0;
+    }
+}

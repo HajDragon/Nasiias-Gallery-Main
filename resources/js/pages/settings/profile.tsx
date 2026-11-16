@@ -5,15 +5,12 @@ import DeleteUser from '@/components/delete-user';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { edit } from '@/routes/profile';
-import type { Auth } from '@/types';
 import { send } from '@/routes/verification';
-
-type PageProps = {
-    auth: Auth;
-};
+import { useTranslation } from '@/lib/i18n';
 
 export default function Profile({
     mustVerifyEmail,
@@ -22,19 +19,18 @@ export default function Profile({
     mustVerifyEmail: boolean;
     status?: string;
 }) {
-    const { auth } = usePage<PageProps>().props;
+    const { auth, locale, availableLocales } = usePage().props;
+    const { t } = useTranslation();
 
     return (
         <>
-            <Head title="Profile settings" />
+            <Head title={t('profile.title')} />
 
-            <h1 className="sr-only">Profile settings</h1>
-
-            <div className="space-y-6">
+            <div className="mx-auto max-w-2xl space-y-6">
                 <Heading
                     variant="small"
-                    title="Profile"
-                    description="Update your display name and email address"
+                    title={t('profile.heading')}
+                    description={t('profile.description')}
                 />
 
                 <Form
@@ -48,17 +44,19 @@ export default function Profile({
                         <>
                             <div className="grid gap-2">
                                 <Label htmlFor="display_name">
-                                    Display name
+                                    {t('profile.display_name')}
                                 </Label>
 
                                 <Input
                                     id="display_name"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block w-full border-[#293241]/25 bg-white focus-visible:border-[#293241]"
                                     defaultValue={auth.user.display_name}
                                     name="display_name"
                                     required
                                     autoComplete="name"
-                                    placeholder="Full name"
+                                    placeholder={t(
+                                        'profile.display_name_placeholder',
+                                    )}
                                 />
 
                                 <InputError
@@ -68,17 +66,19 @@ export default function Profile({
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email">
+                                    {t('profile.email')}
+                                </Label>
 
                                 <Input
                                     id="email"
                                     type="email"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block w-full border-[#293241]/25 bg-white focus-visible:border-[#293241]"
                                     defaultValue={auth.user.email}
                                     name="email"
                                     required
                                     autoComplete="username"
-                                    placeholder="Email address"
+                                    placeholder={t('profile.email_placeholder')}
                                 />
 
                                 <InputError
@@ -87,26 +87,91 @@ export default function Profile({
                                 />
                             </div>
 
+                            <div className="grid gap-2">
+                                <Label htmlFor="locale">
+                                    {t('profile.language')}
+                                </Label>
+
+                                <select
+                                    id="locale"
+                                    name="locale"
+                                    defaultValue={auth.user.locale ?? locale}
+                                    className="mt-1 block h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm"
+                                >
+                                    {Object.entries(availableLocales).map(
+                                        ([code, label]) => (
+                                            <option key={code} value={code}>
+                                                {label}
+                                            </option>
+                                        ),
+                                    )}
+                                </select>
+
+                                <p className="text-sm text-muted-foreground">
+                                    {t('profile.language_hint')}
+                                </p>
+
+                                <InputError
+                                    className="mt-2"
+                                    message={errors.locale}
+                                />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="notify_on_new_artwork">
+                                    {t('profile.notifications')}
+                                </Label>
+
+                                <label
+                                    htmlFor="notify_on_new_artwork"
+                                    className="mt-1 flex cursor-pointer items-start gap-3 rounded-lg border border-[#293241]/15 bg-[#EEF3F8]/50 p-4"
+                                >
+                                    <Checkbox
+                                        id="notify_on_new_artwork"
+                                        name="notify_on_new_artwork"
+                                        value="1"
+                                        defaultChecked={
+                                            auth.user.notify_on_new_artwork ===
+                                            true
+                                        }
+                                        className="mt-0.5"
+                                    />
+                                    <span className="space-y-1">
+                                        <span className="block text-sm font-medium text-[#293241]">
+                                            {t('profile.notify_new_artwork')}
+                                        </span>
+                                        <span className="block text-sm text-[#293241]/70">
+                                            {t(
+                                                'profile.notify_new_artwork_hint',
+                                            )}
+                                        </span>
+                                    </span>
+                                </label>
+
+                                <InputError
+                                    className="mt-2"
+                                    message={errors.notify_on_new_artwork}
+                                />
+                            </div>
+
                             {mustVerifyEmail &&
                                 auth.user.email_verified_at === null && (
                                     <div>
                                         <p className="-mt-4 text-sm text-muted-foreground">
-                                            Your email address is unverified.{' '}
+                                            {t('profile.unverified')}{' '}
                                             <Link
                                                 href={send()}
                                                 as="button"
                                                 className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                                             >
-                                                Click here to re-send the
-                                                verification email.
+                                                {t('profile.resend')}
                                             </Link>
                                         </p>
 
                                         {status ===
                                             'verification-link-sent' && (
                                             <div className="mt-2 text-sm font-medium text-green-600">
-                                                A new verification link has been
-                                                sent to your email address.
+                                                {t('profile.verification_sent')}
                                             </div>
                                         )}
                                     </div>
@@ -116,16 +181,18 @@ export default function Profile({
                                 <Button
                                     disabled={processing}
                                     data-test="update-profile-button"
+                                    className="bg-[#293241] text-[#F0F7FF] transition-colors hover:bg-[#293241]/90"
                                 >
-                                    Save
+                                    {t('profile.save')}
                                 </Button>
                             </div>
+                            <hr className="my-5 border-gray-300" />
                         </>
                     )}
                 </Form>
             </div>
 
-            <DeleteUser />
+            <DeleteUser user={auth.user} />
         </>
     );
 }
@@ -133,7 +200,7 @@ export default function Profile({
 Profile.layout = {
     breadcrumbs: [
         {
-            title: 'Profile settings',
+            title: 'profile.title',
             href: edit(),
         },
     ],

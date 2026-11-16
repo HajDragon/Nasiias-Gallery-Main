@@ -1,45 +1,5 @@
-/* Libron — Body font from nastiia's gallery */
-@font-face {
-  font-family: "Libron";
-  src: url("/fonts/Libron-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Libron";
-  src: url("/fonts/Libron-Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Libron";
-  src: url("/fonts/Libron-Italic.woff2") format("woff2");
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Libron";
-  src: url("/fonts/Libron-BoldItalic.woff2") format("woff2");
-  font-weight: 700;
-  font-style: italic;
-  font-display: swap;
-}
-
-/* Magilio — Display / Heading font */
-@font-face {
-  font-family: "Magilio";
-  src: url("/fonts/Magilio.otf") format("opentype"),
-       url("/fonts/Magilio.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
+/* Shared @font-face declarations (Libron + Magilio) */
+@import url('/css/fonts.css');
 
 /* Typography */
 body,
@@ -48,30 +8,33 @@ body,
 .fi-topbar,
 .fi-form,
 .fi-ta {
-  font-family: "Libron", Georgia, serif !important;
+    font-family: 'Libron', Georgia, serif !important;
 }
 
-h1, h2, h3, h4,
+h1,
+h2,
+h3,
+h4,
 .fi-header-heading,
 .fi-page-header-heading,
 .fi-modal-header-heading,
 .fi-section-header-heading {
-  font-family: "Magilio", Georgia, serif !important;
-  letter-spacing: 0.02em;
+    font-family: 'Magilio', Georgia, serif !important;
+    letter-spacing: 0.02em;
 }
 
 /* Text Selection matching nastiia's gallery */
 ::selection {
-  background: #98c1d9 !important;
-  color: #293241 !important;
+    background: #98c1d9 !important;
+    color: #293241 !important;
 }
 
 /* Active sidebar item matching nastiia's gallery palette */
 .fi-sidebar-item-active .fi-sidebar-item-button {
-  background-color: #293241 !important;
-  color: #f0f7ff !important;
+    background-color: #293241 !important;
+    color: #f0f7ff !important;
 }
 
 .fi-sidebar-item-active .fi-sidebar-item-icon {
-  color: #98c1d9 !important;
+    color: #98c1d9 !important;
 }

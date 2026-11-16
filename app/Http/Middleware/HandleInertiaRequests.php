@@ -41,6 +41,10 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'locale' => app()->getLocale(),
+            'availableLocales' => config('app.available_locales'),
+            'translations' => fn (): array => (array) trans('ui'),
+            'fallbackTranslations' => fn (): array => (array) trans('ui', [], config('app.fallback_locale')),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }
