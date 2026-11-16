@@ -5,6 +5,7 @@ import DeleteUser from '@/components/delete-user';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { edit } from '@/routes/profile';
@@ -113,6 +114,43 @@ export default function Profile({
                                 <InputError
                                     className="mt-2"
                                     message={errors.locale}
+                                />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="notify_on_new_artwork">
+                                    {t('profile.notifications')}
+                                </Label>
+
+                                <label
+                                    htmlFor="notify_on_new_artwork"
+                                    className="mt-1 flex cursor-pointer items-start gap-3 rounded-lg border border-[#293241]/15 bg-[#EEF3F8]/50 p-4"
+                                >
+                                    <Checkbox
+                                        id="notify_on_new_artwork"
+                                        name="notify_on_new_artwork"
+                                        value="1"
+                                        defaultChecked={
+                                            auth.user.notify_on_new_artwork ===
+                                            true
+                                        }
+                                        className="mt-0.5"
+                                    />
+                                    <span className="space-y-1">
+                                        <span className="block text-sm font-medium text-[#293241]">
+                                            {t('profile.notify_new_artwork')}
+                                        </span>
+                                        <span className="block text-sm text-[#293241]/70">
+                                            {t(
+                                                'profile.notify_new_artwork_hint',
+                                            )}
+                                        </span>
+                                    </span>
+                                </label>
+
+                                <InputError
+                                    className="mt-2"
+                                    message={errors.notify_on_new_artwork}
                                 />
                             </div>
 

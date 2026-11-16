@@ -19,6 +19,7 @@ trait ProfileValidationRules
             'display_name' => $this->displayNameRules(),
             'email' => $this->emailRules($userId),
             'locale' => $this->localeRules(),
+            'notify_on_new_artwork' => ['boolean'],
         ];
     }
 
