@@ -50,7 +50,7 @@ export default function Header() {
                         alt=""
                         width={1067}
                         height={772}
-                        className="m-0 h-16 w-auto max-w-[60vw] object-contain object-center invert sm:h-20"
+                        className="m-0 h-[5.6rem] w-auto max-w-[60vw] object-contain object-center invert sm:h-28"
                     />
                 </Link>
                 <nav
@@ -86,7 +86,6 @@ export default function Header() {
                     >
                         {t('nav.contact')}
                     </a>
-                    <LanguageSwitcher className="ml-auto sm:ml-2" />
                     {user ? (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -151,6 +150,8 @@ export default function Header() {
                             {t('nav.account')}
                         </Link>
                     )}
+
+                    <LanguageSwitcher className="sm:ml-1" />
                 </nav>
             </div>
         </header>
