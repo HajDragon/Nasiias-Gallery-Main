@@ -1,5 +1,6 @@
 import { Link, usePage, router } from '@inertiajs/react';
 import { LogOut, Settings } from 'lucide-react';
+import LanguageSwitcher from '@/components/language-switcher';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,18 +12,13 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useInitials } from '@/hooks/use-initials';
+import { useTranslation } from '@/lib/i18n';
 import { edit } from '@/routes/profile';
 import { logout } from '@/routes';
-import type { User } from '@/types';
-
-type PageProps = {
-    auth: {
-        user: User | null;
-    };
-};
 
 export default function Header() {
-    const page = usePage<PageProps>();
+    const page = usePage();
+    const { t } = useTranslation();
     const url = page.url;
     const path = url.split('?')[0] ?? '/';
     const isHome = path === '/';
@@ -47,19 +43,19 @@ export default function Header() {
                 <Link
                     href="/"
                     className="flex shrink-0 justify-center"
-                    aria-label="Nastiia's Gallery home"
+                    aria-label={t('nav.home')}
                 >
                     <img
                         src="/nastias-gallery-logo.png"
                         alt=""
                         width={1067}
                         height={772}
-                        className="m-0 h-16 w-auto max-w-[60vw] object-contain object-center invert sm:h-20"
+                        className="m-0 h-[5.6rem] w-auto max-w-[60vw] object-contain object-center invert sm:h-28"
                     />
                 </Link>
                 <nav
                     className="flex w-full min-w-0 [scrollbar-width:none] items-center justify-between gap-1 overflow-x-auto rounded-full border border-[#F0F7FF]/15 p-1 sm:w-auto sm:justify-start sm:gap-2 [&::-webkit-scrollbar]:hidden"
-                    aria-label="Main"
+                    aria-label={t('nav.main')}
                 >
                     <Link
                         href="/"
@@ -70,7 +66,7 @@ export default function Header() {
                         }`}
                         aria-current={isHome ? 'page' : undefined}
                     >
-                        Home
+                        {t('nav.home')}
                     </Link>
                     <Link
                         href="/gallery"
@@ -81,14 +77,14 @@ export default function Header() {
                         }`}
                         aria-current={isGallery ? 'page' : undefined}
                     >
-                        Gallery
+                        {t('nav.gallery')}
                     </Link>
                     <a
                         href="#contact"
                         onClick={scrollToContact}
                         className="shrink-0 rounded-full px-3 py-2 text-xs font-semibold tracking-[0.14em] whitespace-nowrap uppercase transition-colors hover:bg-[#EEF3F8]/10 sm:px-5 sm:py-2.5 sm:text-sm"
                     >
-                        Contact us
+                        {t('nav.contact')}
                     </a>
                     {user ? (
                         <DropdownMenu>
@@ -129,7 +125,7 @@ export default function Header() {
                                         prefetch
                                     >
                                         <Settings className="mr-2 size-4" />
-                                        Settings
+                                        {t('nav.settings')}
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
@@ -141,7 +137,7 @@ export default function Header() {
                                         onClick={handleLogout}
                                     >
                                         <LogOut className="mr-2 size-4" />
-                                        Log out
+                                        {t('nav.log_out')}
                                     </Link>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -151,9 +147,11 @@ export default function Header() {
                             href="/login"
                             className={`shrink-0 rounded-full px-3 py-2 text-xs font-semibold tracking-[0.14em] whitespace-nowrap uppercase transition-colors hover:bg-[#EEF3F8]/10 sm:px-5 sm:py-2.5 sm:text-sm`}
                         >
-                            Account
+                            {t('nav.account')}
                         </Link>
                     )}
+
+                    <LanguageSwitcher className="sm:ml-1" />
                 </nav>
             </div>
         </header>

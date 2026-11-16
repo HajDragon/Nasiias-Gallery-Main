@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X, Heart, MessageSquare, Share2 } from 'lucide-react';
 import Header from '@/components/Header';
 import { ScrollMorphHero } from '@/components/ui/scroll-morph-hero';
+import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 interface Artwork {
@@ -33,43 +34,48 @@ function FilterBar({
     onChange: (category: string) => void;
     categories: Array<{ name: string; slug: string }>;
 }) {
+    const { t } = useTranslation();
+    const allLabel = t('common.all');
+
     return (
         <div className="border-y border-[#293241]/15 py-3">
             <div
                 className="-mx-5 flex [scrollbar-width:none] gap-2 overflow-x-auto px-5 sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden"
                 role="group"
-                aria-label="Filter artworks by category"
+                aria-label={t('home.filter_aria')}
             >
-                {['All', ...categories.map((c) => c.name)].map((category) => {
-                    const isActive =
-                        active === category ||
-                        (active === '' && category === 'All');
+                {[allLabel, ...categories.map((c) => c.name)].map(
+                    (category) => {
+                        const isAll = category === allLabel;
+                        const isActive =
+                            active === category || (active === '' && isAll);
 
-                    return (
-                        <button
-                            key={category}
-                            type="button"
-                            onClick={() =>
-                                onChange(category === 'All' ? '' : category)
-                            }
-                            className={cn(
-                                'shrink-0 rounded-full border px-4 py-2 text-[10px] font-semibold tracking-[0.15em] uppercase transition-colors sm:text-[11px]',
-                                isActive
-                                    ? 'border-[#293241] bg-[#293241] text-[#F0F7FF]'
-                                    : 'border-[#293241]/20 text-[#293241] hover:border-[#98C1D9] hover:bg-[#98C1D9]/20',
-                            )}
-                            aria-pressed={isActive}
-                        >
-                            {category}
-                        </button>
-                    );
-                })}
+                        return (
+                            <button
+                                key={category}
+                                type="button"
+                                onClick={() => onChange(isAll ? '' : category)}
+                                className={cn(
+                                    'shrink-0 rounded-full border px-4 py-2 text-[10px] font-semibold tracking-[0.15em] uppercase transition-colors sm:text-[11px]',
+                                    isActive
+                                        ? 'border-[#293241] bg-[#293241] text-[#F0F7FF]'
+                                        : 'border-[#293241]/20 text-[#293241] hover:border-[#98C1D9] hover:bg-[#98C1D9]/20',
+                                )}
+                                aria-pressed={isActive}
+                            >
+                                {category}
+                            </button>
+                        );
+                    },
+                )}
             </div>
         </div>
     );
 }
 
 function ArtworkHoverCue() {
+    const { t } = useTranslation();
+
     return (
         <span
             className="artwork-hover-cue pointer-events-none absolute inset-0 z-10 grid place-items-center bg-[#293241]/10 opacity-0 group-hover/image:animate-[fadeCue_1.5s_ease-in-out_forwards]"
@@ -94,7 +100,7 @@ function ArtworkHoverCue() {
                     />
                 </svg>
                 <span className="text-[9px] font-semibold tracking-[0.14em] uppercase">
-                    Click me!
+                    {t('home.click_me')}
                 </span>
             </span>
         </span>
@@ -110,6 +116,7 @@ function FeedCard({
     index: number;
     onOpen: () => void;
 }) {
+    const { t } = useTranslation();
     const aspectRatios = [
         'aspect-[3/4]',
         'aspect-[4/5]',
@@ -128,7 +135,9 @@ function FeedCard({
                     onOpen();
                 }}
                 className="group/image relative block w-full cursor-zoom-in overflow-hidden hover:z-10"
-                aria-label={`Open ${artwork.title || 'Untitled'}`}
+                aria-label={t('artwork.open', {
+                    title: artwork.title || t('artwork.untitled'),
+                })}
             >
                 <div className={cn('bg-white', aspect)}>
                     <img
@@ -143,7 +152,7 @@ function FeedCard({
             <div className="border-t border-[#293241]/15 p-4">
                 <div className="flex items-center justify-between gap-2">
                     <h2 className="font-display text-base leading-tight tracking-[-0.02em] sm:text-lg">
-                        {artwork.title || 'Untitled'}
+                        {artwork.title || t('artwork.untitled')}
                     </h2>
                     <span
                         className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#98C1D9] transition-transform duration-300 group-hover:scale-150"
@@ -151,7 +160,7 @@ function FeedCard({
                     />
                 </div>
                 <p className="mt-1.5 text-[9px] font-semibold tracking-[0.18em] text-[#293241]/55 uppercase">
-                    {artwork.category?.name || 'Gallery Piece'}
+                    {artwork.category?.name || t('artwork.gallery_piece')}
                 </p>
             </div>
         </article>
@@ -167,6 +176,7 @@ function MobileFeedCard({
     onOpen: () => void;
     onLike: () => void;
 }) {
+    const { t } = useTranslation();
     const lastTapRef = useRef(0);
     const tapTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -194,7 +204,9 @@ function MobileFeedCard({
                         clearTimeout(tapTimeoutRef.current);
                 }}
                 className="group/image relative h-full w-full cursor-zoom-in overflow-hidden hover:z-10"
-                aria-label={`Open ${artwork.title || 'Untitled'}`}
+                aria-label={t('artwork.open', {
+                    title: artwork.title || t('artwork.untitled'),
+                })}
             >
                 <div className="aspect-[9/16] h-full bg-white">
                     <img
@@ -209,10 +221,11 @@ function MobileFeedCard({
                 <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                         <h2 className="truncate font-display text-lg leading-tight tracking-[-0.02em]">
-                            {artwork.title || 'Untitled'}
+                            {artwork.title || t('artwork.untitled')}
                         </h2>
                         <p className="mt-1 text-[9px] font-semibold tracking-[0.18em] text-[#293241]/55 uppercase">
-                            {artwork.category?.name || 'Gallery Piece'}
+                            {artwork.category?.name ||
+                                t('artwork.gallery_piece')}
                         </p>
                     </div>
                     <span
@@ -221,7 +234,7 @@ function MobileFeedCard({
                     />
                 </div>
                 <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#293241]/75">
-                    {artwork.description || 'No description available.'}
+                    {artwork.description || t('artwork.no_description')}
                 </p>
                 <div className="mt-4 flex items-center gap-4">
                     <button
@@ -231,7 +244,7 @@ function MobileFeedCard({
                             onLike();
                         }}
                         className="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.14em] text-[#E63946] uppercase transition-opacity hover:opacity-80"
-                        aria-label="Like"
+                        aria-label={t('artwork.like')}
                         aria-pressed={false}
                     >
                         <Heart
@@ -244,7 +257,7 @@ function MobileFeedCard({
                         type="button"
                         onClick={(e) => e.stopPropagation()}
                         className="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.14em] text-[#293241]/55 uppercase transition-colors hover:text-[#293241]"
-                        aria-label="Comments"
+                        aria-label={t('artwork.comments')}
                     >
                         <MessageSquare className="h-4 w-4" aria-hidden="true" />
                         <span>{artwork.view_count}</span>
@@ -253,7 +266,7 @@ function MobileFeedCard({
                         type="button"
                         onClick={(e) => e.stopPropagation()}
                         className="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.14em] text-[#293241]/55 uppercase transition-colors hover:text-[#293241]"
-                        aria-label="Share"
+                        aria-label={t('artwork.share')}
                     >
                         <Share2 className="h-4 w-4" aria-hidden="true" />
                     </button>
@@ -264,6 +277,7 @@ function MobileFeedCard({
 }
 
 export default function Home({ artworks, categories }: HomeProps) {
+    const { t } = useTranslation();
     const [selectedCategory, setSelectedCategory] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(
@@ -331,7 +345,7 @@ export default function Home({ artworks, categories }: HomeProps) {
 
     return (
         <>
-            <Head title="nastiia.gallery — art library" />
+            <Head title={t('home.title')} />
             <div className="min-h-screen bg-[#EEF3F8] text-[#293241]">
                 <Header />
 
@@ -347,13 +361,13 @@ export default function Home({ artworks, categories }: HomeProps) {
                         <div className="mb-10 lg:mb-16 lg:text-center">
                             <p className="mb-5 flex items-center gap-3 text-[10px] font-semibold tracking-[0.24em] text-[#293241]/60 uppercase sm:text-xs lg:justify-center">
                                 <span className="h-px w-8 bg-[#98C1D9]" />
-                                Art library
+                                {t('home.eyebrow')}
                             </p>
                             <h2 className="max-w-3xl font-display text-[clamp(2.5rem,8vw,5rem)] leading-[0.88] tracking-[-0.04em] lg:mx-auto">
-                                Curated works
+                                {t('home.heading_1')}
                                 <br />
                                 <span className="text-[#98C1D9] italic">
-                                    for you
+                                    {t('home.heading_2')}
                                 </span>
                             </h2>
                         </div>
@@ -391,11 +405,10 @@ export default function Home({ artworks, categories }: HomeProps) {
                         {filteredArtworks.length === 0 && (
                             <div className="py-20 text-center">
                                 <p className="font-display text-xl text-[#293241]/55">
-                                    No artworks found
+                                    {t('home.empty')}
                                 </p>
                                 <p className="mt-2 text-sm text-[#293241]/45">
-                                    Try a different category or check back
-                                    later.
+                                    {t('home.empty_hint')}
                                 </p>
                             </div>
                         )}
@@ -412,19 +425,17 @@ export default function Home({ artworks, categories }: HomeProps) {
                             <div className="max-w-md">
                                 <p className="mb-5 flex items-center gap-3 text-[10px] font-semibold tracking-[0.24em] text-[#98C1D9] uppercase">
                                     <span className="h-px w-8 bg-[#98C1D9]" />
-                                    Get in touch
+                                    {t('home.contact_eyebrow')}
                                 </p>
                                 <h3 className="font-display text-[clamp(2rem,6vw,3.5rem)] leading-[0.9] tracking-[-0.03em]">
-                                    Let&apos;s create
+                                    {t('home.contact_heading_1')}
                                     <br />
                                     <span className="text-[#98C1D9] italic">
-                                        something
+                                        {t('home.contact_heading_2')}
                                     </span>
                                 </h3>
                                 <p className="mt-6 text-base leading-7 text-[#F0F7FF]/70">
-                                    Have a project in mind? Want to collaborate?
-                                    Just want to say hi? We&apos;d love to hear
-                                    from you.
+                                    {t('home.contact_body')}
                                 </p>
                                 <div className="mt-10 flex flex-col gap-4">
                                     <a
@@ -495,13 +506,13 @@ export default function Home({ artworks, categories }: HomeProps) {
                                             htmlFor="name"
                                             className="sr-only"
                                         >
-                                            Name
+                                            {t('contact.name')}
                                         </label>
                                         <input
                                             type="text"
                                             id="name"
                                             name="name"
-                                            placeholder="Your name"
+                                            placeholder={t('home.form_name')}
                                             className="w-full rounded-lg border border-[#F0F7FF]/20 bg-transparent px-4 py-3.5 text-sm text-[#F0F7FF] transition-colors outline-none placeholder:text-[#F0F7FF]/40 focus:border-[#98C1D9]"
                                         />
                                     </div>
@@ -510,13 +521,13 @@ export default function Home({ artworks, categories }: HomeProps) {
                                             htmlFor="email"
                                             className="sr-only"
                                         >
-                                            Email
+                                            {t('contact.email')}
                                         </label>
                                         <input
                                             type="email"
                                             id="email"
                                             name="email"
-                                            placeholder="Email address"
+                                            placeholder={t('home.form_email')}
                                             className="w-full rounded-lg border border-[#F0F7FF]/20 bg-transparent px-4 py-3.5 text-sm text-[#F0F7FF] transition-colors outline-none placeholder:text-[#F0F7FF]/40 focus:border-[#98C1D9]"
                                         />
                                     </div>
@@ -526,13 +537,13 @@ export default function Home({ artworks, categories }: HomeProps) {
                                         htmlFor="message"
                                         className="sr-only"
                                     >
-                                        Message
+                                        {t('contact.message')}
                                     </label>
                                     <textarea
                                         id="message"
                                         name="message"
                                         rows={5}
-                                        placeholder="Your message"
+                                        placeholder={t('home.form_message')}
                                         className="w-full resize-none rounded-lg border border-[#F0F7FF]/20 bg-transparent px-4 py-3.5 text-sm text-[#F0F7FF] transition-colors outline-none placeholder:text-[#F0F7FF]/40 focus:border-[#98C1D9]"
                                     />
                                 </div>
@@ -540,37 +551,38 @@ export default function Home({ artworks, categories }: HomeProps) {
                                     type="submit"
                                     className="w-full rounded-full border border-[#98C1D9] bg-[#98C1D9] px-6 py-3.5 text-sm font-semibold tracking-[0.14em] text-[#293241] uppercase transition-colors hover:border-[#7DD3C7] hover:bg-[#7DD3C7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#98C1D9]"
                                 >
-                                    Send message
+                                    {t('home.form_submit')}
                                 </button>
                             </form>
                         </div>
 
                         <div className="mt-16 flex flex-col items-center gap-4 border-t border-[#F0F7FF]/15 pt-8 text-center lg:flex-row lg:justify-between">
                             <p className="text-[11px] text-[#F0F7FF]/45">
-                                &copy; {new Date().getFullYear()}{' '}
-                                nastiia.gallery. All rights reserved.
+                                {t('home.copyright', {
+                                    year: new Date().getFullYear(),
+                                })}
                             </p>
                             <nav
                                 className="flex items-center gap-6"
-                                aria-label="Footer"
+                                aria-label={t('common.footer')}
                             >
                                 <a
                                     href="#"
                                     className="text-[11px] text-[#F0F7FF]/45 transition-colors hover:text-[#F0F7FF]"
                                 >
-                                    Privacy
+                                    {t('home.privacy')}
                                 </a>
                                 <a
                                     href="#"
                                     className="text-[11px] text-[#F0F7FF]/45 transition-colors hover:text-[#F0F7FF]"
                                 >
-                                    Terms
+                                    {t('home.terms')}
                                 </a>
                                 <a
                                     href="#"
                                     className="text-[11px] text-[#F0F7FF]/45 transition-colors hover:text-[#F0F7FF]"
                                 >
-                                    Cookies
+                                    {t('home.cookies')}
                                 </a>
                             </nav>
                         </div>
@@ -620,7 +632,7 @@ export default function Home({ artworks, categories }: HomeProps) {
                                     type="button"
                                     onClick={handleCloseModal}
                                     className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#293241]/15 transition-colors hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#293241]"
-                                    aria-label="Close artwork"
+                                    aria-label={t('artwork.close')}
                                 >
                                     <X className="h-4 w-4" aria-hidden="true" />
                                 </button>
@@ -691,18 +703,18 @@ export default function Home({ artworks, categories }: HomeProps) {
                                             className="font-display text-xl leading-tight tracking-[-0.02em] sm:text-2xl"
                                         >
                                             {selectedArtwork.title ||
-                                                'Untitled'}
+                                                t('artwork.untitled')}
                                         </h2>
                                         <p className="mt-1 text-[9px] font-semibold tracking-[0.18em] text-[#293241]/55 uppercase">
                                             {selectedArtwork.category?.name ||
-                                                'Gallery Piece'}
+                                                t('artwork.gallery_piece')}
                                         </p>
                                         <p className="mt-3 text-sm leading-6 [overflow-wrap:anywhere] text-[#293241]/85">
                                             <span className="mr-1.5 font-semibold text-[#293241]">
                                                 nastiia.gallery
                                             </span>
                                             {selectedArtwork.description ||
-                                                'No description available.'}
+                                                t('artwork.no_description')}
                                         </p>
                                     </div>
                                 </div>
@@ -717,18 +729,20 @@ export default function Home({ artworks, categories }: HomeProps) {
                                         htmlFor="artwork-comment"
                                         className="sr-only"
                                     >
-                                        Add a comment
+                                        {t('artwork.add_comment')}
                                     </label>
                                     <input
                                         id="artwork-comment"
-                                        placeholder="Add a comment..."
+                                        placeholder={t(
+                                            'artwork.comment_placeholder',
+                                        )}
                                         className="min-w-0 flex-1 border-0 bg-transparent py-2 text-sm outline-none placeholder:text-[#293241]/40"
                                     />
                                     <button
                                         type="submit"
                                         className="text-[10px] font-semibold tracking-[0.16em] text-[#98C1D9] uppercase transition-opacity hover:opacity-80"
                                     >
-                                        Post
+                                        {t('artwork.post')}
                                     </button>
                                 </form>
                             </div>

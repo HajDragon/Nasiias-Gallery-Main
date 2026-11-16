@@ -34,7 +34,9 @@ class NotifySubscribersOfNewArtwork implements ShouldQueue
             ->where('notify_on_new_artwork', true)
             ->lazyById()
             ->each(function (User $user): void {
-                Mail::to($user)->send(new NewArtworkPublished($this->artwork));
+                Mail::to($user)
+                    ->locale($user->locale ?? config('app.fallback_locale'))
+                    ->send(new NewArtworkPublished($this->artwork));
             });
     }
 }

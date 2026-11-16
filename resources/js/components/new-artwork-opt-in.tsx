@@ -3,6 +3,7 @@ import { Mail } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/lib/i18n';
 import type { User } from '@/types';
 
 type PageProps = {
@@ -32,6 +33,7 @@ const getCsrfToken = (): string => {
 export default function NewArtworkOptIn() {
     const { auth } = usePage<PageProps>().props;
     const user = auth?.user ?? null;
+    const { t } = useTranslation();
 
     const respondedRef = useRef(false);
     const undecided =
@@ -72,14 +74,14 @@ export default function NewArtworkOptIn() {
                 setVisible(false);
                 toast.success(
                     subscribed
-                        ? "Great — we'll email you when a new artwork is uploaded."
-                        : "No problem — you won't receive new artwork emails.",
+                        ? t('notifications.subscribed')
+                        : t('notifications.unsubscribed'),
                 );
             } else if (response.status !== 401) {
-                toast.error('Something went wrong. Please try again.');
+                toast.error(t('notifications.error'));
             }
         } catch {
-            toast.error('Something went wrong. Please try again.');
+            toast.error(t('notifications.error'));
         } finally {
             setPending(false);
         }
@@ -90,7 +92,7 @@ export default function NewArtworkOptIn() {
     return (
         <div
             role="dialog"
-            aria-label="New artwork email notifications"
+            aria-label={t('notifications.new_artwork_aria')}
             aria-live="polite"
             className="animate-in fade-in slide-in-from-bottom-4 fixed right-4 bottom-4 z-[70] w-[calc(100vw-2rem)] max-w-sm duration-500"
         >
@@ -104,11 +106,10 @@ export default function NewArtworkOptIn() {
                     </span>
                     <div className="space-y-1">
                         <h2 className="text-sm font-semibold text-main-ink">
-                            New artwork alerts
+                            {t('notifications.new_artwork_heading')}
                         </h2>
                         <p className="text-xs leading-relaxed text-main-muted">
-                            Want to get an email when a new artwork is uploaded
-                            to the gallery?
+                            {t('notifications.new_artwork_description')}
                         </p>
                     </div>
                 </div>
@@ -120,7 +121,7 @@ export default function NewArtworkOptIn() {
                         onClick={() => void respond(false)}
                         disabled={pending}
                     >
-                        No thanks
+                        {t('notifications.decline')}
                     </Button>
                     <Button
                         size="sm"
@@ -128,7 +129,7 @@ export default function NewArtworkOptIn() {
                         onClick={() => void respond(true)}
                         disabled={pending}
                     >
-                        Yes, notify me
+                        {t('notifications.accept')}
                     </Button>
                 </div>
             </div>

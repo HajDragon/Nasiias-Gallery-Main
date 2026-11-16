@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Heart } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import Header from '@/components/Header';
+import { useTranslation } from '@/lib/i18n';
 
 interface GalleryShowProps {
     artwork: {
@@ -42,6 +43,7 @@ function ArtworkModal({
     const [submittingComment, setSubmittingComment] = useState(false);
     const [togglingLike, setTogglingLike] = useState(false);
     const commentTextareaRef = useRef<HTMLTextAreaElement>(null);
+    const { t } = useTranslation();
 
     const imageUrl = artwork.image_url;
 
@@ -185,7 +187,7 @@ function ArtworkModal({
 
     return (
         <>
-            <Head title={artwork.title || 'Artwork'} />
+            <Head title={artwork.title || t('gallery.show_title')} />
             <div className="min-h-screen bg-[#EEF3F8] text-[#293241]">
                 <Header />
                 <div
@@ -223,7 +225,7 @@ function ArtworkModal({
                                     type="button"
                                     onClick={onClose}
                                     className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#293241]/15 transition-colors hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#293241]"
-                                    aria-label="Close artwork"
+                                    aria-label={t('artwork.close')}
                                 >
                                     <X className="h-4 w-4" aria-hidden="true" />
                                 </button>
@@ -249,7 +251,9 @@ function ArtworkModal({
                                         strokeWidth={1.6}
                                         strokeLinejoin="round"
                                     />
-                                    {liked ? 'Liked' : 'Like'}
+                                    {liked
+                                        ? t('artwork.liked')
+                                        : t('artwork.like')}
                                     <span className="text-sm">{likeCount}</span>
                                 </button>
                             </div>
@@ -268,18 +272,19 @@ function ArtworkModal({
                                             id="artwork-dialog-title"
                                             className="font-display text-xl leading-tight tracking-[-0.02em] sm:text-2xl"
                                         >
-                                            {artwork.title || 'Untitled'}
+                                            {artwork.title ||
+                                                t('artwork.untitled')}
                                         </h2>
                                         <p className="mt-1 text-[9px] font-semibold tracking-[0.18em] text-[#293241]/55 uppercase">
                                             {artwork.category?.name ||
-                                                'Gallery Piece'}
+                                                t('artwork.gallery_piece')}
                                         </p>
                                         <p className="mt-3 text-sm leading-6 [overflow-wrap:anywhere] text-[#293241]/85">
                                             <span className="mr-1.5 font-semibold text-[#293241]">
                                                 nastiia.gallery
                                             </span>
                                             {artwork.description ||
-                                                'No description available.'}
+                                                t('artwork.no_description')}
                                         </p>
                                     </div>
                                 </div>
@@ -287,7 +292,7 @@ function ArtworkModal({
                                 <div className="mt-5 border-t border-[#293241]/15 pt-5">
                                     {loadingComments ? (
                                         <div className="py-3 text-center text-sm text-[#293241]/55">
-                                            Loading comments...
+                                            {t('gallery.loading_comments')}
                                         </div>
                                     ) : comments.length > 0 ? (
                                         <div className="space-y-5">
@@ -321,11 +326,12 @@ function ArtworkModal({
                                     ) : (
                                         <div className="py-3 text-center">
                                             <p className="font-display text-lg">
-                                                Start the conversation.
+                                                {t(
+                                                    'gallery.start_conversation',
+                                                )}
                                             </p>
                                             <p className="mt-1 text-xs text-[#293241]/55">
-                                                Share what this piece makes you
-                                                feel.
+                                                {t('gallery.share_feeling')}
                                             </p>
                                         </div>
                                     )}
@@ -340,7 +346,7 @@ function ArtworkModal({
                                     htmlFor="artwork-comment"
                                     className="sr-only"
                                 >
-                                    Add a comment
+                                    {t('artwork.add_comment')}
                                 </label>
                                 <div className="min-w-0 flex-1">
                                     <textarea
@@ -349,7 +355,9 @@ function ArtworkModal({
                                         value={newComment}
                                         onChange={handleCommentChange}
                                         onKeyDown={handleCommentKeyDown}
-                                        placeholder="Add a comment..."
+                                        placeholder={t(
+                                            'artwork.comment_placeholder',
+                                        )}
                                         maxLength={280}
                                         rows={1}
                                         className="w-full min-w-0 resize-none overflow-y-auto border-0 bg-transparent py-2 text-sm [overflow-wrap:anywhere] outline-none placeholder:text-[#293241]/40"
@@ -374,8 +382,8 @@ function ArtworkModal({
                                         className="text-[10px] font-semibold tracking-[0.16em] uppercase transition-opacity disabled:cursor-not-allowed disabled:opacity-30"
                                     >
                                         {submittingComment
-                                            ? 'Posting...'
-                                            : 'Post'}
+                                            ? t('artwork.posting')
+                                            : t('artwork.post')}
                                     </button>
                                 </div>
                             </form>

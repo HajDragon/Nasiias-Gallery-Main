@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import type { MouseEvent as ReactMouseEvent } from 'react';
 import { motion, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import LiveOrb from '@/components/ui/live-orb';
+import { useTranslation } from '@/lib/i18n';
 
 export type AnimationPhase = 'scatter' | 'line' | 'circle' | 'bottom-strip';
 
@@ -25,6 +26,8 @@ const IMG_WIDTH = 60;
 const IMG_HEIGHT = 85;
 
 function FlipCard({ src, alt, onClick, onHoverChange, target }: FlipCardProps) {
+    const { t } = useTranslation();
+
     return (
         <motion.button
             type="button"
@@ -77,9 +80,11 @@ function FlipCard({ src, alt, onClick, onHoverChange, target }: FlipCardProps) {
                 >
                     <div className="text-center">
                         <p className="text-[8px] font-bold text-blue-400 uppercase tracking-widest mb-1">
-                            View
+                            {t('intro.view')}
                         </p>
-                        <p className="text-xs font-medium text-white">Details</p>
+                        <p className="text-xs font-medium text-white">
+                            {t('intro.details')}
+                        </p>
                     </div>
                 </div>
             </motion.div>
@@ -102,6 +107,7 @@ interface IntroAnimationProps {
 }
 
 export default function IntroAnimation({ items, onSelect }: IntroAnimationProps) {
+    const { t } = useTranslation();
     const [introPhase, setIntroPhase] = useState<AnimationPhase>('scatter');
     const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
     const containerRef = useRef<HTMLDivElement>(null);
@@ -270,7 +276,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                         transition={{ duration: 1 }}
                         className="text-2xl font-medium tracking-tight text-gray-800 md:text-4xl"
                     >
-                        Nastiia&apos;s Gallery.
+                        {t('intro.title')}
                     </motion.h1>
                     <motion.button
                         type="button"
@@ -287,7 +293,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                         }}
                         className="pointer-events-auto mt-4 text-xs font-bold tracking-[0.2em] text-gray-500"
                     >
-                        CLICK TO EXPLORE
+                        {t('intro.explore')}
                     </motion.button>
                     <motion.div
                         initial={{ opacity: 0, scale: 0.85 }}
@@ -313,12 +319,10 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                     className="absolute top-[10%] z-10 flex flex-col items-center justify-center text-center pointer-events-none px-4"
                 >
                     <h2 className="text-3xl md:text-5xl font-semibold text-gray-900 tracking-tight mb-4">
-                        The Collection
+                        {t('intro.collection')}
                     </h2>
                     <p className="text-sm md:text-base text-gray-600 max-w-lg leading-relaxed">
-                        &quot;A painting is only half finished until someone stands before it.
-                        <br className="hidden md:block" />
-                        The rest of the art happens entirely within you.&quot;
+                        {t('intro.quote')}
                     </p>
                     <button
                         type="button"
@@ -328,7 +332,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                         }}
                         className="pointer-events-auto mt-6 text-xs font-bold tracking-[0.2em] text-gray-500"
                     >
-                        CLICK TO CONTINUE
+                        {t('intro.continue')}
                     </button>
                     <div className="mt-5 flex justify-center">
                         <LiveOrb
