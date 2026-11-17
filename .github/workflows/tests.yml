@@ -30,6 +30,7 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '22'
+          cache: 'pnpm'
 
       - name: Install PHP dependencies
         run: composer install --no-progress --no-interaction
@@ -41,7 +42,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Build frontend assets
-        run: npm run build
+        run: pnpm run build
 
       - name: Setup Application
         run: |
