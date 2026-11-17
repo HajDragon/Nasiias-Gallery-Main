@@ -29,15 +29,17 @@
 }
 
 .dark {
-    --main-canvas: #141b2b;
-    --main-surface: #1e2533;
+    --main-canvas: #1f1a1a;
+    --main-surface: #2a2626;
     --main-ink: #e9eefb;
     --main-muted: #aab8d2;
     --main-blue: #a8c7e0;
     --main-on-blue: #101828;
-    --main-line: #35415c;
-    --main-chip: #273149;
+    --main-line: #3a3535;
+    --main-chip: #332e2e;
     /* --main-red: handoff defines no dark error color */
+    --header: #293241;
+    --header-foreground: #f0f7ff;
 }
 
 /*
@@ -71,27 +73,41 @@
     --border: #ccd8ec;
     --input: #ccd8ec;
     --ring: #2563eb;
+    --sidebar: var(--background);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-border: var(--border);
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-ring: var(--ring);
+    --header: #293241;
+    --header-foreground: #f0f7ff;
     color-scheme: light;
 }
 
 .dark {
-    --background: #141b2b;
+    --background: #121212;
     --foreground: #e9eefb;
-    --card: #1e2533;
+    --card: #2a2626;
     --card-foreground: #e9eefb;
-    --popover: #1e2533;
+    --popover: #2a2626;
     --popover-foreground: #e9eefb;
     --primary: #e9eefb;
-    --primary-foreground: #141b2b;
-    --secondary: #1e2533;
+    --primary-foreground: #1f1a1a;
+    --secondary: #2a2626;
     --secondary-foreground: #e9eefb;
-    --muted: #1e2533;
+    --muted: #2a2626;
     --muted-foreground: #aab8d2;
-    --accent: #273149;
-    --accent-foreground: #e9eefb;
-    --border: #35415c;
-    --input: #35415c;
+    --accent: #332e2e;
+    --accent-foreground: #ccd8ec;
+    --border: #ccd8ec;
+    --input: #3d3d3d;
     --ring: #a8c7e0;
+    --sidebar: var(--background);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-border: var(--border);
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-ring: var(--ring);
     /* --destructive: handoff defines no dark error colour; red is kept. */
     color-scheme: dark;
 }
@@ -140,6 +156,22 @@
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
+
+    /* Sidebar semantic tokens for shadcn/ui sidebar component */
+    --color-sidebar: var(--background);
+    --color-sidebar-foreground: var(--foreground);
+    --color-sidebar-border: var(--border);
+    --color-sidebar-accent: var(--accent);
+    --color-sidebar-accent-foreground: var(--accent-foreground);
+    --color-sidebar-ring: var(--ring);
+
+    /* Gallery semantic tokens */
+    --color-primary-blue: var(--main-blue);
+    --color-primary-on-blue: var(--main-on-blue);
+
+    /* Header semantic tokens - retains original color in dark mode */
+    --color-header: var(--header);
+    --color-header-foreground: var(--header-foreground);
 }
 
 @variant dark (&:where(.dark, .dark *));
@@ -184,6 +216,10 @@
    its own canvas colour. */
 body:has(.gallery-surface) {
     background: #eef3f8;
+}
+
+.dark body:has(.gallery-surface) {
+    background: var(--background);
 }
 
 ::selection {
