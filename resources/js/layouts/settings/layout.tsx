@@ -35,11 +35,11 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
             <header className="mb-8 space-y-2">
                 <h1 className="font-display text-[clamp(2.25rem,6vw,3.5rem)] leading-[0.95] tracking-[-0.04em]">
                     {t('settings.heading_prefix')}{' '}
-                    <span className="text-[#98C1D9] italic">
+                    <span className="text-primary-blue italic">
                         {t('settings.heading_accent')}
                     </span>
                 </h1>
-                <p className="max-w-xl text-sm leading-7 text-[#293241]/70 sm:text-base">
+                <p className="max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">
                     {t('settings.description')}
                 </p>
             </header>
@@ -60,8 +60,8 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                     aria-current={active ? 'page' : undefined}
                                     className={`shrink-0 rounded-full border px-4 py-2 text-[10px] font-semibold tracking-[0.15em] uppercase transition-colors sm:text-[11px] ${
                                         active
-                                            ? 'border-[#293241] bg-[#293241] text-[#F0F7FF]'
-                                            : 'border-[#293241]/20 text-[#293241] hover:border-[#98C1D9] hover:bg-[#98C1D9]/20'
+                                            ? 'border-primary bg-primary text-primary-foreground'
+                                            : 'border-border text-foreground hover:border-primary-blue hover:bg-primary-blue/20'
                                     }`}
                                 >
                                     {t(item.title)}
@@ -72,7 +72,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                 </aside>
 
                 <div className="min-w-0 flex-1">
-                    <section className="max-w-2xl rounded-xl border border-[#293241]/15 bg-white p-6 sm:p-8">
+                    <section className="max-w-2xl rounded-xl border border-border bg-card p-6 text-card-foreground sm:p-8">
                         {children}
                     </section>
                 </div>

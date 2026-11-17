@@ -38,7 +38,7 @@ function FilterBar({
     const allLabel = t('common.all');
 
     return (
-        <div className="border-y border-[#293241]/15 py-3">
+        <div className="border-y border-border/15 py-3">
             <div
                 className="-mx-5 flex [scrollbar-width:none] gap-2 overflow-x-auto px-5 sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden"
                 role="group"
@@ -58,8 +58,8 @@ function FilterBar({
                                 className={cn(
                                     'shrink-0 rounded-full border px-4 py-2 text-[10px] font-semibold tracking-[0.15em] uppercase transition-colors sm:text-[11px]',
                                     isActive
-                                        ? 'border-[#293241] bg-[#293241] text-[#F0F7FF]'
-                                        : 'border-[#293241]/20 text-[#293241] hover:border-[#98C1D9] hover:bg-[#98C1D9]/20',
+                                        ? 'border-primary bg-primary text-primary-foreground'
+                                        : 'border-border/20 text-foreground hover:border-primary-blue hover:bg-primary-blue/20',
                                 )}
                                 aria-pressed={isActive}
                             >
@@ -346,7 +346,7 @@ export default function Home({ artworks, categories }: HomeProps) {
     return (
         <>
             <Head title={t('home.title')} />
-            <div className="min-h-screen bg-[#EEF3F8] text-[#293241]">
+            <div className="min-h-screen bg-[#EEF3F8] text-[#293241] dark:bg-background dark:text-foreground">
                 <Header />
 
                 {/* Intro Animation Section */}
@@ -355,18 +355,18 @@ export default function Home({ artworks, categories }: HomeProps) {
                 {/* Art Library Section */}
                 <section
                     id="art-library"
-                    className="relative z-10 bg-[#EEF3F8]"
+                    className="relative z-10 bg-[#EEF3F8] dark:bg-background"
                 >
                     <div className="mx-auto max-w-[1440px] px-5 pt-10 pb-20 sm:px-8 sm:pt-16 lg:px-12">
                         <div className="mb-10 lg:mb-16 lg:text-center">
-                            <p className="mb-5 flex items-center gap-3 text-[10px] font-semibold tracking-[0.24em] text-[#293241]/60 uppercase sm:text-xs lg:justify-center">
-                                <span className="h-px w-8 bg-[#98C1D9]" />
+                            <p className="mb-5 flex items-center gap-3 text-[10px] font-semibold tracking-[0.24em] text-[#293241]/60 uppercase sm:text-xs lg:justify-center dark:text-foreground/60">
+                                <span className="h-px w-8 bg-primary-blue" />
                                 {t('home.eyebrow')}
                             </p>
                             <h2 className="max-w-3xl font-display text-[clamp(2.5rem,8vw,5rem)] leading-[0.88] tracking-[-0.04em] lg:mx-auto">
                                 {t('home.heading_1')}
                                 <br />
-                                <span className="text-[#98C1D9] italic">
+                                <span className="text-primary-blue italic">
                                     {t('home.heading_2')}
                                 </span>
                             </h2>
@@ -418,32 +418,32 @@ export default function Home({ artworks, categories }: HomeProps) {
                 {/* Footer / Contact Section */}
                 <footer
                     id="contact"
-                    className="relative z-10 bg-[#293241] text-[#F0F7FF]"
+                    className="relative z-10 border-t border-transparent bg-[#293241] text-[#F0F7FF] dark:border-border dark:bg-card dark:text-card-foreground"
                 >
                     <div className="mx-auto max-w-[1440px] px-5 py-16 sm:px-8 sm:py-24 lg:px-12">
                         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
                             <div className="max-w-md">
-                                <p className="mb-5 flex items-center gap-3 text-[10px] font-semibold tracking-[0.24em] text-[#98C1D9] uppercase">
-                                    <span className="h-px w-8 bg-[#98C1D9]" />
+                                <p className="mb-5 flex items-center gap-3 text-[10px] font-semibold tracking-[0.24em] text-primary-blue uppercase">
+                                    <span className="h-px w-8 bg-primary-blue" />
                                     {t('home.contact_eyebrow')}
                                 </p>
                                 <h3 className="font-display text-[clamp(2rem,6vw,3.5rem)] leading-[0.9] tracking-[-0.03em]">
                                     {t('home.contact_heading_1')}
                                     <br />
-                                    <span className="text-[#98C1D9] italic">
+                                    <span className="text-primary-blue italic">
                                         {t('home.contact_heading_2')}
                                     </span>
                                 </h3>
-                                <p className="mt-6 text-base leading-7 text-[#F0F7FF]/70">
+                                <p className="mt-6 text-base leading-7 text-[#F0F7FF]/70 dark:text-muted-foreground">
                                     {t('home.contact_body')}
                                 </p>
                                 <div className="mt-10 flex flex-col gap-4">
                                     <a
                                         href="mailto:hello@nastiia.gallery"
-                                        className="flex items-center gap-3 rounded-full border border-[#F0F7FF]/20 px-5 py-4 text-sm font-medium transition-colors hover:bg-[#F0F7FF]/10"
+                                        className="flex items-center gap-3 rounded-full border border-[#F0F7FF]/20 px-5 py-4 text-sm font-medium transition-colors hover:bg-[#F0F7FF]/10 dark:border-border dark:hover:bg-accent/20"
                                     >
                                         <svg
-                                            className="h-5 w-5 text-[#98C1D9]"
+                                            className="h-5 w-5 text-primary-blue"
                                             viewBox="0 0 24 24"
                                             fill="none"
                                             stroke="currentColor"
@@ -465,10 +465,10 @@ export default function Home({ artworks, categories }: HomeProps) {
                                         href="https://instagram.com/nastiia.gallery"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-3 rounded-full border border-[#F0F7FF]/20 px-5 py-4 text-sm font-medium transition-colors hover:bg-[#F0F7FF]/10"
+                                        className="flex items-center gap-3 rounded-full border border-[#F0F7FF]/20 px-5 py-4 text-sm font-medium transition-colors hover:bg-[#F0F7FF]/10 dark:border-border dark:hover:bg-accent/20"
                                     >
                                         <svg
-                                            className="h-5 w-5 text-[#98C1D9]"
+                                            className="h-5 w-5 text-primary-blue"
                                             viewBox="0 0 24 24"
                                             fill="none"
                                             stroke="currentColor"
@@ -513,7 +513,7 @@ export default function Home({ artworks, categories }: HomeProps) {
                                             id="name"
                                             name="name"
                                             placeholder={t('home.form_name')}
-                                            className="w-full rounded-lg border border-[#F0F7FF]/20 bg-transparent px-4 py-3.5 text-sm text-[#F0F7FF] transition-colors outline-none placeholder:text-[#F0F7FF]/40 focus:border-[#98C1D9]"
+                                            className="w-full rounded-lg border border-[#F0F7FF]/20 bg-transparent px-4 py-3.5 text-sm text-[#F0F7FF] transition-colors outline-none placeholder:text-[#F0F7FF]/40 focus:border-[#98C1D9] dark:border-border dark:bg-background dark:text-foreground dark:placeholder:text-muted-foreground/60"
                                         />
                                     </div>
                                     <div>
@@ -528,7 +528,7 @@ export default function Home({ artworks, categories }: HomeProps) {
                                             id="email"
                                             name="email"
                                             placeholder={t('home.form_email')}
-                                            className="w-full rounded-lg border border-[#F0F7FF]/20 bg-transparent px-4 py-3.5 text-sm text-[#F0F7FF] transition-colors outline-none placeholder:text-[#F0F7FF]/40 focus:border-[#98C1D9]"
+                                            className="w-full rounded-lg border border-[#F0F7FF]/20 bg-transparent px-4 py-3.5 text-sm text-[#F0F7FF] transition-colors outline-none placeholder:text-[#F0F7FF]/40 focus:border-[#98C1D9] dark:border-border dark:bg-background dark:text-foreground dark:placeholder:text-muted-foreground/60"
                                         />
                                     </div>
                                 </div>
@@ -544,20 +544,20 @@ export default function Home({ artworks, categories }: HomeProps) {
                                         name="message"
                                         rows={5}
                                         placeholder={t('home.form_message')}
-                                        className="w-full resize-none rounded-lg border border-[#F0F7FF]/20 bg-transparent px-4 py-3.5 text-sm text-[#F0F7FF] transition-colors outline-none placeholder:text-[#F0F7FF]/40 focus:border-[#98C1D9]"
+                                        className="w-full resize-none rounded-lg border border-[#F0F7FF]/20 bg-transparent px-4 py-3.5 text-sm text-[#F0F7FF] transition-colors outline-none placeholder:text-[#F0F7FF]/40 focus:border-[#98C1D9] dark:border-border dark:bg-background dark:text-foreground dark:placeholder:text-muted-foreground/60"
                                     />
                                 </div>
                                 <button
                                     type="submit"
-                                    className="w-full rounded-full border border-[#98C1D9] bg-[#98C1D9] px-6 py-3.5 text-sm font-semibold tracking-[0.14em] text-[#293241] uppercase transition-colors hover:border-[#7DD3C7] hover:bg-[#7DD3C7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#98C1D9]"
+                                    className="w-full rounded-full border border-primary-blue bg-primary-blue px-6 py-3.5 text-sm font-semibold tracking-[0.14em] text-primary-on-blue uppercase transition-colors hover:bg-white hover:text-[#293241] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-blue dark:hover:bg-primary-blue/80 dark:hover:text-primary-on-blue"
                                 >
                                     {t('home.form_submit')}
                                 </button>
                             </form>
                         </div>
 
-                        <div className="mt-16 flex flex-col items-center gap-4 border-t border-[#F0F7FF]/15 pt-8 text-center lg:flex-row lg:justify-between">
-                            <p className="text-[11px] text-[#F0F7FF]/45">
+                        <div className="mt-16 flex flex-col items-center gap-4 border-t border-[#F0F7FF]/15 pt-8 text-center lg:flex-row lg:justify-between dark:border-border">
+                            <p className="text-[11px] text-[#F0F7FF]/45 dark:text-muted-foreground">
                                 {t('home.copyright', {
                                     year: new Date().getFullYear(),
                                 })}
@@ -568,19 +568,19 @@ export default function Home({ artworks, categories }: HomeProps) {
                             >
                                 <a
                                     href="#"
-                                    className="text-[11px] text-[#F0F7FF]/45 transition-colors hover:text-[#F0F7FF]"
+                                    className="text-[11px] text-[#F0F7FF]/45 transition-colors hover:text-[#F0F7FF] dark:text-muted-foreground dark:hover:text-foreground"
                                 >
                                     {t('home.privacy')}
                                 </a>
                                 <a
                                     href="#"
-                                    className="text-[11px] text-[#F0F7FF]/45 transition-colors hover:text-[#F0F7FF]"
+                                    className="text-[11px] text-[#F0F7FF]/45 transition-colors hover:text-[#F0F7FF] dark:text-muted-foreground dark:hover:text-foreground"
                                 >
                                     {t('home.terms')}
                                 </a>
                                 <a
                                     href="#"
-                                    className="text-[11px] text-[#F0F7FF]/45 transition-colors hover:text-[#F0F7FF]"
+                                    className="text-[11px] text-[#F0F7FF]/45 transition-colors hover:text-[#F0F7FF] dark:text-muted-foreground dark:hover:text-foreground"
                                 >
                                     {t('home.cookies')}
                                 </a>

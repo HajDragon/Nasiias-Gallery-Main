@@ -64,24 +64,24 @@ export default function GalleryIndex({
     return (
         <>
             <Head title={t('gallery.title')} />
-            <div className="min-h-screen bg-[#EEF3F8] text-[#293241]">
+            <div className="min-h-screen bg-background text-foreground">
                 <Header />
                 <main id="gallery">
                     <section className="mx-auto max-w-[1440px] px-5 pt-14 pb-10 sm:px-8 sm:pt-20 sm:pb-12 lg:px-12 lg:pt-24">
                         <div className="lg:text-center">
                             <p className="mb-5 flex items-center gap-3 text-[10px] font-semibold tracking-[0.24em] uppercase sm:text-xs lg:justify-center">
-                                <span className="h-px w-8 bg-[#98C1D9]" />
+                                <span className="h-px w-8 bg-primary-blue" />
                                 {t('gallery.eyebrow')}
                             </p>
                             <h1 className="max-w-4xl font-display text-[clamp(3.75rem,10vw,8.75rem)] leading-[0.82] tracking-[-0.055em] lg:mx-auto">
                                 {t('gallery.heading_1')}
                                 <br />
-                                <span className="text-[#98C1D9] italic">
+                                <span className="text-primary-blue italic">
                                     {t('gallery.heading_2')}
                                 </span>
                             </h1>
-                            <div className="mt-8 flex items-end justify-between border-t border-[#293241]/20 pt-4 lg:mx-auto lg:mt-12 lg:w-72 lg:flex-col lg:items-center lg:gap-3 lg:text-center">
-                                <p className="max-w-48 text-sm leading-6 text-[#293241]/70 lg:max-w-none">
+                            <div className="mt-8 flex items-end justify-between border-t border-foreground/20 pt-4 lg:mx-auto lg:mt-12 lg:w-72 lg:flex-col lg:items-center lg:gap-3 lg:text-center">
+                                <p className="max-w-48 text-sm leading-6 text-foreground/70 lg:max-w-none">
                                     {t('gallery.quote')}
                                 </p>
                             </div>
@@ -104,7 +104,7 @@ export default function GalleryIndex({
                             {artworks.data.map((artwork, index) => (
                                 <article
                                     key={artwork.id}
-                                    className="group break-inside-avoid bg-white hover:z-20"
+                                    className="group break-inside-avoid bg-card hover:z-20"
                                 >
                                     <Link
                                         href={`/gallery/${artwork.id}`}
@@ -116,7 +116,7 @@ export default function GalleryIndex({
                                         })}
                                     >
                                         <div
-                                            className={`bg-white ${masonryAspects[index % masonryAspects.length]}`}
+                                            className={`bg-card ${masonryAspects[index % masonryAspects.length]}`}
                                         >
                                             <img
                                                 src={artwork.image_url}
@@ -127,18 +127,18 @@ export default function GalleryIndex({
                                         </div>
                                         <ArtworkHoverCue />
                                     </Link>
-                                    <div className="border-t border-[#293241]/15 p-4">
+                                    <div className="border-t border-border/15 p-4">
                                         <div className="flex items-center justify-between gap-2">
                                             <h2 className="font-display text-base leading-tight tracking-[-0.02em] sm:text-lg">
                                                 {artwork.title ||
                                                     t('artwork.untitled')}
                                             </h2>
                                             <span
-                                                className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#98C1D9] transition-transform duration-300 group-hover:scale-150"
+                                                className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary-blue transition-transform duration-300 group-hover:scale-150"
                                                 aria-hidden="true"
                                             />
                                         </div>
-                                        <p className="mt-1.5 text-[9px] font-semibold tracking-[0.18em] text-[#293241]/55 uppercase">
+                                        <p className="mt-1.5 text-[9px] font-semibold tracking-[0.18em] text-foreground/55 uppercase">
                                             {artwork.category?.name ||
                                                 t('artwork.gallery_piece')}
                                         </p>
@@ -166,13 +166,13 @@ export default function GalleryIndex({
                                                 { preserveState: true },
                                             );
                                         }}
-                                        className="flex h-10 w-10 items-center justify-center rounded-full border border-[#293241]/15 text-[#293241] transition-colors hover:bg-[#EEF3F8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#293241]"
+                                        className="flex h-10 w-10 items-center justify-center rounded-full border border-border/15 text-foreground transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
                                         aria-label={t('gallery.previous_page')}
                                     >
                                         <ChevronLeft className="h-5 w-5" />
                                     </button>
                                 )}
-                                <span className="text-sm text-[#293241]/60">
+                                <span className="text-sm text-foreground/60">
                                     {t('gallery.page_of', {
                                         current: artworks.current_page,
                                         last: artworks.last_page,
@@ -195,7 +195,7 @@ export default function GalleryIndex({
                                                 { preserveState: true },
                                             );
                                         }}
-                                        className="flex h-10 w-10 items-center justify-center rounded-full border border-[#293241]/15 text-[#293241] transition-colors hover:bg-[#EEF3F8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#293241]"
+                                        className="flex h-10 w-10 items-center justify-center rounded-full border border-border/15 text-foreground transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
                                         aria-label={t('gallery.next_page')}
                                     >
                                         <ChevronLeft className="h-5 w-5 rotate-180" />

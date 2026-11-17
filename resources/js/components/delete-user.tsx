@@ -91,7 +91,7 @@ export default function DeleteUser({ user }: Props) {
                             {t('delete_account.delete')}
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="border-[#293241]/15 bg-white text-[#293241]">
+                    <DialogContent className="border-border bg-card text-card-foreground">
                         <DialogTitle>
                             {t('delete_account.confirm_title')}
                         </DialogTitle>
@@ -136,7 +136,7 @@ export default function DeleteUser({ user }: Props) {
                                         <DialogClose asChild>
                                             <Button
                                                 variant="secondary"
-                                                className="border border-[#293241]/25 text-[#293241] hover:bg-[#EEF3F8]"
+                                                className="border border-border text-foreground hover:bg-muted"
                                                 onClick={() =>
                                                     resetAndClearErrors()
                                                 }
@@ -147,7 +147,7 @@ export default function DeleteUser({ user }: Props) {
 
                                         <Button
                                             variant="destructive"
-                                            className="bg-[#C0392B] text-white hover:bg-[#C0392B]/90"
+                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                             disabled={processing || !isVerified}
                                             asChild
                                         >

@@ -17,7 +17,7 @@ export default function FilterBar({
     const allLabel = t('common.all');
 
     return (
-        <div className="mb-10 border-y border-[#293241]/15 py-3 sm:mb-12">
+        <div className="mb-10 border-y border-border/15 py-3 sm:mb-12">
             <div
                 className="-mx-5 flex [scrollbar-width:none] gap-2 overflow-x-auto px-5 sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden"
                 role="group"
@@ -36,8 +36,8 @@ export default function FilterBar({
                             onClick={() => onChange(isAll ? '' : category)}
                             className={`shrink-0 rounded-full border px-4 py-2 text-[10px] font-semibold tracking-[0.15em] uppercase transition-colors sm:text-[11px] ${
                                 isActive
-                                    ? 'border-[#293241] bg-[#293241] text-[#F0F7FF]'
-                                    : 'border-[#293241]/20 text-[#293241] hover:border-[#98C1D9] hover:bg-[#98C1D9]/20'
+                                    ? 'border-primary bg-primary text-primary-foreground'
+                                    : 'border-border/20 text-foreground hover:border-primary-blue hover:bg-primary-blue/20'
                             }`}
                             aria-pressed={isActive}
                         >

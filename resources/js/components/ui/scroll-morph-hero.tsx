@@ -42,7 +42,7 @@ export function ScrollMorphHero({ className }: ScrollMorphHeroProps) {
   return (
     <motion.div
       ref={containerRef}
-      className={cn("relative w-full min-h-screen overflow-hidden bg-[#EEF3F8]", className)}
+      className={cn("relative w-full min-h-screen overflow-hidden bg-[#EEF3F8] dark:bg-background", className)}
       initial={{ opacity: 0 }}
       animate={{ opacity: isVisible ? 1 : 0 }}
       transition={{ duration: 1.5, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -107,11 +107,11 @@ export function ScrollMorphHero({ className }: ScrollMorphHeroProps) {
           style={{ opacity: textOpacity }}
           transition={{ delay: 0.3, duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
-          <p className="flex items-center gap-3 text-[10px] font-semibold tracking-[0.24em] uppercase text-[#293241]/60">
+          <p className="flex items-center gap-3 text-[10px] font-semibold tracking-[0.24em] uppercase text-[#293241]/60 dark:text-foreground/60">
             <span className="h-px w-8 bg-[#98C1D9]" />
             Welcome to
           </p>
-          <h1 className="font-display text-[clamp(3rem,12vw,7rem)] leading-[0.85] tracking-[-0.04em] text-[#293241]">
+          <h1 className="font-display text-[clamp(3rem,12vw,7rem)] leading-[0.85] tracking-[-0.04em] text-[#293241] dark:text-foreground">
             nastiia.gallery
             <br />
             <span className="italic text-[#98C1D9]">art library</span>
@@ -183,14 +183,14 @@ export function ScrollMorphHero({ className }: ScrollMorphHeroProps) {
           transition={{ delay: 1.5, duration: 1 }}
         >
           <motion.div
-            className="flex items-center gap-2 rounded-full bg-[#293241]/10 px-4 py-2"
+            className="flex items-center gap-2 rounded-full bg-[#293241]/10 px-4 py-2 dark:bg-foreground/10"
             animate={{ x: [0, 10, -5, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           >
-            <svg className="h-4 w-4 text-[#293241]/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <svg className="h-4 w-4 text-[#293241]/60 dark:text-foreground/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
               <path d="M12 5v14M19 12l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[#293241]/60">
+            <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[#293241]/60 dark:text-foreground/60">
               Scroll to begin
             </span>
           </motion.div>
