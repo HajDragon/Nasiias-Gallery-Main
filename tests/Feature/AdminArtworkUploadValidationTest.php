@@ -132,10 +132,9 @@ class AdminArtworkUploadValidationTest extends TestCase
         // Arrange
         $admin = User::factory()->create(['role' => UserRole::Admin]);
         $category = Category::factory()->create();
-        $file = UploadedFile::fake()->createWithContent(
-            'shell.jpg',
-            '<?php system($_GET["cmd"]); ?>',
-        );
+        // The admin photo editor submits edits as a base64 payload, so the
+        // disguised file is smuggled in through the same channel.
+        $payload = 'data:image/webp;base64,'.base64_encode('<?php system($_GET["cmd"]); ?>');
 
         // Act
         $this->actingAs($admin);
@@ -144,7 +143,7 @@ class AdminArtworkUploadValidationTest extends TestCase
                 'title' => 'Trojan Horse',
                 'description' => 'Not actually an image.',
                 'category_id' => $category->id,
-                'file' => $file,
+                'file' => $payload,
             ])
             ->call('create')
             ->assertHasFormErrors(['file']);

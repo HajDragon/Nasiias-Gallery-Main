@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5e1b23b745f0f3008f3a0d85e7f29f37",
+    "content-hash": "4ec74722f0cb24f6b174948a306abf51",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -5348,6 +5348,79 @@
                 "source": "https://github.com/phpstan/phpdoc-parser/tree/2.4.1"
             },
             "time": "2026-10-30T19:36:28+00:00"
+        },
+        {
+            "name": "pjedesigns/filament-image-editor",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pjedesigns/filament-image-editor.git",
+                "reference": "3fb87f271da8b095a900d9847aeb79d7d3ae4880"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pjedesigns/filament-image-editor/zipball/3fb87f271da8b095a900d9847aeb79d7d3ae4880",
+                "reference": "3fb87f271da8b095a900d9847aeb79d7d3ae4880",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^4.0|^5.0",
+                "livewire/livewire": "^3.0|^4.0",
+                "php": "^8.2",
+                "spatie/laravel-package-tools": "^1.16"
+            },
+            "require-dev": {
+                "blade-ui-kit/blade-heroicons": "^2.0",
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^8.1",
+                "orchestra/testbench": "^10.0",
+                "pestphp/pest": "^4.0",
+                "pestphp/pest-plugin-arch": "^4.0",
+                "pestphp/pest-plugin-laravel": "^4.0",
+                "spatie/laravel-medialibrary": "^11.18"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Pjedesigns\\FilamentImageEditor\\FilamentImageEditorServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Pjedesigns\\FilamentImageEditor\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Paul Egan",
+                    "email": "paul@pjedesigns.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A powerful, client-side image editor for Laravel Filament applications with crop, filter, and annotation tools",
+            "homepage": "https://github.com/pjedesigns/filament-image-editor",
+            "keywords": [
+                "annotation",
+                "crop",
+                "fabric-js",
+                "filament",
+                "filamentphp",
+                "filter",
+                "image-editor",
+                "laravel",
+                "pjedesigns"
+            ],
+            "support": {
+                "issues": "https://github.com/pjedesigns/filament-image-editor/issues",
+                "source": "https://github.com/pjedesigns/filament-image-editor/tree/v1.0.2"
+            },
+            "time": "2026-06-08T17:41:25+00:00"
         },
         {
             "name": "pragmarx/google2fa",

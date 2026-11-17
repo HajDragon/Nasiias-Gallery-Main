@@ -9,12 +9,12 @@ use App\Filament\Resources\Artworks\RelationManagers\CommentsRelationManager;
 use App\Models\Artwork;
 use App\Models\Category;
 use App\Rules\ValidArtworkImage;
+use App\Rules\ValidArtworkImagePayload;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -30,6 +30,7 @@ use Filament\Tables\Table;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Pjedesigns\FilamentImageEditor\Forms\Components\ImageEditor;
 
 class ArtworkResource extends Resource
 {
@@ -91,22 +92,58 @@ class ArtworkResource extends Resource
                             ->helperText('Defaults to title if left blank.')
                             ->live(onBlur: true),
 
-                        FileUpload::make('file')
-                            ->label(fn (string $operation): string => $operation === 'edit' ? 'Replace Artwork File' : 'Artwork File')
-                            ->acceptedFileTypes(array_keys(ValidArtworkImage::ACCEPTED_MIME_TYPES))
-                            ->rules([new ValidArtworkImage])
-                            ->maxSize(ValidArtworkImage::MAX_SIZE_KB)
-                            ->preventFilePathTampering()
+                        ImageEditor::make('file')
+                            ->label('Artwork Photo')
                             ->disk('public')
                             ->directory('artworks')
+                            ->visibility('public')
+                            ->tools(['crop', 'filter', 'draw'])
+                            ->acceptedFileTypes(array_keys(ValidArtworkImage::ACCEPTED_MIME_TYPES))
+                            ->maxFileSize(ValidArtworkImage::MAX_SIZE_KB)
+                            ->rules(fn (?Artwork $record): array => [
+                                new ValidArtworkImagePayload(unchangedUrl: $record?->image_url),
+                            ])
                             ->required(fn (string $operation): bool => $operation === 'create')
-                            ->live()
+                            ->openOnSelect(true)
+                            ->modalSize('7xl')
+                            ->previewMaxHeight(320)
+                            ->cropAspectRatios([
+                                'Free' => null,
+                                'Portrait 4:5' => 4 / 5,
+                                'Portrait 3:4' => 3 / 4,
+                                'Square 1:1' => 1,
+                                'Landscape 4:3' => 4 / 3,
+                                'Landscape 16:9' => 16 / 9,
+                            ])
+                            ->defaultAspectRatio('Free')
+                            ->cropMinSize(200, 200)
+                            ->enableRotation()
+                            ->enableFlip()
+                            ->filterPresets([
+                                'original',
+                                'warm',
+                                'cool',
+                                'vintage',
+                                'fade',
+                                'dramatic',
+                                'vivid',
+                                'grayscale',
+                                'sepia',
+                            ])
+                            ->adjustments(['brightness', 'contrast', 'saturation'])
+                            ->historyLimit(50)
+                            ->enableKeyboardShortcuts()
+                            ->outputFormat('webp')
+                            ->outputQuality(0.9)
+                            ->maxOutputSize(2000, 2000)
                             ->helperText(function (string $operation): string {
                                 $formats = strtoupper(implode(', ', ValidArtworkImage::ACCEPTED_EXTENSIONS));
 
                                 return ($operation === 'edit'
-                                        ? 'Upload a new image only if you want to replace the current artwork image. '
-                                        : 'Upload the high-resolution artwork image. ')
+                                        ? 'Hover the published photo and press Edit to adjust it, or Remove to delete it when you save. Uploading a new photo replaces it. '
+                                        : 'Drop a photo in, or click to choose one. ')
+                                    .'The editor opens on its own: straighten and crop, adjust the light and colour, then press Apply. '
+                                    .'Press Save to publish. Saved as an optimised WebP up to 2000 px. '
                                     ."Accepted formats: {$formats}. Maximum size: "
                                     .(ValidArtworkImage::MAX_SIZE_KB / 1024).' MB.';
                             }),
@@ -134,11 +171,20 @@ class ArtworkResource extends Resource
                                             $rawUrl = null;
                                         }
                                     } elseif (is_string($firstFile)) {
-                                        $rawUrl = Storage::disk('public')->url($firstFile);
-                                        try {
-                                            $fileSize = Storage::disk('public')->size($firstFile);
-                                        } catch (\Throwable) {
-                                            $fileSize = null;
+                                        // The photo editor reports its result as a
+                                        // base64 data URI; untouched images are a
+                                        // disk-relative path, never a URL.
+                                        if (str_starts_with($firstFile, 'data:image/')) {
+                                            $rawUrl = $firstFile;
+                                        } elseif (str_starts_with($firstFile, '/') || filter_var($firstFile, FILTER_VALIDATE_URL) !== false) {
+                                            $rawUrl = $firstFile;
+                                        } else {
+                                            $rawUrl = Storage::disk('public')->url($firstFile);
+                                            try {
+                                                $fileSize = Storage::disk('public')->size($firstFile);
+                                            } catch (\Throwable) {
+                                                $fileSize = null;
+                                            }
                                         }
                                     }
                                 }
@@ -166,10 +212,12 @@ class ArtworkResource extends Resource
                                 }
 
                                 $imageUrl = $rawUrl;
-                                if (str_starts_with($imageUrl, '/')) {
-                                    $imageUrl = request()->getSchemeAndHttpHost().$imageUrl;
-                                } elseif (str_contains($imageUrl, 'localhost') && request()->getHost() !== 'localhost') {
-                                    $imageUrl = str_replace('localhost', request()->getHost(), $imageUrl);
+                                if (! str_starts_with($imageUrl, 'data:image/')) {
+                                    if (str_starts_with($imageUrl, '/')) {
+                                        $imageUrl = request()->getSchemeAndHttpHost().$imageUrl;
+                                    } elseif (str_contains($imageUrl, 'localhost') && request()->getHost() !== 'localhost') {
+                                        $imageUrl = str_replace('localhost', request()->getHost(), $imageUrl);
+                                    }
                                 }
 
                                 $titleValue = $get('title') ?? ($record !== null ? $record->title : null) ?? $get('alt_text') ?? ($record !== null ? $record->alt_text : null) ?? 'Untitled Artwork';
