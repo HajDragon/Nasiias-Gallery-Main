@@ -48,17 +48,22 @@ export default function GalleryIndex({
 }: GalleryIndexProps) {
     const { t } = useTranslation();
 
-    const handleFilterChange = (category: string) => {
-        const url = new URL(window.location.href);
-        if (category) {
-            url.searchParams.set('category', category);
-        } else {
-            url.searchParams.delete('category');
-        }
-        url.searchParams.set('page', '1');
-        window.history.pushState({}, '', url);
+    // FilterBar works with category names, but the URL/back-end use slugs.
+    const activeCategoryName =
+        selectedCategory === ''
+            ? ''
+            : (categories.find((category) => category.slug === selectedCategory)
+                  ?.name ?? '');
 
-        router.visit(url.pathname + url.search, { preserveState: true });
+    const handleFilterChange = (categoryName: string) => {
+        const slug = categories.find(
+            (category) => category.name === categoryName,
+        )?.slug;
+
+        router.get('/gallery', slug ? { category: slug } : {}, {
+            preserveState: true,
+            preserveScroll: true,
+        });
     };
 
     return (
@@ -93,7 +98,7 @@ export default function GalleryIndex({
                         aria-label={t('gallery.aria_collection')}
                     >
                         <FilterBar
-                            active={selectedCategory}
+                            active={activeCategoryName}
                             onChange={handleFilterChange}
                             categories={categories.map(
                                 (category) => category.name,

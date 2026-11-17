@@ -14,10 +14,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
+use Tests\Concerns\BuildsEditedPhotoPayloads;
 use Tests\TestCase;
 
 class ArtworkResourceTest extends TestCase
 {
+    use BuildsEditedPhotoPayloads;
     use RefreshDatabase;
 
     protected function setUp(): void
@@ -43,7 +45,7 @@ class ArtworkResourceTest extends TestCase
         // Arrange
         $admin = User::factory()->create(['role' => UserRole::Admin]);
         $category = Category::factory()->create(['name' => 'Abstract']);
-        $file = UploadedFile::fake()->image('vermilion-weather.jpg', 1200, 800);
+        $photo = $this->editedPhotoPayload();
 
         // Act
         $this->actingAs($admin);
@@ -52,7 +54,7 @@ class ArtworkResourceTest extends TestCase
                 'title' => 'Vermilion Weather',
                 'description' => 'A storm held mid-flash in reds and yellows.',
                 'category_id' => $category->id,
-                'file' => $file,
+                'file' => $photo,
             ])
             ->call('create')
             ->assertHasNoFormErrors();
