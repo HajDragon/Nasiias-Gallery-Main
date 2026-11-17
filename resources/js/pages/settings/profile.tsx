@@ -20,6 +20,7 @@ export default function Profile({
     status?: string;
 }) {
     const { auth, locale, availableLocales } = usePage().props;
+    const user = auth.user!;
     const { t } = useTranslation();
 
     return (
@@ -50,7 +51,7 @@ export default function Profile({
                                 <Input
                                     id="display_name"
                                     className="mt-1 block w-full border-border bg-background focus-visible:border-primary"
-                                    defaultValue={auth.user.display_name}
+                                    defaultValue={user.display_name}
                                     name="display_name"
                                     required
                                     autoComplete="name"
@@ -74,7 +75,7 @@ export default function Profile({
                                     id="email"
                                     type="email"
                                     className="mt-1 block w-full border-border bg-background focus-visible:border-primary"
-                                    defaultValue={auth.user.email}
+                                    defaultValue={user.email}
                                     name="email"
                                     required
                                     autoComplete="username"
@@ -95,7 +96,7 @@ export default function Profile({
                                 <select
                                     id="locale"
                                     name="locale"
-                                    defaultValue={auth.user.locale ?? locale}
+                                    defaultValue={user.locale ?? locale}
                                     className="mt-1 block h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-base text-foreground shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm"
                                 >
                                     {Object.entries(availableLocales).map(
@@ -131,8 +132,7 @@ export default function Profile({
                                         name="notify_on_new_artwork"
                                         value="1"
                                         defaultChecked={
-                                            auth.user.notify_on_new_artwork ===
-                                            true
+                                            user.notify_on_new_artwork === true
                                         }
                                         className="mt-0.5"
                                     />
@@ -155,7 +155,7 @@ export default function Profile({
                             </div>
 
                             {mustVerifyEmail &&
-                                auth.user.email_verified_at === null && (
+                                user.email_verified_at === null && (
                                     <div>
                                         <p className="-mt-4 text-sm text-muted-foreground">
                                             {t('profile.unverified')}{' '}
@@ -192,7 +192,7 @@ export default function Profile({
                 </Form>
             </div>
 
-            <DeleteUser user={auth.user} />
+            <DeleteUser user={user} />
         </>
     );
 }
