@@ -71,7 +71,7 @@ function FeedCard({
     };
 
     return (
-        <article className="relative h-[100dvh] touch-manipulation snap-start snap-always overflow-hidden bg-white">
+        <article className="relative h-[100dvh] touch-manipulation snap-start snap-always overflow-hidden bg-card">
             <button
                 type="button"
                 onClick={handleTap}
@@ -80,7 +80,7 @@ function FeedCard({
                     title: artwork.title || t('artwork.untitled'),
                 })}
             >
-                <div className="h-full w-full bg-white">
+                <div className="h-full w-full bg-card">
                     <img
                         src={artwork.image_url}
                         alt={artwork.alt_text}
@@ -89,14 +89,14 @@ function FeedCard({
                     />
                 </div>
 
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#293241]/85 via-[#293241]/30 to-transparent" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-foreground/85 via-foreground/30 to-transparent" />
 
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-5 pb-8">
                     <div className="min-w-0">
-                        <h2 className="font-display text-3xl text-[#F0F7FF] drop-shadow-sm">
+                        <h2 className="font-display text-3xl text-primary-on-blue drop-shadow-sm">
                             {artwork.title || t('artwork.untitled')}
                         </h2>
-                        <p className="mt-1.5 text-[10px] font-semibold tracking-[0.18em] text-[#F0F7FF]/75 uppercase">
+                        <p className="mt-1.5 text-[10px] font-semibold tracking-[0.18em] text-primary-on-blue/75 uppercase">
                             {artwork.category?.name ||
                                 t('artwork.gallery_piece')}
                         </p>
@@ -104,7 +104,9 @@ function FeedCard({
                     <svg
                         viewBox="0 0 24 24"
                         className={`h-7 w-7 shrink-0 drop-shadow-md ${
-                            liked ? 'text-[#E63946]' : 'text-[#F0F7FF]/40'
+                            liked
+                                ? 'text-destructive'
+                                : 'text-primary-on-blue/40'
                         }`}
                         aria-hidden="true"
                     >
@@ -132,8 +134,8 @@ function FeedCard({
                         >
                             <path
                                 d="M20.8 4.9a5.5 5.5 0 0 0-7.8 0L12 5.9l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21.5l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8Z"
-                                fill="#F0F7FF"
-                                stroke="#293241"
+                                fill="var(--color-primary-on-blue)"
+                                stroke="var(--color-primary)"
                                 strokeWidth="1.2"
                                 strokeLinejoin="round"
                             />
@@ -174,7 +176,7 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
     return (
         <>
             <Head title="nastiia.gallery" />
-            <div className="gallery-surface min-h-screen bg-[#EEF3F8] text-[#293241]">
+            <div className="gallery-surface min-h-screen bg-background text-foreground">
                 <Header />
                 <main id="top">
                     <section
@@ -200,15 +202,15 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                     >
                         <h2 className="mb-6 pt-8 font-display text-[clamp(2.5rem,7vw,4.5rem)] leading-[0.9] tracking-[-0.045em] sm:mb-8">
                             {t('welcome.my')}{' '}
-                            <span className="text-[#98C1D9] italic">
+                            <span className="text-primary-blue italic">
                                 {t('welcome.art_library')}
                             </span>
                         </h2>
-                        <p className="mb-8 max-w-2xl text-sm leading-7 text-[#293241]/70 sm:text-base sm:leading-8">
+                        <p className="mb-8 max-w-2xl text-sm leading-7 text-foreground/70 sm:text-base sm:leading-8">
                             {t('welcome.intro')}
                         </p>
 
-                        <div className="sticky top-0 z-30 -mx-5 bg-[#EEF3F8] px-5 sm:static sm:z-auto sm:mx-0 sm:px-0">
+                        <div className="sticky top-0 z-30 -mx-5 bg-background px-5 sm:static sm:z-auto sm:mx-0 sm:px-0">
                             <FilterBar
                                 active={activeCategory}
                                 onChange={setActiveCategory}
@@ -218,7 +220,7 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                             />
                         </div>
 
-                        <p className="mt-2 mb-2 text-center text-[11px] font-semibold tracking-[0.3em] text-[#293241]/55 uppercase sm:hidden">
+                        <p className="mt-2 mb-2 text-center text-[11px] font-semibold tracking-[0.3em] text-foreground/55 uppercase sm:hidden">
                             {t('welcome.scroll')}
                         </p>
 
@@ -238,7 +240,7 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                             {visibleArtworks.map((artwork, index) => (
                                 <article
                                     key={artwork.id}
-                                    className="group bg-white"
+                                    className="group bg-card"
                                 >
                                     <button
                                         type="button"
@@ -250,7 +252,7 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                                                 t('artwork.untitled'),
                                         })}
                                     >
-                                        <div className="aspect-[4/5] w-full bg-white">
+                                        <div className="aspect-[4/5] w-full bg-card">
                                             <img
                                                 src={artwork.image_url}
                                                 alt={artwork.alt_text}
@@ -265,23 +267,23 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                                                 }
                                             />
                                         </div>
-                                        <span className="absolute top-4 right-4 grid h-8 w-8 place-items-center rounded-full bg-[#EEF3F8]/90 text-[10px] font-semibold backdrop-blur-sm">
+                                        <span className="absolute top-4 right-4 grid h-8 w-8 place-items-center rounded-full bg-accent/90 text-[10px] font-semibold backdrop-blur-sm">
                                             {String(index + 1).padStart(2, '0')}
                                         </span>
                                         <ArtworkHoverCue />
                                     </button>
-                                    <div className="border-t border-[#293241]/15 p-4">
+                                    <div className="border-t border-border/15 p-4">
                                         <div className="flex items-baseline justify-between gap-4">
                                             <h2 className="font-display text-xl leading-tight tracking-[-0.02em] sm:text-[1.5rem]">
                                                 {artwork.title ||
                                                     t('artwork.untitled')}
                                             </h2>
                                             <span
-                                                className="h-2 w-2 shrink-0 rounded-full bg-[#98C1D9] transition-transform duration-300 group-hover:scale-150"
+                                                className="h-2 w-2 shrink-0 rounded-full bg-primary-blue transition-transform duration-300 group-hover:scale-150"
                                                 aria-hidden="true"
                                             />
                                         </div>
-                                        <p className="mt-1.5 text-[10px] font-semibold tracking-[0.18em] text-[#293241]/55 uppercase">
+                                        <p className="mt-1.5 text-[10px] font-semibold tracking-[0.18em] text-foreground/55 uppercase">
                                             {artwork.category?.name ||
                                                 t('artwork.gallery_piece')}
                                         </p>
