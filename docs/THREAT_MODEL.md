@@ -118,16 +118,16 @@ Nastiia's Gallery is a Laravel-based web application for showcasing and managing
 
 ### 3.3 File Upload (Spatie MediaLibrary)
 
-| Threat                      | Type      | Risk     | Mitigation                                                                         | Security Story |
-| --------------------------- | --------- | -------- | ---------------------------------------------------------------------------------- | -------------- |
-| Malicious file upload (RCE) | Tampering | Critical | `ValidArtworkImage` rule: finfo + getimagesize(), MIME validation, extension check | SEC-06         |
-| Polyglot files              | Tampering | High     | Structural validation via `getimagesize()`                                         | SEC-06         |
-| Image decompression bombs   | DoS       | Medium   | Max dimension check (8000px)                                                       | SEC-06         |
-| Path traversal              | Tampering | High     | MediaLibrary handles storage, no user-controlled paths                             | SEC-06         |
-| Admin photo editor payload  | Tampering | Critical | `ValidArtworkImagePayload` decodes the base64 export, rejects traversal, sniffs the bytes and re-checks dimensions before anything reaches the media library | SEC-06 |
-| Oversized files             | DoS       | Medium   | Max size 10MB enforced                                                             | SEC-06         |
-| SVG XSS                     | Tampering | High     | SVG not in accepted MIME types                                                     | SEC-06         |
-| Stored XSS via EXIF         | Tampering | Low      | Images reprocessed (conversions strip metadata)                                    | SEC-06         |
+| Threat                      | Type      | Risk     | Mitigation                                                                                                                                                   | Security Story |
+| --------------------------- | --------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------- |
+| Malicious file upload (RCE) | Tampering | Critical | `ValidArtworkImage` rule: finfo + getimagesize(), MIME validation, extension check                                                                           | SEC-06         |
+| Polyglot files              | Tampering | High     | Structural validation via `getimagesize()`                                                                                                                   | SEC-06         |
+| Image decompression bombs   | DoS       | Medium   | Max dimension check (8000px)                                                                                                                                 | SEC-06         |
+| Path traversal              | Tampering | High     | MediaLibrary handles storage, no user-controlled paths                                                                                                       | SEC-06         |
+| Admin photo editor payload  | Tampering | Critical | `ValidArtworkImagePayload` decodes the base64 export, rejects traversal, sniffs the bytes and re-checks dimensions before anything reaches the media library | SEC-06         |
+| Oversized files             | DoS       | Medium   | Max size 10MB enforced                                                                                                                                       | SEC-06         |
+| SVG XSS                     | Tampering | High     | SVG not in accepted MIME types                                                                                                                               | SEC-06         |
+| Stored XSS via EXIF         | Tampering | Low      | Images reprocessed (conversions strip metadata)                                                                                                              | SEC-06         |
 
 ### 3.4 Admin Panel (Filament)
 
@@ -220,13 +220,13 @@ Access Other User's Artwork (IDOR)
 
 ## 6. Security Stories Mapping
 
-| Story      | Title                                            | Components Protected              | Tests                                            |
-| ---------- | ------------------------------------------------ | --------------------------------- | ------------------------------------------------ |
-| **SEC-01** | Users may only view/edit/delete own artworks     | Auth, Artworks CRUD, Admin Panel  | `AuthenticationTest`, `ArtworkAuthorizationTest` |
-| **SEC-02** | All input validated and sanitized                | Artworks CRUD, File Upload, Forms | `InputValidationTest`                            |
-| **SEC-03** | No critical/high vulnerabilities in dependencies | All (supply chain)                | `DependencyTest`, CI SCA                         |
-| **SEC-04** | No secrets in code                               | All                               | Semgrep secrets scan (CI + pre-commit)           |
-| **SEC-05** | Security headers (CSP, HSTS, X-Frame-Options)    | All HTTP responses                | `HeadersTest`, `SecurityHeaders` middleware      |
+| Story      | Title                                            | Components Protected              | Tests                                                                                              |
+| ---------- | ------------------------------------------------ | --------------------------------- | -------------------------------------------------------------------------------------------------- |
+| **SEC-01** | Users may only view/edit/delete own artworks     | Auth, Artworks CRUD, Admin Panel  | `AuthenticationTest`, `ArtworkAuthorizationTest`                                                   |
+| **SEC-02** | All input validated and sanitized                | Artworks CRUD, File Upload, Forms | `InputValidationTest`                                                                              |
+| **SEC-03** | No critical/high vulnerabilities in dependencies | All (supply chain)                | `DependencyTest`, CI SCA                                                                           |
+| **SEC-04** | No secrets in code                               | All                               | Semgrep secrets scan (CI + pre-commit)                                                             |
+| **SEC-05** | Security headers (CSP, HSTS, X-Frame-Options)    | All HTTP responses                | `HeadersTest`, `SecurityHeaders` middleware                                                        |
 | **SEC-06** | File uploads secure (MIME, size, no executables) | File Upload (MediaLibrary)        | `FileUploadTest`, `ArtworkPhotoEditorTest`, `ValidArtworkImage` + `ValidArtworkImagePayload` rules |
 
 ---
