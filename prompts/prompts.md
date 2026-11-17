@@ -577,3 +577,53 @@ Integrated directly into resources/js/components/Header.tsx:157-170 to the right
 
 • npm run types:check (tsc --noEmit): Passed with 0 errors.
 • npm run build (vp build): Build completed successfully.
+
+---
+
+# Prompt: Fix Gallery Category Filter Returning No Results
+
+**Date:** 2026-11-17
+
+## Prompt
+
+The category filter on the gallery page does not work: selecting any filter returns an empty gallery instead of the matching artworks. Investigate the root cause, make filtering return the expected results, keep the active filter state visually correct, and cover the behaviour with regression tests.
+
+## Response
+
+Done. The filter was sending the category **name** (`?category=Color%20Field`) while `GalleryController@index` filters on the category **slug** (`color-field`), so every request matched nothing. The same name/slug mismatch also meant the active filter pill was never highlighted.
+
+- `resources/js/pages/gallery/index.tsx`: the selected slug is mapped to its display name for `FilterBar`'s `active` prop, and the chosen name is mapped back to its slug when building the query string.
+- Filtering now uses `router.get('/gallery', { category })` with `preserveState`/`preserveScroll` instead of `window.history.pushState()` followed by `router.visit()`, which pushed a duplicate history entry and broke the back button. Resetting to page 1 is handled implicitly by the server.
+- Added `tests/Feature/GalleryIndexTest.php` covering the unfiltered listing, filtering by a slug whose name differs from the slug, and an unknown category.
+
+## Files Modified
+
+- `resources/js/pages/gallery/index.tsx` — Map category name ⇄ slug for the filter bar, and switch filtering to `router.get`
+- `tests/Feature/GalleryIndexTest.php` — Added feature coverage for gallery listing and slug-based category filtering
+
+---
+
+# Prompt: Restore Header Hover States in Dark Mode
+
+**Date:** 2026-11-17
+
+## Prompt
+
+Navigation items in the site header show no hover effect in dark mode, while they behave correctly in light mode. Restore the hover effect so it matches the light-mode behaviour in both themes.
+
+Additionally, rewrite the two prompts from this session in professional English and append them to `prompts/prompts.md`, each followed by your final response and the files that changed.
+
+## Response
+
+Done. The header links used `hover:bg-accent/10`, but `--accent` is a page-level token that flips to `#332e2e` in dark mode. Because the header keeps its fixed `#293241` background in both themes, a 10% dark-brown wash was invisible.
+
+- Header navigation states now use the header-scoped tokens (`hover:bg-header-foreground/10`), which resolve to the same `#f0f7ff` tint at 10% opacity in both themes — visually identical to the light-mode hover.
+- The active pill uses `bg-header-foreground text-header`, so the “current page” indicator keeps the light-mode appearance (light pill, dark label) instead of blending into the dark header.
+- The signed-in avatar trigger is a shadcn `ghost` button whose `hover:bg-accent` also disappeared in dark mode; it is overridden with `hover:bg-header-foreground/10!` so the utility wins over the variant.
+- The guest “Account” link was normalised to the same token instead of a hard-coded `#EEF3F8`.
+- Verified with `vp check`, `tsc --noEmit` and `vp build`; the compiled CSS contains the expected `color-mix(... 10%, transparent)` hover rule.
+
+## Files Modified
+
+- `resources/js/components/Header.tsx` — Replaced accent-based hover/active states with header-scoped tokens for the Home, Gallery, Contact, Account and avatar-trigger items
+- `prompts/prompts.md` — Documented this session's two prompts with their final responses and changed files
