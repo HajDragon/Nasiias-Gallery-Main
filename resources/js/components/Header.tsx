@@ -64,8 +64,8 @@ export default function Header() {
                         href="/"
                         className={`shrink-0 rounded-full px-3 py-2 text-xs font-semibold tracking-[0.14em] whitespace-nowrap uppercase transition-colors sm:px-5 sm:py-2.5 sm:text-sm ${
                             isHome
-                                ? 'bg-accent text-primary'
-                                : 'hover:bg-accent/10'
+                                ? 'bg-header-foreground text-header'
+                                : 'hover:bg-header-foreground/10'
                         }`}
                         aria-current={isHome ? 'page' : undefined}
                     >
@@ -75,8 +75,8 @@ export default function Header() {
                         href="/gallery"
                         className={`shrink-0 rounded-full px-3 py-2 text-xs font-semibold tracking-[0.14em] whitespace-nowrap uppercase transition-colors sm:px-5 sm:py-2.5 sm:text-sm ${
                             isGallery
-                                ? 'bg-accent text-primary'
-                                : 'hover:bg-accent/10'
+                                ? 'bg-header-foreground text-header'
+                                : 'hover:bg-header-foreground/10'
                         }`}
                         aria-current={isGallery ? 'page' : undefined}
                     >
@@ -85,7 +85,7 @@ export default function Header() {
                     <a
                         href="#contact"
                         onClick={scrollToContact}
-                        className="shrink-0 rounded-full px-3 py-2 text-xs font-semibold tracking-[0.14em] whitespace-nowrap uppercase transition-colors hover:bg-accent/10 sm:px-5 sm:py-2.5 sm:text-sm"
+                        className="shrink-0 rounded-full px-3 py-2 text-xs font-semibold tracking-[0.14em] whitespace-nowrap uppercase transition-colors hover:bg-header-foreground/10 sm:px-5 sm:py-2.5 sm:text-sm"
                     >
                         {t('nav.contact')}
                     </a>
@@ -94,14 +94,14 @@ export default function Header() {
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     variant="ghost"
-                                    className="size-10 rounded-full p-1"
+                                    className="size-10 rounded-full p-1 hover:bg-header-foreground/10!"
                                 >
                                     <Avatar className="size-8 overflow-hidden rounded-full">
                                         <AvatarImage
                                             src={user.avatar}
                                             alt={user.display_name}
                                         />
-                                        <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                        <AvatarFallback className="rounded-lg bg-neutral-200 text-black">
                                             {getInitials(
                                                 user.display_name ?? '',
                                             )}
@@ -148,7 +148,7 @@ export default function Header() {
                     ) : (
                         <Link
                             href="/login"
-                            className={`shrink-0 rounded-full px-3 py-2 text-xs font-semibold tracking-[0.14em] whitespace-nowrap uppercase transition-colors hover:bg-[#EEF3F8]/10 sm:px-5 sm:py-2.5 sm:text-sm`}
+                            className={`shrink-0 rounded-full px-3 py-2 text-xs font-semibold tracking-[0.14em] whitespace-nowrap uppercase transition-colors hover:bg-header-foreground/10 sm:px-5 sm:py-2.5 sm:text-sm`}
                         >
                             {t('nav.account')}
                         </Link>
