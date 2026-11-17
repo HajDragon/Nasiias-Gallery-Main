@@ -18,7 +18,7 @@
         "spatie/image": "3.8.7",
         "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-medialibrary": "^11.23",
-        "symfony/clock": "^8.1",
+        "symfony/clock": "^7.4",
         "symfony/console": "^7.4",
         "symfony/css-selector": "^7.4",
         "symfony/error-handler": "^7.4",
