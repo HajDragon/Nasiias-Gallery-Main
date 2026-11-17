@@ -261,7 +261,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
     return (
         <div
             ref={containerRef}
-            className="relative w-full h-full bg-[#EEF3F8] overflow-hidden"
+            className="relative w-full h-full bg-[#EEF3F8] dark:bg-background overflow-hidden"
             onClick={advanceStage}
         >
             <div className="flex h-full w-full flex-col items-center justify-center perspective-1000">
@@ -274,7 +274,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                                 : { opacity: 0, filter: 'blur(10px)' }
                         }
                         transition={{ duration: 1 }}
-                        className="text-2xl font-medium tracking-tight text-gray-800 md:text-4xl"
+                        className="text-2xl font-medium tracking-tight text-gray-800 dark:text-foreground md:text-4xl"
                     >
                         {t('intro.title')}
                     </motion.h1>
@@ -291,7 +291,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                             event.stopPropagation();
                             advanceStage();
                         }}
-                        className="pointer-events-auto mt-4 text-xs font-bold tracking-[0.2em] text-gray-500"
+                        className="pointer-events-auto mt-4 text-xs font-bold tracking-[0.2em] text-gray-500 dark:text-muted-foreground transition-colors hover:text-foreground"
                     >
                         {t('intro.explore')}
                     </motion.button>
@@ -318,10 +318,10 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                     style={{ opacity: contentOpacity, y: contentY }}
                     className="absolute top-[10%] z-10 flex flex-col items-center justify-center text-center pointer-events-none px-4"
                 >
-                    <h2 className="text-3xl md:text-5xl font-semibold text-gray-900 tracking-tight mb-4">
+                    <h2 className="text-3xl md:text-5xl font-semibold text-gray-900 dark:text-foreground tracking-tight mb-4">
                         {t('intro.collection')}
                     </h2>
-                    <p className="text-sm md:text-base text-gray-600 max-w-lg leading-relaxed">
+                    <p className="text-sm md:text-base text-gray-600 dark:text-muted-foreground max-w-lg leading-relaxed">
                         {t('intro.quote')}
                     </p>
                     <button
@@ -330,7 +330,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                             event.stopPropagation();
                             advanceStage();
                         }}
-                        className="pointer-events-auto mt-6 text-xs font-bold tracking-[0.2em] text-gray-500"
+                        className="pointer-events-auto mt-6 text-xs font-bold tracking-[0.2em] text-gray-500 dark:text-muted-foreground transition-colors hover:text-foreground"
                     >
                         {t('intro.continue')}
                     </button>
