@@ -19,7 +19,7 @@ export default function AuthSimpleLayout({
                             <img
                                 src="/nastias-gallery-logo.png"
                                 alt={title}
-                                className="h-28 w-auto"
+                                className="h-28 w-auto dark:invert"
                             />
                             <span className="sr-only">{title}</span>
                         </Link>

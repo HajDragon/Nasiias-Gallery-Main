@@ -7,7 +7,7 @@ import Header from '@/components/Header';
  */
 export default function SiteLayout({ children }: PropsWithChildren) {
     return (
-        <div className="gallery-surface min-h-screen bg-[#EEF3F8] text-[#293241]">
+        <div className="gallery-surface min-h-screen bg-background text-foreground">
             <Header />
             <main
                 id="top"

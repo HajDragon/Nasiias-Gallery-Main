@@ -20,6 +20,7 @@ export default function Profile({
     status?: string;
 }) {
     const { auth, locale, availableLocales } = usePage().props;
+    const user = auth.user!;
     const { t } = useTranslation();
 
     return (
@@ -49,8 +50,8 @@ export default function Profile({
 
                                 <Input
                                     id="display_name"
-                                    className="mt-1 block w-full border-[#293241]/25 bg-white focus-visible:border-[#293241]"
-                                    defaultValue={auth.user.display_name}
+                                    className="mt-1 block w-full border-border bg-background focus-visible:border-primary"
+                                    defaultValue={user.display_name}
                                     name="display_name"
                                     required
                                     autoComplete="name"
@@ -73,8 +74,8 @@ export default function Profile({
                                 <Input
                                     id="email"
                                     type="email"
-                                    className="mt-1 block w-full border-[#293241]/25 bg-white focus-visible:border-[#293241]"
-                                    defaultValue={auth.user.email}
+                                    className="mt-1 block w-full border-border bg-background focus-visible:border-primary"
+                                    defaultValue={user.email}
                                     name="email"
                                     required
                                     autoComplete="username"
@@ -95,8 +96,8 @@ export default function Profile({
                                 <select
                                     id="locale"
                                     name="locale"
-                                    defaultValue={auth.user.locale ?? locale}
-                                    className="mt-1 block h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm"
+                                    defaultValue={user.locale ?? locale}
+                                    className="mt-1 block h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-base text-foreground shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm"
                                 >
                                     {Object.entries(availableLocales).map(
                                         ([code, label]) => (
@@ -124,23 +125,22 @@ export default function Profile({
 
                                 <label
                                     htmlFor="notify_on_new_artwork"
-                                    className="mt-1 flex cursor-pointer items-start gap-3 rounded-lg border border-[#293241]/15 bg-[#EEF3F8]/50 p-4"
+                                    className="mt-1 flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-muted/50 p-4"
                                 >
                                     <Checkbox
                                         id="notify_on_new_artwork"
                                         name="notify_on_new_artwork"
                                         value="1"
                                         defaultChecked={
-                                            auth.user.notify_on_new_artwork ===
-                                            true
+                                            user.notify_on_new_artwork === true
                                         }
                                         className="mt-0.5"
                                     />
                                     <span className="space-y-1">
-                                        <span className="block text-sm font-medium text-[#293241]">
+                                        <span className="block text-sm font-medium text-foreground">
                                             {t('profile.notify_new_artwork')}
                                         </span>
-                                        <span className="block text-sm text-[#293241]/70">
+                                        <span className="block text-sm text-muted-foreground">
                                             {t(
                                                 'profile.notify_new_artwork_hint',
                                             )}
@@ -155,7 +155,7 @@ export default function Profile({
                             </div>
 
                             {mustVerifyEmail &&
-                                auth.user.email_verified_at === null && (
+                                user.email_verified_at === null && (
                                     <div>
                                         <p className="-mt-4 text-sm text-muted-foreground">
                                             {t('profile.unverified')}{' '}
@@ -170,7 +170,7 @@ export default function Profile({
 
                                         {status ===
                                             'verification-link-sent' && (
-                                            <div className="mt-2 text-sm font-medium text-green-600">
+                                            <div className="mt-2 text-sm font-medium text-green-600 dark:text-green-400">
                                                 {t('profile.verification_sent')}
                                             </div>
                                         )}
@@ -181,18 +181,18 @@ export default function Profile({
                                 <Button
                                     disabled={processing}
                                     data-test="update-profile-button"
-                                    className="bg-[#293241] text-[#F0F7FF] transition-colors hover:bg-[#293241]/90"
+                                    className="bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
                                 >
                                     {t('profile.save')}
                                 </Button>
                             </div>
-                            <hr className="my-5 border-gray-300" />
+                            <hr className="my-5 border-border" />
                         </>
                     )}
                 </Form>
             </div>
 
-            <DeleteUser user={auth.user} />
+            <DeleteUser user={user} />
         </>
     );
 }

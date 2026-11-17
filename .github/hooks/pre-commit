@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -e
+
+# Capture currently staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR)
+
+if [ -z "$STAGED_FILES" ]; then
+  exit 0
+fi
+
+# Run Vite+ check and auto-fix
+npx vp check --fix
+
+# Re-stage any files that were modified by --fix
+echo "$STAGED_FILES" | xargs git add
