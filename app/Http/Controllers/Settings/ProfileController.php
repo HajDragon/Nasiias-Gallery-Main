@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileDeleteRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Rules\ValidArtworkImage;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -54,6 +55,39 @@ class ProfileController extends Controller
         return is_string($locale)
             ? $response->withCookie(cookie()->forever('locale', $locale))
             : $response;
+    }
+
+    /**
+     * Upload a new profile photo for the user.
+     */
+    public function updateAvatar(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'avatar' => [
+                'required',
+                'file',
+                new ValidArtworkImage,
+                'mimes:jpg,jpeg,png,webp',
+            ],
+        ]);
+
+        $request->user()->addMediaFromRequest('avatar')->toMediaCollection('avatar');
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('app.avatar_updated')]);
+
+        return back();
+    }
+
+    /**
+     * Remove the user's profile photo.
+     */
+    public function destroyAvatar(Request $request): RedirectResponse
+    {
+        $request->user()->clearMediaCollection('avatar');
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('app.avatar_removed')]);
+
+        return back();
     }
 
     /**

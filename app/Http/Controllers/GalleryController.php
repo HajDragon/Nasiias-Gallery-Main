@@ -95,7 +95,7 @@ class GalleryController extends Controller
     public function getComments(Request $request, Artwork $artwork): JsonResponse
     {
         $comments = $artwork->comments()
-            ->with('user:id,display_name')
+            ->with(['user:id,display_name', 'user.media'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($comment) {
@@ -104,6 +104,7 @@ class GalleryController extends Controller
                     'body' => $comment->body,
                     'user' => [
                         'display_name' => $comment->user->display_name,
+                        'avatar' => $comment->user->avatar,
                     ],
                     'created_at' => $comment->created_at?->toISOString(),
                 ];
@@ -124,13 +125,14 @@ class GalleryController extends Controller
             'body' => $request->string('body')->toString(),
         ]);
 
-        $comment->load('user:id,display_name');
+        $comment->load(['user:id,display_name', 'user.media']);
 
         return response()->json([
             'id' => $comment->id,
             'body' => $comment->body,
             'user' => [
                 'display_name' => $comment->user->display_name,
+                'avatar' => $comment->user->avatar,
             ],
             'created_at' => $comment->created_at?->toISOString(),
         ], 201);
