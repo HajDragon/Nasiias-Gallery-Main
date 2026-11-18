@@ -1,4 +1,5 @@
 import { Form, Head, usePage } from '@inertiajs/react';
+import { useState } from 'react';
 import { Link } from '@inertiajs/react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
@@ -23,6 +24,11 @@ export default function Profile({
     status?: string;
 }) {
     const { auth } = usePage<PageProps>().props;
+    const isAdmin =
+        auth.user.role === 'admin' || auth.user.role === 'super_admin';
+    const [contactEmails, setContactEmails] = useState(
+        auth.user.notify_on_contact_message,
+    );
 
     return (
         <>
@@ -37,6 +43,14 @@ export default function Profile({
 
                 <Form
                     {...ProfileController.update.form()}
+                    transform={(data) =>
+                        isAdmin
+                            ? {
+                                  ...data,
+                                  notify_on_contact_message: contactEmails,
+                              }
+                            : data
+                    }
                     options={{
                         preserveScroll: true,
                     }}
@@ -109,6 +123,34 @@ export default function Profile({
                                         )}
                                     </div>
                                 )}
+
+                            {isAdmin && (
+                                <div className="grid gap-2">
+                                    <label className="flex items-center gap-3 text-sm font-medium">
+                                        <input
+                                            type="checkbox"
+                                            role="switch"
+                                            checked={contactEmails}
+                                            onChange={(event) =>
+                                                setContactEmails(
+                                                    event.target.checked,
+                                                )
+                                            }
+                                            className="h-4 w-4 accent-[#293241]"
+                                        />
+                                        Receive contact form emails
+                                    </label>
+                                    <p className="text-sm text-muted-foreground">
+                                        Email me when someone sends a message
+                                        through Contact us.
+                                    </p>
+                                    <InputError
+                                        message={
+                                            errors.notify_on_contact_message
+                                        }
+                                    />
+                                </div>
+                            )}
 
                             <div className="flex items-center gap-4">
                                 <Button
