@@ -118,6 +118,9 @@ return [
         'privacy_policy' => 'privacy policy',
         'consent_after' => '. (Placeholder)',
         'send' => 'Send message',
+        'sending' => 'Sending...',
+        'submitted' => 'Thank you. Your message has been submitted. We will be in touch.',
+        'consent' => 'I agree that my details and message will be used to respond to my enquiry.',
     ],
 
     'intro' => [
@@ -224,6 +227,8 @@ return [
         'language' => 'Language',
         'language_hint' => 'Choose the language used across the site.',
         'notifications' => 'Email notifications',
+        'notify_contact' => 'Receive contact form emails',
+        'notify_contact_hint' => 'Email me when someone sends a message through Contact us.',
         'notify_new_artwork' => 'Email me when new artwork is uploaded',
         'notify_new_artwork_hint' => 'Get a notification whenever a new artwork is added to the gallery. You can change this at any time.',
         'unverified' => 'Your email address is unverified.',

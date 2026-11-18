@@ -16,6 +16,7 @@
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.14",
         "pjedesigns/filament-image-editor": "^1.0",
+        "resend/resend-php": "^1.18",
         "spatie/image": "3.8.7",
         "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-medialibrary": "^11.23",
