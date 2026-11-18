@@ -10,15 +10,16 @@ use App\Models\Artwork;
 use App\Models\Category;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
+use Tests\Concerns\BuildsEditedPhotoPayloads;
 use Tests\TestCase;
 
 class NewArtworkNotificationTest extends TestCase
 {
+    use BuildsEditedPhotoPayloads;
     use RefreshDatabase;
 
     public function test_guests_cannot_update_the_notification_preference(): void
@@ -144,7 +145,7 @@ class NewArtworkNotificationTest extends TestCase
 
         $admin = User::factory()->create(['role' => UserRole::Admin]);
         $category = Category::factory()->create();
-        $file = UploadedFile::fake()->image('first-light.jpg', 1200, 800);
+        $photo = $this->editedPhotoPayload();
 
         // Act
         $this->actingAs($admin);
@@ -153,7 +154,7 @@ class NewArtworkNotificationTest extends TestCase
                 'title' => 'First Light',
                 'description' => 'Dawn breaking over quiet water.',
                 'category_id' => $category->id,
-                'file' => $file,
+                'file' => $photo,
             ])
             ->call('create');
 

@@ -186,11 +186,15 @@ class ContactMessageTest extends TestCase
                     'display_name' => $admin->display_name,
                     'email' => $admin->email,
                     'notify_on_contact_message' => $enabled,
+                    'locale' => 'uk',
+                    'notify_on_new_artwork' => true,
                 ]);
 
                 // Assert: only the current admin's setting changes.
                 $response->assertSessionHasNoErrors();
                 $this->assertSame($enabled, $admin->fresh()->notify_on_contact_message);
+                $this->assertSame('uk', $admin->fresh()->locale);
+                $this->assertTrue($admin->fresh()->notify_on_new_artwork);
                 $this->assertTrue($otherAdmin->fresh()->notify_on_contact_message);
             }
         }

@@ -1,4 +1,11 @@
-import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+import {
+  TooltipProvider as TooltipProviderPrimitive,
+  Tooltip as TooltipPrimitive,
+  TooltipTrigger as TooltipTriggerPrimitive,
+  TooltipContent as TooltipContentPrimitive,
+  TooltipPortal as TooltipPortalPrimitive,
+  TooltipArrow as TooltipArrowPrimitive,
+} from "@radix-ui/react-tooltip"
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -6,9 +13,9 @@ import { cn } from "@/lib/utils"
 function TooltipProvider({
   delayDuration = 0,
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
+}: React.ComponentProps<typeof TooltipProviderPrimitive>) {
   return (
-    <TooltipPrimitive.Provider
+    <TooltipProviderPrimitive
       data-slot="tooltip-provider"
       delayDuration={delayDuration}
       {...props}
@@ -18,14 +25,14 @@ function TooltipProvider({
 
 function Tooltip({
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Root>) {
-  return <TooltipPrimitive.Root data-slot="tooltip" {...props} />
+}: React.ComponentProps<typeof TooltipPrimitive>) {
+  return <TooltipPrimitive data-slot="tooltip" {...props} />
 }
 
 function TooltipTrigger({
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
-  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
+}: React.ComponentProps<typeof TooltipTriggerPrimitive>) {
+  return <TooltipTriggerPrimitive data-slot="tooltip-trigger" {...props} />
 }
 
 function TooltipContent({
@@ -33,10 +40,10 @@ function TooltipContent({
   sideOffset = 4,
   children,
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Content>) {
+}: React.ComponentProps<typeof TooltipContentPrimitive>) {
   return (
-    <TooltipPrimitive.Portal>
-      <TooltipPrimitive.Content
+    <TooltipPortalPrimitive>
+      <TooltipContentPrimitive
         data-slot="tooltip-content"
         sideOffset={sideOffset}
         className={cn(
@@ -46,9 +53,9 @@ function TooltipContent({
         {...props}
       >
         {children}
-        <TooltipPrimitive.Arrow className="bg-primary fill-primary z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]" />
-      </TooltipPrimitive.Content>
-    </TooltipPrimitive.Portal>
+        <TooltipArrowPrimitive className="bg-primary fill-primary z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]" />
+      </TooltipContentPrimitive>
+    </TooltipPortalPrimitive>
   )
 }
 

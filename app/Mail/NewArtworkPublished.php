@@ -25,8 +25,10 @@ class NewArtworkPublished extends Mailable
      */
     public function envelope(): Envelope
     {
+        $title = $this->artwork->title ?: __('emails.new_artwork.untitled');
+
         return new Envelope(
-            subject: 'New artwork: '.($this->artwork->title ?: 'Untitled artwork'),
+            subject: __('emails.new_artwork.subject', ['title' => $title]),
         );
     }
 
@@ -35,20 +37,25 @@ class NewArtworkPublished extends Mailable
      */
     public function content(): Content
     {
-        $imageUrl = $this->artwork->getFirstMediaUrl('images') ?: $this->artwork->image_url;
+        $imageUrl = (string) ($this->artwork->getFirstMediaUrl('images') ?: $this->artwork->image_url);
 
         if ($imageUrl !== '' && ! str_starts_with($imageUrl, 'http://') && ! str_starts_with($imageUrl, 'https://')) {
             $imageUrl = asset($imageUrl);
         }
 
+        $title = $this->artwork->title ?: __('emails.new_artwork.untitled');
+
         return new Content(
             view: 'emails.new-artwork',
             with: [
-                'title' => $this->artwork->title ?: 'Untitled artwork',
+                'title' => $title,
+                'subject' => __('emails.new_artwork.subject', ['title' => $title]),
                 'description' => $this->artwork->description,
-                'altText' => $this->artwork->alt_text ?: ($this->artwork->title ?: 'Artwork image'),
+                'altText' => $this->artwork->alt_text ?: $title,
                 'imageUrl' => $imageUrl !== '' ? $imageUrl : null,
                 'url' => route('gallery.show', $this->artwork),
+                'viewLabel' => __('emails.new_artwork.view'),
+                'footer' => __('emails.new_artwork.footer', ['app' => config('app.name')]),
             ],
         );
     }
