@@ -5,6 +5,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Heart } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import Header from '@/components/Header';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useInitials } from '@/hooks/use-initials';
 import { useTranslation } from '@/lib/i18n';
 
 interface GalleryShowProps {
@@ -24,7 +26,7 @@ interface GalleryShowProps {
 interface Comment {
     id: number;
     body: string;
-    user: { display_name: string };
+    user: { display_name: string; avatar: string | null };
     created_at: string | null;
 }
 
@@ -44,6 +46,7 @@ function ArtworkModal({
     const [togglingLike, setTogglingLike] = useState(false);
     const commentTextareaRef = useRef<HTMLTextAreaElement>(null);
     const { t } = useTranslation();
+    const getInitials = useInitials();
 
     const imageUrl = artwork.image_url;
 
@@ -301,14 +304,25 @@ function ArtworkModal({
                                                     key={comment.id}
                                                     className="flex min-w-0 gap-3"
                                                 >
-                                                    <span
-                                                        className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary-blue/35 text-[10px] font-semibold"
-                                                        aria-hidden="true"
-                                                    >
-                                                        {comment.user.display_name
-                                                            .charAt(0)
-                                                            .toUpperCase()}
-                                                    </span>
+                                                    <Avatar className="size-8 shrink-0">
+                                                        <AvatarImage
+                                                            src={
+                                                                comment.user
+                                                                    .avatar ??
+                                                                undefined
+                                                            }
+                                                            alt={
+                                                                comment.user
+                                                                    .display_name
+                                                            }
+                                                        />
+                                                        <AvatarFallback className="bg-primary-blue/35 text-[10px] font-semibold">
+                                                            {getInitials(
+                                                                comment.user
+                                                                    .display_name,
+                                                            )}
+                                                        </AvatarFallback>
+                                                    </Avatar>
                                                     <div className="min-w-0 flex-1">
                                                         <p className="pt-1 text-sm leading-6 [overflow-wrap:anywhere] whitespace-pre-wrap">
                                                             <span className="mr-2 shrink-0 font-semibold">
