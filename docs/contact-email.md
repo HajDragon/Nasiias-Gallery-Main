@@ -11,13 +11,13 @@ emails. The recipient's role and preference are checked again before sending.
 2. Create a Resend API key and verify your sending domain in Resend.
 3. Set the following environment variables (keep the API key out of source control):
 
-   ```dotenv
-   MAIL_MAILER=resend
-   RESEND_API_KEY=re_your_key
-   MAIL_FROM_ADDRESS=gallery@your-verified-domain.com
-   MAIL_FROM_NAME="Gallery"
-   QUEUE_CONNECTION=database
-   ```
+    ```dotenv
+    MAIL_MAILER=resend
+    RESEND_API_KEY=re_your_key
+    MAIL_FROM_ADDRESS=gallery@your-verified-domain.com
+    MAIL_FROM_NAME="Gallery"
+    QUEUE_CONNECTION=database
+    ```
 
 4. Refresh cached configuration with `php artisan config:cache`.
 5. Run a supervised `php artisan queue:work` process. Restart existing workers with
