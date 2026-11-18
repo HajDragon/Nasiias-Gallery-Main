@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\StoreCommentAction;
 use App\Models\Artwork;
 use App\Models\Category;
-use App\Models\Comment;
 use App\Models\Like;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -112,17 +112,17 @@ class GalleryController extends Controller
         return response()->json($comments);
     }
 
-    public function storeComment(Request $request, Artwork $artwork): JsonResponse
+    public function storeComment(Request $request, Artwork $artwork, StoreCommentAction $storeComment): JsonResponse
     {
         $request->validate([
             'body' => 'required|string|max:280',
         ]);
 
-        $comment = Comment::create([
-            'user_id' => $request->user()->id,
-            'artwork_id' => $artwork->id,
-            'body' => $request->string('body')->toString(),
-        ]);
+        $comment = $storeComment(
+            $request->user(),
+            $artwork,
+            $request->string('body')->toString(),
+        );
 
         $comment->load('user:id,display_name');
 
