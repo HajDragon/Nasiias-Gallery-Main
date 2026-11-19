@@ -5,6 +5,7 @@ A modern art gallery web application built with **Laravel 13**, **React 19**, **
 ## Features
 
 ### Public Gallery
+
 - **Homepage** — Featured artworks and gallery introduction
 - **Gallery browsing** — Filterable, paginated artwork grid with categories
 - **Artwork detail pages** — High-resolution images, descriptions, view tracking
@@ -13,6 +14,7 @@ A modern art gallery web application built with **Laravel 13**, **React 19**, **
 - **Multi-language** — English & Ukrainian (extensible via Laravel localization)
 
 ### Admin Panel (Filament v5)
+
 - **Dashboard** — Real-time statistics: total artworks, categories, likes, views, comments, users, messages
 - **Growth charts** — Daily trend lines per metric (7/30/90-day ranges, clickable from stat cards)
 - **Latest emails widget** — Recent contact submissions with full-message modal, auto-polling
@@ -22,12 +24,14 @@ A modern art gallery web application built with **Laravel 13**, **React 19**, **
 - **Activity log** — Spatie Activitylog audit trail
 
 ### Authentication & Security
+
 - Laravel Fortify: email verification, 2FA, passkeys
 - Role-based access: `User` | `Admin` | `SuperAdmin`
 - Super-admin protections: cannot be created/demoted via panel, self-demotion blocked
 - Rate-limited contact form, CSRF, security headers middleware
 
 ### Developer Experience
+
 - **Type-safe** — PHP 8.3 + strict types, TypeScript, PHPStan level 7
 - **Testing** — Pest (142+ tests), browser tests with Pest Browser
 - **Code quality** — Laravel Pint, pre-commit hooks
@@ -36,17 +40,17 @@ A modern art gallery web application built with **Laravel 13**, **React 19**, **
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Backend | Laravel 13, PHP 8.3 |
-| Frontend | React 19, Inertia.js, TypeScript |
-| Styling | Tailwind CSS v4, Radix UI, Framer Motion |
-| Admin | Filament v5 |
-| Database | SQLite (dev), MySQL/PostgreSQL (prod) |
-| Media | Spatie Laravel MediaLibrary |
-| Email | Resend |
-| Queue | Database (dev), Redis (prod) |
-| Auth | Laravel Fortify (2FA, passkeys, verification) |
+| Layer    | Technology                                    |
+| -------- | --------------------------------------------- |
+| Backend  | Laravel 13, PHP 8.3                           |
+| Frontend | React 19, Inertia.js, TypeScript              |
+| Styling  | Tailwind CSS v4, Radix UI, Framer Motion      |
+| Admin    | Filament v5                                   |
+| Database | SQLite (dev), MySQL/PostgreSQL (prod)         |
+| Media    | Spatie Laravel MediaLibrary                   |
+| Email    | Resend                                        |
+| Queue    | Database (dev), Redis (prod)                  |
+| Auth     | Laravel Fortify (2FA, passkeys, verification) |
 
 ## Project Structure
 
@@ -84,6 +88,7 @@ tests/
 ## Getting Started
 
 ### Prerequisites
+
 - PHP 8.3+
 - Node.js 20+
 - Composer
@@ -128,17 +133,17 @@ docker compose up -d --build
 
 ## Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `composer run dev` | Start Laravel + Vite dev servers |
-| `composer run lint` | Run Pint code style fixer |
-| `composer run lint:check` | Check code style (CI) |
-| `composer run types:check` | Run PHPStan static analysis |
-| `composer run test` | Full CI pipeline (lint + types + Pest) |
-| `npm run build` | Production Vite build |
-| `npm run build:ssr` | Production build with SSR |
-| `npm run check` | TypeScript type-check + lint |
-| `npm run types:check` | TypeScript only |
+| Command                    | Description                            |
+| -------------------------- | -------------------------------------- |
+| `composer run dev`         | Start Laravel + Vite dev servers       |
+| `composer run lint`        | Run Pint code style fixer              |
+| `composer run lint:check`  | Check code style (CI)                  |
+| `composer run types:check` | Run PHPStan static analysis            |
+| `composer run test`        | Full CI pipeline (lint + types + Pest) |
+| `npm run build`            | Production Vite build                  |
+| `npm run build:ssr`        | Production build with SSR              |
+| `npm run check`            | TypeScript type-check + lint           |
+| `npm run types:check`      | TypeScript only                        |
 
 ## Testing
 
@@ -173,9 +178,9 @@ TELESCOPE_ENABLED=true
 
 1. Register a user at `/register`
 2. Manually promote to super-admin in DB:
-   ```sql
-   UPDATE users SET role = 'SuperAdmin' WHERE email = 'your@email.com';
-   ```
+    ```sql
+    UPDATE users SET role = 'SuperAdmin' WHERE email = 'your@email.com';
+    ```
 3. Visit `/admin` — super-admins see **Users** resource, dashboard widgets
 
 ## Deployment
@@ -188,6 +193,7 @@ TELESCOPE_ENABLED=true
 6. Schedule: `* * * * * php artisan schedule:run`
 
 ### Recommended Production Services
+
 - **Database**: MySQL 8+ or PostgreSQL 15+
 - **Queue**: Redis + Supervisor
 - **Mail**: Resend, Mailgun, or SMTP
