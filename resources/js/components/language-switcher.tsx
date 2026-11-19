@@ -27,14 +27,14 @@ export default function LanguageSwitcher({
     return (
         <div
             className={cn(
-                'flex shrink-0 items-center gap-0.5 rounded-full border border-[#F0F7FF]/15 p-1',
+                'lang-switcher flex shrink-0 items-center gap-0.5 rounded-full border border-[var(--ls-border)]/30 p-1 bg-[var(--ls-bg)]',
                 className,
             )}
             role="group"
             aria-label={t('common.language')}
         >
             <Languages
-                className="ml-1.5 h-3.5 w-3.5 opacity-60"
+                className="ml-1.5 h-3.5 w-3.5 text-[var(--ls-fg)]/60"
                 aria-hidden="true"
             />
             {Object.keys(availableLocales).map((code) => (
@@ -48,8 +48,8 @@ export default function LanguageSwitcher({
                     className={cn(
                         'rounded-full px-2 py-1 text-[10px] font-semibold tracking-[0.14em] uppercase transition-colors',
                         locale === code
-                            ? 'bg-[#EEF3F8] text-[#293241]'
-                            : 'text-[#F0F7FF] hover:bg-[#EEF3F8]/10',
+                            ? 'bg-[var(--ls-accent)] text-[var(--ls-accent-fg)]'
+                            : 'text-[var(--ls-fg)]/60 hover:bg-[var(--ls-accent)]/20 hover:text-[var(--ls-fg)]',
                     )}
                 >
                     {shortLabels[code] ?? code.toUpperCase()}

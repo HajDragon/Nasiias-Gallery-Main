@@ -211,6 +211,15 @@
     }
 }
 
+/* Language switcher — always uses dark-mode header styling */
+.lang-switcher {
+    --ls-bg: var(--header);
+    --ls-border: var(--header-foreground);
+    --ls-fg: var(--header-foreground);
+    --ls-accent: #a8c7e0;
+    --ls-accent-fg: #101828;
+}
+
 /* Canvas + heart burst ported from nastiia's gallery (src/index.css).
    The body background is scoped to the gallery pages so the admin theme keeps
    its own canvas colour. */
