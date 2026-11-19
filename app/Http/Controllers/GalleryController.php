@@ -30,7 +30,7 @@ class GalleryController extends Controller
         $artworks = $query->paginate(18)->withQueryString();
         // Same pill list as the home page: seed order, artwork-backed only.
         $categories = Category::query()
-            ->whereHas('artworks')
+            ->has('artworks')
             ->orderBy('id')
             ->get();
 
@@ -95,7 +95,10 @@ class GalleryController extends Controller
     public function getComments(Request $request, Artwork $artwork): JsonResponse
     {
         $comments = $artwork->comments()
-            ->with(['user:id,display_name', 'user.media'])
+            ->with([
+                'user:id,display_name',
+                'user.media:model_type,model_id,collection_name,file_name,mime_type,disk,conversions_disk,responsive_images'
+            ])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($comment) {
