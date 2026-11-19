@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\UserRole;
 use App\Jobs\SendContactMessage;
 use App\Mail\ContactMessage;
+use App\Models\ContactMessage as ContactMessageRecord;
 use App\Models\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
@@ -51,6 +52,22 @@ class ContactMessageTest extends TestCase
             Bus::assertDispatched(SendContactMessage::class, fn ($job) => $job->recipientId === $recipient->id
                 && $job->senderEmail === 'visitor@example.com' && $job->messageBody === 'Is this artwork available?');
         }
+    }
+
+    public function test_submissions_are_stored_for_the_dashboard(): void
+    {
+        // Arrange
+        Bus::fake();
+        User::factory()->create(['role' => UserRole::Admin]);
+
+        // Act
+        $this->from('/')->post(route('contact.store'), $this->submission());
+
+        // Assert
+        $stored = ContactMessageRecord::query()->sole();
+        $this->assertSame('Art Lover', $stored->sender_name);
+        $this->assertSame('visitor@example.com', $stored->sender_email);
+        $this->assertSame('Is this artwork available?', $stored->message);
     }
 
     public function test_invalid_submissions_do_not_queue_emails(): void
