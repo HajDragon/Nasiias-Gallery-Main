@@ -8,12 +8,17 @@ use App\Models\Artwork;
 use App\Models\Category;
 use App\Models\Comment;
 use App\Models\Like;
+use App\Services\SEOService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Response;
 
 class GalleryController extends Controller
 {
+    public function __construct(
+        private SEOService $seoService
+    ) {}
+
     public function index(Request $request): Response
     {
         $query = Artwork::query()
@@ -21,10 +26,17 @@ class GalleryController extends Controller
             ->orderBy('created_at', 'desc')
             ->orderBy('id');
 
-        if ($request->filled('category')) {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('slug', $request->string('category'));
-            });
+        $selectedCategory = $request->string('category')->toString();
+        $category = null;
+
+        if ($selectedCategory) {
+            $category = Category::where('slug', $selectedCategory)->first();
+            if ($category) {
+                $query->where('category_id', $category->id);
+            } else {
+                // Unknown category: force empty result set
+                $query->whereRaw('1 = 0');
+            }
         }
 
         $artworks = $query->paginate(18)->withQueryString();
@@ -37,7 +49,8 @@ class GalleryController extends Controller
         return inertia('gallery/index', [
             'artworks' => $artworks,
             'categories' => $categories,
-            'selectedCategory' => $request->string('category')->toString(),
+            'selectedCategory' => $selectedCategory,
+            'seo' => $this->seoService->getSEOData($category),
         ]);
     }
 
@@ -63,6 +76,7 @@ class GalleryController extends Controller
                 'like_count' => $artwork->like_count,
                 'created_at' => $artwork->created_at?->toISOString(),
             ],
+            'seo' => $this->seoService->getSEOData($artwork),
         ]);
     }
 
