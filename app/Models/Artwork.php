@@ -39,7 +39,7 @@ class Artwork extends Model implements HasMedia
 
     public function getDynamicSEOData(): SEOData
     {
-        $seoData = new SEOData();
+        $seoData = new SEOData;
         $seoData->title = $this->title;
         $seoData->description = $this->description;
         $seoData->image = $this->getFirstMediaUrl('images') ?: $this->image_url;
@@ -48,6 +48,7 @@ class Artwork extends Model implements HasMedia
         $seoData->modified_time = $this->updated_at;
         $seoData->section = $this->category?->name;
         $seoData->tags = [$this->category?->name];
+
         return $seoData;
     }
 

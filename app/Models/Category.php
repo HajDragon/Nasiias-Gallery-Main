@@ -35,10 +35,11 @@ class Category extends Model
 
     public function getDynamicSEOData(): SEOData
     {
-        $seoData = new SEOData();
+        $seoData = new SEOData;
         $seoData->title = $this->name;
         $seoData->description = "Explore {$this->name} artwork collection at Nasiias Gallery.";
         $seoData->type = 'website';
+
         return $seoData;
     }
 
