@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
 use App\Http\Requests\ContactMessageRequest;
 use App\Jobs\SendContactMessage;
+use App\Models\ContactMessage;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
@@ -24,12 +27,18 @@ class ContactMessageController extends Controller
             ]);
         }
 
+        $message = ContactMessage::query()->create([
+            'sender_name' => $request->validated('name'),
+            'sender_email' => $request->validated('email'),
+            'message' => $request->validated('message'),
+        ]);
+
         foreach ($recipients as $recipientId) {
             SendContactMessage::dispatch(
                 $recipientId,
-                $request->validated('name'),
-                $request->validated('email'),
-                $request->validated('message'),
+                $message->sender_name,
+                $message->sender_email,
+                $message->message,
             );
         }
 

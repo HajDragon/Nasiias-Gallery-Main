@@ -5,6 +5,10 @@ Contact submissions are queued separately for every admin and super admin whose
 enabled by default for existing and new admins. Ordinary users never receive these
 emails. The recipient's role and preference are checked again before sending.
 
+Every accepted submission is also saved to the `contact_messages` table. The
+super admin and admins can read the latest ones in the **Latest emails** widget on
+the admin dashboard. Run `php artisan migrate` after deploying so the table exists.
+
 ## Deployment
 
 1. Run `composer install` and `php artisan migrate`.
