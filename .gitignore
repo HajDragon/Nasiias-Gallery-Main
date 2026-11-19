@@ -50,4 +50,4 @@ yarn-error.log
 /nul
 /testing*
 .vitest/
-.ai\mcp\mcp.json
+/.ai/mcp/mcp.json
