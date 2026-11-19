@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Mail;
 
 use Illuminate\Mail\Mailable;
@@ -19,12 +21,26 @@ class ContactMessage extends Mailable
     {
         return new Envelope(
             replyTo: [new Address($this->senderEmail, $this->senderName)],
-            subject: 'New gallery contact message',
+            subject: __('emails.contact.subject', ['name' => $this->senderName]),
         );
     }
 
     public function content(): Content
     {
-        return new Content(view: 'emails.contact-message');
+        return new Content(
+            view: 'emails.contact-message',
+            with: [
+                'subject' => __('emails.contact.subject', ['name' => $this->senderName]),
+                'appName' => config('app.name'),
+                'appUrl' => config('app.url'),
+                'eyebrow' => __('emails.contact.eyebrow'),
+                'heading' => __('emails.contact.heading'),
+                'intro' => __('emails.contact.intro', ['app' => config('app.name')]),
+                'fromLabel' => __('emails.contact.from'),
+                'messageLabel' => __('emails.contact.message'),
+                'replyLabel' => __('emails.contact.reply', ['name' => $this->senderName]),
+                'footer' => __('emails.contact.footer', ['app' => config('app.name')]),
+            ],
+        );
     }
 }

@@ -36,8 +36,10 @@ class SendContactMessage implements ShouldQueue
             return;
         }
 
-        Mail::to($recipient)->send(new ContactMessage(
-            $this->senderName, $this->senderEmail, $this->messageBody,
-        ));
+        Mail::to($recipient)
+            ->locale($recipient->locale ?? config('app.fallback_locale'))
+            ->send(new ContactMessage(
+                $this->senderName, $this->senderEmail, $this->messageBody,
+            ));
     }
 }
