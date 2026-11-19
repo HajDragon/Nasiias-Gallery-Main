@@ -62,6 +62,8 @@ return [
         'intro' => 'Every canvas here is a quiet invitation — to pause, to feel, and to find the piece that speaks the moment you see it. Stay a while; the right work has a way of finding you.',
         'scroll' => 'Scroll ! ↓',
         'double_tap_to_like' => 'Double-tap :title to like, tap to open',
+        'load_more' => 'Load more',
+        'loading' => 'Loading...',
     ],
 
     'home' => [

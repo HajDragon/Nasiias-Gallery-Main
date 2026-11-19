@@ -195,7 +195,7 @@ function MobileFeedCard({
     };
 
     return (
-        <article className="group relative h-[100dvh] snap-center bg-white hover:z-20">
+        <article className="group relative flex h-[100dvh] snap-start flex-col bg-white hover:z-20">
             <div
                 onClick={handleTap}
                 onDoubleClick={(e) => {
@@ -203,21 +203,21 @@ function MobileFeedCard({
                     if (tapTimeoutRef.current)
                         clearTimeout(tapTimeoutRef.current);
                 }}
-                className="group/image relative h-full w-full cursor-zoom-in overflow-hidden hover:z-10"
+                className="group/image relative min-h-0 w-full flex-1 cursor-zoom-in overflow-hidden hover:z-10"
                 aria-label={t('artwork.open', {
                     title: artwork.title || t('artwork.untitled'),
                 })}
             >
-                <div className="aspect-[9/16] h-full bg-white">
+                <div className="flex h-full w-full items-center justify-center bg-white">
                     <img
                         src={artwork.image_url}
                         alt={artwork.alt_text}
-                        className="h-full w-full object-contain transition-transform duration-700 ease-out group-hover/image:scale-[1.05]"
+                        className="max-h-full max-w-full object-contain transition-transform duration-700 ease-out group-hover/image:scale-[1.05]"
                         loading="lazy"
                     />
                 </div>
             </div>
-            <div className="absolute right-0 bottom-0 left-0 border-t border-[#293241]/15 bg-gradient-to-t from-white/95 to-transparent p-4">
+            <div className="pb-safe shrink-0 border-t border-[#293241]/15 bg-gradient-to-t from-white/95 to-transparent p-4">
                 <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                         <h2 className="truncate font-display text-lg leading-tight tracking-[-0.02em]">
@@ -233,10 +233,10 @@ function MobileFeedCard({
                         aria-hidden="true"
                     />
                 </div>
-                <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#293241]/75">
+                <p className="mt-3 line-clamp-2 text-sm leading-5 text-[#293241]/75">
                     {artwork.description || t('artwork.no_description')}
                 </p>
-                <div className="mt-4 flex items-center gap-4">
+                <div className="mt-3 flex items-center gap-4">
                     <button
                         type="button"
                         onClick={(e) => {
@@ -350,7 +350,7 @@ export default function Home({ artworks, categories }: HomeProps) {
                 <Header />
 
                 {/* Intro Animation Section */}
-                <ScrollMorphHero />
+                <ScrollMorphHero artworks={artworks} />
 
                 {/* Art Library Section */}
                 <section
@@ -391,7 +391,7 @@ export default function Home({ artworks, categories }: HomeProps) {
                         </div>
 
                         {/* Mobile Feed Cards - full screen snap feed with double-tap to like */}
-                        <div className="h-[100dvh] snap-y snap-mandatory overflow-y-scroll pb-20 lg:hidden">
+                        <div className="h-[100dvh] snap-y snap-mandatory overflow-y-scroll lg:hidden">
                             {filteredArtworks.map((artwork) => (
                                 <MobileFeedCard
                                     key={artwork.id}
@@ -400,6 +400,11 @@ export default function Home({ artworks, categories }: HomeProps) {
                                     onLike={() => handleLikeArtwork(artwork)}
                                 />
                             ))}
+                            {/* Spacer to allow last item to snap to start without cutoff */}
+                            <div
+                                className="h-[100dvh] snap-start"
+                                aria-hidden="true"
+                            />
                         </div>
 
                         {filteredArtworks.length === 0 && (
