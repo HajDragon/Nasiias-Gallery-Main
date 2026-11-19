@@ -627,3 +627,88 @@ Done. The header links used `hover:bg-accent/10`, but `--accent` is a page-level
 
 - `resources/js/components/Header.tsx` — Replaced accent-based hover/active states with header-scoped tokens for the Home, Gallery, Contact, Account and avatar-trigger items
 - `prompts/prompts.md` — Documented this session's two prompts with their final responses and changed files
+
+---
+
+# Prompt: Super-Admin User Management and Dashboard Widgets
+
+**Date:** 2026-11-19
+
+## Prompt
+
+Add a super-admin-only Filament page for managing user accounts. Super admins must be able to view and edit users, including promoting a user to admin, but must never be able to assign the super-admin role or demote an existing super admin. Also replace the default Filament dashboard with gallery-relevant widgets showing total artworks, categories, likes, views, comments, and the latest contact-form emails.
+
+## Response
+
+Implemented both parts.
+
+**User management (super admin only)**
+
+- Added a **Users** resource with a searchable, sortable listing of avatar, name, email, role badge, verification status, like/comment counts, and join date, plus a role filter.
+- Editing covers name, email, role, language, and email-notification preferences.
+- Super admins can promote users to **Admin** and demote admins back to users. The super-admin role is never assignable from the panel, existing super admins cannot be demoted, and self-demotion is blocked both in the UI and again when saving.
+- Changing an email resets its verification, matching the public profile screen.
+- Authorization runs through a new `UserPolicy`, so admins receive a 403 for `/admin/users` and the navigation item is hidden for them.
+
+**Dashboard**
+
+- Rebuilt the dashboard as a single-column layout and removed the developer "Filament Info" widget.
+- Added a gallery statistics widget with totals for artworks, categories, likes, views, comments, and registered users.
+- Added a latest-emails widget listing recent contact-form submissions with the sender, an excerpt, the received time, and a modal to read the full message. It polls every minute.
+- Because emails were not previously stored, accepted contact submissions now persist to a new `contact_messages` table before the per-recipient email jobs are queued.
+
+## Files Modified
+
+- `app/Filament/Resources/Users/UserResource.php` — New super-admin-only user directory with role options, safety guards, columns, and filters
+- `app/Filament/Resources/Users/Pages/ListUsers.php` — Listing page for the user directory
+- `app/Filament/Resources/Users/Pages/EditUser.php` — User editor with email verification reset and role/self-demotion guards
+- `app/Policies/UserPolicy.php` — Restricts viewing and updating users to super admins
+- `app/Enums/UserRole.php` — Added display labels and colours for each role
+- `app/Filament/Widgets/GalleryStats.php` — Dashboard totals for gallery activity
+- `app/Filament/Widgets/LatestEmails.php` — Recent contact-message table widget with detail modal
+- `app/Filament/Pages/Dashboard.php` — Single-column dashboard layout
+- `app/Providers/Filament/AdminPanelProvider.php` — Registered the new widgets and removed `FilamentInfoWidget`
+- `app/Models/ContactMessage.php` — New model for stored contact submissions
+- `database/migrations/2026_11_19_000000_create_contact_messages_table.php` — Creates the `contact_messages` table
+- `app/Http/Controllers/ContactMessageController.php` — Stores each accepted submission before queueing emails
+- `docs/contact-email.md` — Documented message storage and the dashboard widget
+- `tests/Feature/Filament/UserResourceTest.php` — Authorization, role assignment, and demotion coverage
+- `tests/Feature/Filament/DashboardWidgetTest.php` — Dashboard statistics and latest-email coverage
+- `tests/Feature/ContactMessageTest.php` — Added coverage for persisted submissions
+
+---
+
+# Prompt: Clickable Growth Charts for Dashboard Metrics
+
+**Date:** 2026-11-19
+
+## Prompt
+
+Add growth charts to the admin dashboard so each statistic can be compared over time on a line chart. Clicking the stat widget for artworks, categories, likes, views, comments, users, or messages should display that metric's growth graph.
+
+## Response
+
+Added the growth charts.
+
+**What's new**
+
+- A line chart under the overview cards showing **new records per day**, with filters for **Last 7 / 30 / 90 days**. The chart is metric-aware: its heading, description, and line colour change with the selection.
+- Every overview card is clickable and links to its metric (`?metric=likes`, `?metric=views`, `?metric=messages`, and so on). Each card also shows a small 7-day sparkline so the trend is visible before clicking.
+- A single `GalleryMetric` enum defines the label, description, colour, icon, model, and date column for every metric. Views are bucketed by `viewed_at`; all other metrics use `created_at`.
+- A `BuildMetricGrowthSeries` action groups records by day and zero-fills missing days, so the line never skips dates. Ranges are capped between 1 and 365 days.
+- The chart is registered between the statistics and latest-emails widgets, and the dashboard remains a single column so the line chart spans the full width.
+
+**Checks**
+
+- `pint`: passed
+- `phpstan` (level 7): passed
+- Full test suite: **142 passed**, including new coverage for card links, metric selection, filter switching, and day-by-day aggregation
+
+## Files Modified
+
+- `app/Enums/GalleryMetric.php` — New enum describing each dashboard metric, its model, and its date column
+- `app/Actions/BuildMetricGrowthSeries.php` — New action that builds a zero-filled day-by-day series
+- `app/Filament/Widgets/GalleryGrowthChart.php` — New line chart with metric selection and 7/30/90-day filters
+- `app/Filament/Widgets/GalleryStats.php` — Stat cards now link to their growth chart and show 7-day sparklines
+- `app/Providers/Filament/AdminPanelProvider.php` — Registered `GalleryGrowthChart` on the dashboard
+- `tests/Feature/Filament/DashboardWidgetTest.php` — Added coverage for card links, metric selection, filter switching, and daily aggregation
