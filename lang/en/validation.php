@@ -27,4 +27,8 @@ return [
         'type_mismatch' => 'The :attribute image data does not match its detected file type.',
     ],
 
+    'attributes' => [
+        'avatar' => 'profile photo',
+    ],
+
 ];

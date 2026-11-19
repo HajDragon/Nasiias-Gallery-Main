@@ -16,10 +16,18 @@ class CreateArtwork extends CreateRecord
     protected static string $resource = ArtworkResource::class;
 
     /**
+     * Whether opted-in users should receive an email about this upload.
+     */
+    protected bool $notifySubscribers = true;
+
+    /**
      * @param  array<string, mixed>  $data
      */
     protected function handleRecordCreation(array $data): Model
     {
+        $this->notifySubscribers = (bool) ($data['notify_subscribers'] ?? true);
+        unset($data['notify_subscribers']);
+
         $filePath = $data['file'] ?? null;
         unset($data['file']);
 
@@ -59,6 +67,10 @@ class CreateArtwork extends CreateRecord
      */
     protected function afterCreate(): void
     {
+        if (! $this->notifySubscribers) {
+            return;
+        }
+
         /** @var Artwork $artwork */
         $artwork = $this->getRecord();
 

@@ -98,7 +98,7 @@ export default function Header() {
                                 >
                                     <Avatar className="size-8 overflow-hidden rounded-full">
                                         <AvatarImage
-                                            src={user.avatar}
+                                            src={user.avatar ?? undefined}
                                             alt={user.display_name}
                                         />
                                         <AvatarFallback className="rounded-lg bg-neutral-200 text-black">

@@ -1,16 +1,24 @@
-import { Form, Head, usePage } from '@inertiajs/react';
+import { Form, Head, router, useForm, usePage } from '@inertiajs/react';
 import { Link } from '@inertiajs/react';
+import { useRef, useState } from 'react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { edit } from '@/routes/profile';
-import { send } from '@/routes/verification';
+import { Spinner } from '@/components/ui/spinner';
+import { useInitials } from '@/hooks/use-initials';
 import { useTranslation } from '@/lib/i18n';
+import { edit } from '@/routes/profile';
+import {
+    destroy as destroyAvatar,
+    update as updateAvatar,
+} from '@/routes/profile/avatar';
+import { send } from '@/routes/verification';
 
 export default function Profile({
     mustVerifyEmail,
@@ -22,6 +30,58 @@ export default function Profile({
     const { auth, locale, availableLocales } = usePage().props;
     const user = auth.user!;
     const { t } = useTranslation();
+    const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+    const [contactEmails, setContactEmails] = useState(
+        user.notify_on_contact_message,
+    );
+    const getInitials = useInitials();
+    const photoInputRef = useRef<HTMLInputElement>(null);
+    const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+    const [removingPhoto, setRemovingPhoto] = useState(false);
+    const photoForm = useForm<{ avatar: File | null }>({ avatar: null });
+
+    const avatarUrl = photoPreview ?? user.avatar ?? null;
+
+    const handlePhotoSelected = (
+        event: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        const file = event.target.files?.[0];
+
+        // Reset the input so selecting the same file again still triggers
+        // a change event.
+        event.target.value = '';
+
+        if (!file) {
+            return;
+        }
+
+        const objectUrl = URL.createObjectURL(file);
+        setPhotoPreview(objectUrl);
+
+        photoForm.setData('avatar', file);
+        photoForm.post(updateAvatar.url(), {
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: () => setPhotoPreview(null),
+            onError: () => setPhotoPreview(null),
+            onFinish: () => {
+                photoForm.setData('avatar', null);
+                URL.revokeObjectURL(objectUrl);
+            },
+        });
+    };
+
+    const handleRemovePhoto = () => {
+        if (removingPhoto) {
+            return;
+        }
+
+        setRemovingPhoto(true);
+        router.delete(destroyAvatar.url(), {
+            preserveScroll: true,
+            onFinish: () => setRemovingPhoto(false),
+        });
+    };
 
     return (
         <>
@@ -34,8 +94,77 @@ export default function Profile({
                     description={t('profile.description')}
                 />
 
+                <div className="flex flex-col gap-4 rounded-lg border border-border bg-muted/50 p-4 sm:flex-row sm:items-center">
+                    <Avatar className="size-20 shrink-0">
+                        <AvatarImage
+                            src={avatarUrl ?? undefined}
+                            alt={user.display_name}
+                        />
+                        <AvatarFallback className="bg-primary-blue/35 text-lg font-semibold">
+                            {getInitials(user.display_name ?? '')}
+                        </AvatarFallback>
+                    </Avatar>
+
+                    <div className="min-w-0 flex-1 space-y-2">
+                        <div>
+                            <p className="text-sm font-medium text-foreground">
+                                {t('profile.photo')}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                                {t('profile.photo_hint')}
+                            </p>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2">
+                            <input
+                                ref={photoInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                className="hidden"
+                                onChange={handlePhotoSelected}
+                            />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                disabled={photoForm.processing || removingPhoto}
+                                onClick={() => photoInputRef.current?.click()}
+                            >
+                                {photoForm.processing && <Spinner />}
+                                {avatarUrl
+                                    ? t('profile.photo_change')
+                                    : t('profile.photo_upload')}
+                            </Button>
+                            {avatarUrl && (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    disabled={
+                                        photoForm.processing || removingPhoto
+                                    }
+                                    onClick={handleRemovePhoto}
+                                >
+                                    {removingPhoto && <Spinner />}
+                                    {t('profile.photo_remove')}
+                                </Button>
+                            )}
+                        </div>
+
+                        <InputError message={photoForm.errors.avatar} />
+                    </div>
+                </div>
+
                 <Form
                     {...ProfileController.update.form()}
+                    transform={(data) =>
+                        isAdmin
+                            ? {
+                                  ...data,
+                                  notify_on_contact_message: contactEmails,
+                              }
+                            : data
+                    }
                     options={{
                         preserveScroll: true,
                     }}
@@ -176,6 +305,33 @@ export default function Profile({
                                         )}
                                     </div>
                                 )}
+
+                            {isAdmin && (
+                                <div className="grid gap-2">
+                                    <label className="flex items-center gap-3 text-sm font-medium">
+                                        <input
+                                            type="checkbox"
+                                            role="switch"
+                                            checked={contactEmails}
+                                            onChange={(event) =>
+                                                setContactEmails(
+                                                    event.target.checked,
+                                                )
+                                            }
+                                            className="h-4 w-4 accent-primary"
+                                        />
+                                        {t('profile.notify_contact')}
+                                    </label>
+                                    <p className="text-sm text-muted-foreground">
+                                        {t('profile.notify_contact_hint')}
+                                    </p>
+                                    <InputError
+                                        message={
+                                            errors.notify_on_contact_message
+                                        }
+                                    />
+                                </div>
+                            )}
 
                             <div className="flex items-center gap-4">
                                 <Button

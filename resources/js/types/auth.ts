@@ -4,9 +4,10 @@ export type User = {
     email: string;
     role: 'user' | 'admin' | 'super_admin';
     locale?: string | null;
-    avatar?: string;
+    avatar?: string | null;
     email_verified_at: string | null;
     notify_on_new_artwork: boolean | null;
+    notify_on_contact_message: boolean;
     two_factor_enabled?: boolean;
     created_at: string;
     updated_at: string;

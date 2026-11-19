@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Mail\VerifyEmailAddress;
+use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
@@ -24,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->configureEmailVerification();
     }
 
     /**
@@ -45,6 +49,16 @@ class AppServiceProvider extends ServiceProvider
                 ->symbols()
                 ->uncompromised()
             : null,
+        );
+    }
+
+    /**
+     * Send the verification email with the gallery's logo, name and fonts.
+     */
+    protected function configureEmailVerification(): void
+    {
+        VerifyEmail::toMailUsing(
+            fn (User $notifiable, string $url): VerifyEmailAddress => new VerifyEmailAddress($url, $notifiable),
         );
     }
 }
