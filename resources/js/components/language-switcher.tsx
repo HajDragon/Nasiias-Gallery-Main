@@ -27,7 +27,7 @@ export default function LanguageSwitcher({
     return (
         <div
             className={cn(
-                'lang-switcher flex shrink-0 items-center gap-0.5 rounded-full border border-[var(--ls-border)]/30 p-1 bg-[var(--ls-bg)]',
+                'lang-switcher flex shrink-0 items-center gap-0.5 rounded-full border border-[var(--ls-border)]/30 bg-[var(--ls-bg)] p-1',
                 className,
             )}
             role="group"

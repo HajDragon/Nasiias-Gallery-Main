@@ -195,7 +195,7 @@ function MobileFeedCard({
     };
 
     return (
-        <article className="group relative h-[100dvh] snap-start bg-white flex flex-col hover:z-20">
+        <article className="group relative flex h-[100dvh] snap-start flex-col bg-white hover:z-20">
             <div
                 onClick={handleTap}
                 onDoubleClick={(e) => {
@@ -203,12 +203,12 @@ function MobileFeedCard({
                     if (tapTimeoutRef.current)
                         clearTimeout(tapTimeoutRef.current);
                 }}
-                className="group/image relative flex-1 min-h-0 w-full cursor-zoom-in overflow-hidden hover:z-10"
+                className="group/image relative min-h-0 w-full flex-1 cursor-zoom-in overflow-hidden hover:z-10"
                 aria-label={t('artwork.open', {
                     title: artwork.title || t('artwork.untitled'),
                 })}
             >
-                <div className="h-full w-full bg-white flex items-center justify-center">
+                <div className="flex h-full w-full items-center justify-center bg-white">
                     <img
                         src={artwork.image_url}
                         alt={artwork.alt_text}
@@ -217,7 +217,7 @@ function MobileFeedCard({
                     />
                 </div>
             </div>
-            <div className="shrink-0 border-t border-[#293241]/15 bg-gradient-to-t from-white/95 to-transparent p-4 pb-safe">
+            <div className="pb-safe shrink-0 border-t border-[#293241]/15 bg-gradient-to-t from-white/95 to-transparent p-4">
                 <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                         <h2 className="truncate font-display text-lg leading-tight tracking-[-0.02em]">
@@ -401,7 +401,10 @@ export default function Home({ artworks, categories }: HomeProps) {
                                 />
                             ))}
                             {/* Spacer to allow last item to snap to start without cutoff */}
-                            <div className="h-[100dvh] snap-start" aria-hidden="true" />
+                            <div
+                                className="h-[100dvh] snap-start"
+                                aria-hidden="true"
+                            />
                         </div>
 
                         {filteredArtworks.length === 0 && (

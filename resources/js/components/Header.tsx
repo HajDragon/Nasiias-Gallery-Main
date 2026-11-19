@@ -61,7 +61,7 @@ export default function Header() {
             {/* Mobile Header with Sidebar */}
             <header className="border-b border-border/15 bg-header text-header-foreground lg:hidden">
                 <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-                    <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center h-16 sm:h-20 md:h-24">
+                    <div className="grid h-16 w-full grid-cols-[1fr_auto_1fr] items-center sm:h-20 md:h-24">
                         {/* Left column: hamburger button */}
                         <SheetTrigger asChild>
                             <Button
@@ -74,7 +74,10 @@ export default function Header() {
                                 {mobileMenuOpen ? (
                                     <X className="h-5 w-5" aria-hidden="true" />
                                 ) : (
-                                    <Menu className="h-5 w-5" aria-hidden="true" />
+                                    <Menu
+                                        className="h-5 w-5"
+                                        aria-hidden="true"
+                                    />
                                 )}
                             </Button>
                         </SheetTrigger>
@@ -82,7 +85,7 @@ export default function Header() {
                         {/* Center column: logo - links to home */}
                         <Link
                             href="/"
-                            className="justify-self-center flex items-center min-w-0"
+                            className="flex min-w-0 items-center justify-self-center"
                             aria-label={t('nav.home')}
                         >
                             <img
@@ -98,8 +101,11 @@ export default function Header() {
                         <div className="w-10" aria-hidden="true" />
                     </div>
 
-                    <SheetContent side="left" className="w-72 sm:w-80 p-0">
-                        <nav className="flex-1 overflow-y-auto px-4 py-6 flex flex-col" aria-label={t('nav.main')}>
+                    <SheetContent side="left" className="w-72 p-0 sm:w-80">
+                        <nav
+                            className="flex flex-1 flex-col overflow-y-auto px-4 py-6"
+                            aria-label={t('nav.main')}
+                        >
                             <div className="h-4" aria-hidden="true" />
                             {user ? (
                                 <DropdownMenu>
@@ -110,26 +116,43 @@ export default function Header() {
                                         >
                                             <Avatar className="size-8 overflow-hidden rounded-full">
                                                 <AvatarImage
-                                                    src={user.avatar ?? undefined}
+                                                    src={
+                                                        user.avatar ?? undefined
+                                                    }
                                                     alt={user.display_name}
                                                 />
                                                 <AvatarFallback className="rounded-lg bg-neutral-200 text-black">
-                                                    {getInitials(user.display_name ?? '')}
+                                                    {getInitials(
+                                                        user.display_name ?? '',
+                                                    )}
                                                 </AvatarFallback>
                                             </Avatar>
-                                            <span className="flex-1 truncate">{user.display_name}</span>
+                                            <span className="flex-1 truncate">
+                                                {user.display_name}
+                                            </span>
                                         </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-56" align="end">
+                                    <DropdownMenuContent
+                                        className="w-56"
+                                        align="end"
+                                    >
                                         <DropdownMenuLabel className="p-0 font-normal">
                                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                                                <span className="font-medium">{user.display_name}</span>
-                                                <span className="text-xs text-muted-foreground">{user.email}</span>
+                                                <span className="font-medium">
+                                                    {user.display_name}
+                                                </span>
+                                                <span className="text-xs text-muted-foreground">
+                                                    {user.email}
+                                                </span>
                                             </div>
                                         </DropdownMenuLabel>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem asChild>
-                                            <Link className="block flex w-full cursor-pointer items-center gap-2" href={edit()} prefetch>
+                                            <Link
+                                                className="block flex w-full cursor-pointer items-center gap-2"
+                                                href={edit()}
+                                                prefetch
+                                            >
                                                 <Settings className="mr-2 size-4" />
                                                 {t('nav.settings')}
                                             </Link>
@@ -151,18 +174,20 @@ export default function Header() {
                             ) : (
                                 <Link
                                     href="/login"
-                                    className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-foreground/70 hover:bg-accent hover:text-foreground transition-colors"
+                                    className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-foreground/70 transition-colors hover:bg-accent hover:text-foreground"
                                 >
                                     {t('nav.account')}
                                 </Link>
                             )}
-                            <div className="pt-4 border-t border-border/15 flex items-center justify-between gap-4">
+                            <div className="flex items-center justify-between gap-4 border-t border-border/15 pt-4">
                                 <LanguageSwitcher />
                                 <Switch
                                     checked={resolvedAppearance === 'dark'}
                                     onChange={() =>
                                         updateAppearance(
-                                            resolvedAppearance === 'dark' ? 'light' : 'dark',
+                                            resolvedAppearance === 'dark'
+                                                ? 'light'
+                                                : 'dark',
                                         )
                                     }
                                     aria-label="Toggle theme"
@@ -180,7 +205,9 @@ export default function Header() {
                                                 ? 'bg-primary text-primary-foreground'
                                                 : 'text-foreground/70 hover:bg-accent hover:text-foreground'
                                         }`}
-                                        aria-current={link.active ? 'page' : undefined}
+                                        aria-current={
+                                            link.active ? 'page' : undefined
+                                        }
                                     >
                                         {link.label}
                                     </Link>
@@ -253,16 +280,25 @@ export default function Header() {
                                                 alt={user.display_name}
                                             />
                                             <AvatarFallback className="rounded-lg bg-neutral-200 text-black">
-                                                {getInitials(user.display_name ?? '')}
+                                                {getInitials(
+                                                    user.display_name ?? '',
+                                                )}
                                             </AvatarFallback>
                                         </Avatar>
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-56" align="end">
+                                <DropdownMenuContent
+                                    className="w-56"
+                                    align="end"
+                                >
                                     <DropdownMenuLabel className="p-0 font-normal">
                                         <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                                            <span className="font-medium">{user.display_name}</span>
-                                            <span className="text-xs text-muted-foreground">{user.email}</span>
+                                            <span className="font-medium">
+                                                {user.display_name}
+                                            </span>
+                                            <span className="text-xs text-muted-foreground">
+                                                {user.email}
+                                            </span>
                                         </div>
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator />
@@ -304,7 +340,9 @@ export default function Header() {
                             checked={resolvedAppearance === 'dark'}
                             onChange={() =>
                                 updateAppearance(
-                                    resolvedAppearance === 'dark' ? 'light' : 'dark',
+                                    resolvedAppearance === 'dark'
+                                        ? 'light'
+                                        : 'dark',
                                 )
                             }
                             aria-label="Toggle theme"

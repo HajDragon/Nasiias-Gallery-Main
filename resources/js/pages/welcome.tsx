@@ -230,10 +230,12 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                         aria-label={t('welcome.aria_intro')}
                     >
                         <IntroAnimation
-                            items={artworks.data.slice(0, 12).map((artwork) => ({
-                                image: artwork.image_url,
-                                alt: artwork.alt_text,
-                            }))}
+                            items={artworks.data
+                                .slice(0, 12)
+                                .map((artwork) => ({
+                                    image: artwork.image_url,
+                                    alt: artwork.alt_text,
+                                }))}
                             onSelect={(index) => {
                                 const artwork = artworks.data[index];
                                 if (artwork) openArtwork(artwork);
@@ -344,12 +346,12 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                                     type="button"
                                     onClick={loadMore}
                                     disabled={isLoadingMore}
-                                    className="inline-flex items-center gap-2 px-8 py-3 text-sm font-semibold tracking-[0.1em] uppercase text-primary-on-blue bg-primary-blue hover:bg-primary-blue/90 active:bg-primary-blue/70 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="inline-flex items-center gap-2 rounded-full bg-primary-blue px-8 py-3 text-sm font-semibold tracking-[0.1em] text-primary-on-blue uppercase transition-colors hover:bg-primary-blue/90 active:bg-primary-blue/70 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     {isLoadingMore ? (
                                         <>
                                             <svg
-                                                className="animate-spin h-5 w-5"
+                                                className="h-5 w-5 animate-spin"
                                                 viewBox="0 0 24 24"
                                                 aria-hidden="true"
                                             >
