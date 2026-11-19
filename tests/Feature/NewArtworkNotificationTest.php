@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\UserRole;
 use App\Filament\Resources\Artworks\Pages\CreateArtwork;
+use App\Filament\Resources\Artworks\Pages\EditArtwork;
 use App\Jobs\NotifySubscribersOfNewArtwork;
 use App\Mail\NewArtworkPublished;
 use App\Models\Artwork;
@@ -168,5 +169,66 @@ class NewArtworkNotificationTest extends TestCase
             NotifySubscribersOfNewArtwork::class,
             fn (NotifySubscribersOfNewArtwork $job): bool => $job->artwork->is($artwork)
         );
+    }
+
+    public function test_admin_can_disable_the_notification_when_creating_an_artwork(): void
+    {
+        // Arrange
+        Storage::fake('public');
+        Bus::fake([NotifySubscribersOfNewArtwork::class]);
+
+        $admin = User::factory()->create(['role' => UserRole::Admin]);
+        $category = Category::factory()->create();
+        $photo = $this->editedPhotoPayload();
+
+        // Act
+        $this->actingAs($admin);
+        $component = Livewire::test(CreateArtwork::class)
+            ->fillForm([
+                'title' => 'Silent Dawn',
+                'description' => 'An upload that should not be announced.',
+                'category_id' => $category->id,
+                'file' => $photo,
+                'notify_subscribers' => false,
+            ])
+            ->call('create');
+
+        // Assert
+        $component->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('artworks', ['title' => 'Silent Dawn']);
+        Bus::assertNotDispatched(NotifySubscribersOfNewArtwork::class);
+    }
+
+    public function test_editing_an_artwork_does_not_notify_subscribers(): void
+    {
+        // Arrange
+        Storage::fake('public');
+        Bus::fake([NotifySubscribersOfNewArtwork::class]);
+
+        $admin = User::factory()->create(['role' => UserRole::Admin]);
+        $category = Category::factory()->create();
+        $artwork = Artwork::factory()->create([
+            'category_id' => $category->id,
+            'title' => 'First Light',
+            'description' => 'Dawn breaking over quiet water.',
+        ]);
+
+        // Act
+        $this->actingAs($admin);
+        $component = Livewire::test(EditArtwork::class, [
+            'record' => $artwork->getRouteKey(),
+        ])
+            ->fillForm([
+                'title' => 'First Light, Revised',
+                'description' => 'A corrected description.',
+            ])
+            ->call('save');
+
+        // Assert
+        $component->assertHasNoFormErrors();
+
+        $this->assertSame('First Light, Revised', $artwork->fresh()->title);
+        Bus::assertNotDispatched(NotifySubscribersOfNewArtwork::class);
     }
 }
