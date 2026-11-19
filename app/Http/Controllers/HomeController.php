@@ -6,11 +6,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Artwork;
 use App\Models\Category;
+use App\Services\SEOService;
 use Illuminate\Http\Request;
 use Inertia\Response;
 
 class HomeController extends Controller
 {
+    public function __construct(
+        private SEOService $seoService
+    ) {}
+
     /**
      * Render the landing page with every artwork (the design shows the full
      * collection; filtering happens client-side).
@@ -40,6 +45,7 @@ class HomeController extends Controller
         return inertia('welcome', [
             'artworks' => $artworks,
             'categories' => $categories,
+            'seo' => $this->seoService->getSEOData(),
         ]);
     }
 }
