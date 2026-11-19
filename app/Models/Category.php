@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use RalphJSmit\Laravel\SEO\Support\HasSEO;
+use RalphJSmit\Laravel\SEO\Support\SEOData;
 
 /**
  * @property int $id
@@ -21,7 +23,7 @@ use Illuminate\Support\Str;
 class Category extends Model
 {
     /** @use HasFactory<CategoryFactory> */
-    use HasFactory;
+    use HasFactory, HasSEO;
 
     /**
      * @return HasMany<Artwork, $this>
@@ -29,6 +31,15 @@ class Category extends Model
     public function artworks(): HasMany
     {
         return $this->hasMany(Artwork::class);
+    }
+
+    public function getDynamicSEOData(): SEOData
+    {
+        $seoData = new SEOData();
+        $seoData->title = $this->name;
+        $seoData->description = "Explore {$this->name} artwork collection at Nasiias Gallery.";
+        $seoData->type = 'website';
+        return $seoData;
     }
 
     protected static function booted(): void

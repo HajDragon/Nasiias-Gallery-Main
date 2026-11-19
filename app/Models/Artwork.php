@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use RalphJSmit\Laravel\SEO\Support\HasSEO;
+use RalphJSmit\Laravel\SEO\Support\SEOData;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -33,9 +35,21 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class Artwork extends Model implements HasMedia
 {
     /** @use HasFactory<ArtworkFactory> */
-    use HasFactory;
+    use HasFactory, HasSEO, InteractsWithMedia;
 
-    use InteractsWithMedia;
+    public function getDynamicSEOData(): SEOData
+    {
+        $seoData = new SEOData();
+        $seoData->title = $this->title;
+        $seoData->description = $this->description;
+        $seoData->image = $this->getFirstMediaUrl('images') ?: $this->image_url;
+        $seoData->type = 'article';
+        $seoData->published_time = $this->created_at;
+        $seoData->modified_time = $this->updated_at;
+        $seoData->section = $this->category?->name;
+        $seoData->tags = [$this->category?->name];
+        return $seoData;
+    }
 
     public function registerMediaCollections(): void
     {
