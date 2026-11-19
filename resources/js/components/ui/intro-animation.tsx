@@ -3,6 +3,7 @@ import type { MouseEvent as ReactMouseEvent } from 'react';
 import { motion, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import LiveOrb from '@/components/ui/live-orb';
 import { useTranslation } from '@/lib/i18n';
+import { useReducedMotion } from '@/hooks/use-reduced-motion';
 
 export type AnimationPhase = 'scatter' | 'line' | 'circle' | 'bottom-strip';
 
@@ -20,13 +21,13 @@ interface FlipCardProps {
     target: FlipTarget;
     onClick: (event: ReactMouseEvent<HTMLButtonElement>) => void;
     onHoverChange: (hovering: boolean) => void;
+    width: number;
+    height: number;
 }
 
-const IMG_WIDTH = 60;
-const IMG_HEIGHT = 85;
-
-function FlipCard({ src, alt, onClick, onHoverChange, target }: FlipCardProps) {
+function FlipCard({ src, alt, onClick, onHoverChange, target, width, height }: FlipCardProps) {
     const { t } = useTranslation();
+    const prefersReducedMotion = useReducedMotion();
 
     return (
         <motion.button
@@ -41,15 +42,15 @@ function FlipCard({ src, alt, onClick, onHoverChange, target }: FlipCardProps) {
                 scale: target.scale,
                 opacity: target.opacity,
             }}
-            transition={{
+            transition={prefersReducedMotion ? { duration: 0 } : {
                 type: 'spring',
                 stiffness: 90,
                 damping: 20,
             }}
             style={{
                 position: 'absolute',
-                width: IMG_WIDTH,
-                height: IMG_HEIGHT,
+                width,
+                height,
                 transformStyle: 'preserve-3d',
                 perspective: '1000px',
             }}
@@ -58,13 +59,13 @@ function FlipCard({ src, alt, onClick, onHoverChange, target }: FlipCardProps) {
             <motion.div
                 className="relative h-full w-full"
                 style={{ transformStyle: 'preserve-3d' }}
-                transition={{
+                transition={prefersReducedMotion ? { duration: 0 } : {
                     duration: 0.6,
                     type: 'spring',
                     stiffness: 260,
                     damping: 20,
                 }}
-                whileHover={{ rotateY: 180 }}
+                whileHover={prefersReducedMotion ? {} : { rotateY: 180 }}
             >
                 <div
                     className="absolute inset-0 h-full w-full overflow-hidden rounded-xl shadow-lg bg-gray-200"
@@ -112,6 +113,8 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
     const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
     const containerRef = useRef<HTMLDivElement>(null);
     const TOTAL_IMAGES = items.length;
+    const isMobile = containerSize.width < 768;
+    const prefersReducedMotion = useReducedMotion();
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -169,7 +172,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
     const [orbitAngle, setOrbitAngle] = useState(0);
 
     useEffect(() => {
-        if (stage !== 1 || introPhase !== 'circle' || orbitPaused) return;
+        if (stage !== 1 || introPhase !== 'circle' || orbitPaused || prefersReducedMotion) return;
         let raf = 0;
         let last = performance.now();
         const tick = (now: number) => {
@@ -179,19 +182,19 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
         };
         raf = requestAnimationFrame(tick);
         return () => cancelAnimationFrame(raf);
-    }, [stage, introPhase, orbitPaused]);
+    }, [stage, introPhase, orbitPaused, prefersReducedMotion]);
 
     const morphProgress = useTransform(virtualScroll, [0, 600], [0, 1]);
-    const smoothMorph = useSpring(morphProgress, { stiffness: 90, damping: 22 });
+    const smoothMorph = useSpring(morphProgress, prefersReducedMotion ? { stiffness: 10000, damping: 10000 } : { stiffness: 90, damping: 22 });
     const scrollRotate = useTransform(virtualScroll, [600, 3000], [0, 360]);
-    const smoothScrollRotate = useSpring(scrollRotate, {
+    const smoothScrollRotate = useSpring(scrollRotate, prefersReducedMotion ? { stiffness: 10000, damping: 10000 } : {
         stiffness: 90,
         damping: 22,
     });
     const exitProgress = useTransform(virtualScroll, [900, 1400], [0, 1]);
-    const smoothExit = useSpring(exitProgress, { stiffness: 90, damping: 22 });
+    const smoothExit = useSpring(exitProgress, prefersReducedMotion ? { stiffness: 10000, damping: 10000 } : { stiffness: 90, damping: 22 });
     const mouseX = useMotionValue(0);
-    const smoothMouseX = useSpring(mouseX, { stiffness: 30, damping: 20 });
+    const smoothMouseX = useSpring(mouseX, prefersReducedMotion ? { stiffness: 10000, damping: 10000 } : { stiffness: 30, damping: 20 });
 
     useEffect(() => {
         const container = containerRef.current;
@@ -232,6 +235,11 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
         }));
     }, [items]);
 
+    // Responsive card dimensions
+    const isDesktop = containerSize.width >= 1024;
+    const cardWidth = isDesktop ? 112 : containerSize.width < 768 ? 56 : 84;
+    const cardHeight = isDesktop ? 154 : containerSize.width < 768 ? 77 : 116;
+
     const [morphValue, setMorphValue] = useState(0);
     const [rotateValue, setRotateValue] = useState(0);
     const [parallaxValue, setParallaxValue] = useState(0);
@@ -255,8 +263,14 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
         [500, 600, 1050, 1350],
         [0, 1, 1, 0],
     );
-    const contentOpacity = useSpring(contentFade, { stiffness: 90, damping: 22 });
+    const contentOpacity = useSpring(contentFade, prefersReducedMotion ? { stiffness: 10000, damping: 10000 } : { stiffness: 90, damping: 22 });
     const contentY = useTransform(smoothMorph, [0.8, 1], [20, 0]);
+    const [contentVisible, setContentVisible] = useState(false);
+
+    useEffect(() => {
+        const unsub = contentOpacity.on('change', (v) => setContentVisible(v > 0.1));
+        return () => unsub();
+    }, [contentOpacity]);
 
     return (
         <div
@@ -273,8 +287,8 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                                 ? { opacity: 1 - morphValue * 2, y: 0, filter: 'blur(0px)' }
                                 : { opacity: 0, filter: 'blur(10px)' }
                         }
-                        transition={{ duration: 1 }}
-                        className="text-2xl font-medium tracking-tight text-gray-800 dark:text-foreground md:text-4xl"
+                        transition={prefersReducedMotion ? { duration: 0 } : { duration: 1 }}
+                        className="text-xl font-medium tracking-tight text-gray-800 dark:text-foreground md:text-4xl"
                     >
                         {t('intro.title')}
                     </motion.h1>
@@ -286,7 +300,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                                 ? { opacity: 0.5 - morphValue }
                                 : { opacity: 0 }
                         }
-                        transition={{ duration: 1, delay: 0.2 }}
+                        transition={prefersReducedMotion ? { duration: 0 } : { duration: 1, delay: 0.2 }}
                         onClick={(event) => {
                             event.stopPropagation();
                             advanceStage();
@@ -302,14 +316,15 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                                 ? { opacity: 1 - morphValue * 2, scale: 1 }
                                 : { opacity: 0, scale: 0.85 }
                         }
-                        transition={{ duration: 1, delay: 0.3 }}
+                        transition={prefersReducedMotion ? { duration: 0 } : { duration: 1, delay: 0.3 }}
                         className="mt-5"
                     >
                         <LiveOrb
-                            size={96}
+                            size={isMobile ? 64 : 96}
                             variant="custom"
                             color="#98C1D9"
                             eyeColor="#293241"
+                            isVisible={introPhase === 'circle' && morphValue < 0.5}
                         />
                     </motion.div>
                 </div>
@@ -336,10 +351,11 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                     </button>
                     <div className="mt-5 flex justify-center">
                         <LiveOrb
-                            size={96}
+                            size={isMobile ? 64 : 96}
                             variant="custom"
                             color="#98C1D9"
                             eyeColor="#293241"
+                            isVisible={contentVisible}
                         />
                     </div>
                 </motion.div>
@@ -350,17 +366,23 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                         if (introPhase === 'scatter') {
                             target = scatterPositions[i];
                         } else if (introPhase === 'line') {
-                            const lineSpacing = 70;
+                            const lineSpacing = cardWidth + 24;
                             const lineTotalWidth = TOTAL_IMAGES * lineSpacing;
                             const lineX = i * lineSpacing - lineTotalWidth / 2;
                             target = { x: lineX, y: 0, rotation: 0, scale: 1, opacity: 1 };
                         } else {
-                            const isMobile = containerSize.width < 768;
                             const minDimension = Math.min(
                                 containerSize.width,
                                 containerSize.height,
                             );
-                            const circleRadius = Math.min(minDimension * 0.35, 350);
+                            const circleRadius = Math.min(
+                                minDimension * (isMobile ? 0.36 : 0.35),
+                                350,
+                            );
+
+                            // space available per card along the circle, with ~15% gap
+                            const arcPerCard = (2 * Math.PI * circleRadius) / TOTAL_IMAGES;
+                            const circleScale = Math.min(1, (arcPerCard * 0.85) / cardWidth);
 
                             const circleAngle = (i / TOTAL_IMAGES) * 360 + orbitAngle;
                             const circleRad = (circleAngle * Math.PI) / 180;
@@ -396,7 +418,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                                 x: lerp(circlePos.x, arcPos.x, morphValue),
                                 y: lerp(circlePos.y, arcPos.y, morphValue),
                                 rotation: lerp(circlePos.rotation, arcPos.rotation, morphValue),
-                                scale: lerp(1, arcPos.scale, morphValue),
+                                scale: lerp(circleScale, arcPos.scale, morphValue),
                                 opacity: 1,
                             };
                         }
@@ -417,6 +439,8 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                                     onSelect(i);
                                 }}
                                 onHoverChange={setOrbitPaused}
+                                width={cardWidth}
+                                height={cardHeight}
                             />
                         );
                     })}
