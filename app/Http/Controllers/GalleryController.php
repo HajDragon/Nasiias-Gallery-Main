@@ -97,7 +97,7 @@ class GalleryController extends Controller
         $comments = $artwork->comments()
             ->with([
                 'user:id,display_name',
-                'user.media:model_type,model_id,collection_name,file_name,mime_type,disk,conversions_disk,responsive_images',
+                'user.media:id,model_type,model_id,collection_name,file_name,mime_type,disk,conversions_disk,generated_conversions,manipulations,responsive_images',
             ])
             ->orderBy('created_at', 'desc')
             ->get()
