@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c99c17cb2803eea5350f05b4a2830849",
+    "content-hash": "dfd578b3ba6a94418c8f955d9503a3d8",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -6048,6 +6048,158 @@
             "time": "2026-06-29T15:41:09+00:00"
         },
         {
+            "name": "ralphjsmit/laravel-helpers",
+            "version": "1.11.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ralphjsmit/laravel-helpers.git",
+                "reference": "6f13f6b7ec597d92dbae1d90d37a63c16dc8e338"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ralphjsmit/laravel-helpers/zipball/6f13f6b7ec597d92dbae1d90d37a63c16dc8e338",
+                "reference": "6f13f6b7ec597d92dbae1d90d37a63c16dc8e338",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.4|^8.0",
+                "illuminate/contracts": "^11.0|^12.0|^13.0",
+                "php": "^8.0",
+                "spatie/laravel-package-tools": "^1.9.2"
+            },
+            "require-dev": {
+                "livewire/livewire": "^2.9|^3.4|^4.2",
+                "nesbot/carbon": "^2.66|^3.0",
+                "nunomaduro/collision": "^7.0|^8.0",
+                "orchestra/testbench": "^8.0|^9.0|^10.0|^11.0",
+                "pestphp/pest": "^2.34|^3.7|^4.4",
+                "pestphp/pest-plugin-laravel": "^2.3|^3.1|^4.1",
+                "phpunit/phpunit": "^10.5|^11.5|^12.5.12",
+                "spatie/invade": "^1.0|^2.0",
+                "spatie/laravel-ray": "^1.39"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Helpers": "RalphJSmit\\Helpers\\Facades\\Helpers"
+                    },
+                    "providers": [
+                        "RalphJSmit\\Helpers\\HelpersServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/Laravel/Support/helpers.php",
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "RalphJSmit\\Helpers\\": "src",
+                    "RalphJSmit\\Helpers\\Database\\Factories\\": "database/factories"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ralph J. Smit",
+                    "email": "rjs@ralphjsmit.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A package containing handy helpers for your Laravel-application.",
+            "homepage": "https://github.com/ralphjsmit/laravel-helpers",
+            "keywords": [
+                "laravel",
+                "laravel-helpers",
+                "ralphjsmit"
+            ],
+            "support": {
+                "issues": "https://github.com/ralphjsmit/laravel-helpers/issues",
+                "source": "https://github.com/ralphjsmit/laravel-helpers/tree/1.11.1"
+            },
+            "time": "2026-10-07T21:46:40+00:00"
+        },
+        {
+            "name": "ralphjsmit/laravel-seo",
+            "version": "1.8.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ralphjsmit/laravel-seo.git",
+                "reference": "9ecdc4d7f4c9d0f87944ca8f0b1109a1cf96c1fb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ralphjsmit/laravel-seo/zipball/9ecdc4d7f4c9d0f87944ca8f0b1109a1cf96c1fb",
+                "reference": "9ecdc4d7f4c9d0f87944ca8f0b1109a1cf96c1fb",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": "^11.11|^12.0|^13.0",
+                "php": "^8.2",
+                "ralphjsmit/laravel-helpers": "^1.10",
+                "spatie/laravel-package-tools": "^1.9.2"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.16",
+                "nesbot/carbon": "^3.0",
+                "nunomaduro/collision": "^8.0|^9.0",
+                "orchestra/testbench": "^9.16|^10.0|^11.0",
+                "orchestra/testbench-core": "^9.1.4|^10.0|^11.0",
+                "pestphp/pest": "^2.0|^3.0|^4.4",
+                "pestphp/pest-plugin-laravel": "^2.0|^3.0|^4.1",
+                "phpunit/phpunit": "^10.5|^11.5|^12.5.12",
+                "spatie/laravel-ray": "^1.39",
+                "spatie/pest-plugin-test-time": "^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "SEOManager": "RalphJSmit\\Laravel\\SEO\\Facades\\SEOManager"
+                    },
+                    "providers": [
+                        "RalphJSmit\\Laravel\\SEO\\LaravelSEOServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "RalphJSmit\\Laravel\\SEO\\": "src",
+                    "RalphJSmit\\Laravel\\SEO\\Database\\Factories\\": "database/factories"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ralph J. Smit",
+                    "email": "rjs@ralphjsmit.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A package to handle the SEO in any Laravel application, big or small.",
+            "homepage": "https://github.com/ralphjsmit/laravel-seo",
+            "keywords": [
+                "laravel",
+                "laravel-seo",
+                "ralphjsmit"
+            ],
+            "support": {
+                "issues": "https://github.com/ralphjsmit/laravel-seo/issues",
+                "source": "https://github.com/ralphjsmit/laravel-seo/tree/1.8.3"
+            },
+            "time": "2026-10-05T08:09:02+00:00"
+        },
+        {
             "name": "ramsey/collection",
             "version": "2.1.1",
             "source": {
@@ -6414,6 +6566,86 @@
                 }
             ],
             "time": "2022-12-17T21:53:22+00:00"
+        },
+        {
+            "name": "spatie/crawler",
+            "version": "9.4.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/crawler.git",
+                "reference": "937bcf5786e66bca20da50db004f6d1443e81418"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/crawler/zipball/937bcf5786e66bca20da50db004f6d1443e81418",
+                "reference": "937bcf5786e66bca20da50db004f6d1443e81418",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.8.2 || ^8.0",
+                "guzzlehttp/psr7": "^2.6.3 || ^3.0",
+                "php": "^8.4",
+                "psr/http-client": "^1.0",
+                "spatie/robots-txt": "^2.0",
+                "symfony/css-selector": "^7.0|^8.0",
+                "symfony/dom-crawler": "^7.0|^8.0"
+            },
+            "require-dev": {
+                "pestphp/pest": "^4.0",
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan": "^2.0",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "spatie/invade": "^2.1",
+                "spatie/ray": "^1.37"
+            },
+            "suggest": {
+                "spatie/browsershot": "Required for JavaScript rendering with BrowsershotRenderer (^5.0.5)"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-v9": "9.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\Crawler\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be"
+                }
+            ],
+            "description": "Crawl all internal links found on a website",
+            "homepage": "https://github.com/spatie/crawler",
+            "keywords": [
+                "crawler",
+                "link",
+                "spatie",
+                "website"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/crawler/issues",
+                "source": "https://github.com/spatie/crawler/tree/9.4.2"
+            },
+            "funding": [
+                {
+                    "url": "https://spatie.be/open-source/support-us",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-08-07T07:19:51+00:00"
         },
         {
             "name": "spatie/image",
@@ -6871,6 +7103,140 @@
                 }
             ],
             "time": "2026-09-28T07:16:50+00:00"
+        },
+        {
+            "name": "spatie/laravel-sitemap",
+            "version": "8.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-sitemap.git",
+                "reference": "51f52030ab22abf5e95ed037fea5f8073114e784"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/laravel-sitemap/zipball/51f52030ab22abf5e95ed037fea5f8073114e784",
+                "reference": "51f52030ab22abf5e95ed037fea5f8073114e784",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^12.0|^13.0",
+                "nesbot/carbon": "^2.71|^3.0",
+                "php": "^8.4",
+                "spatie/crawler": "^9.0",
+                "spatie/laravel-package-tools": "^1.16.1"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.0",
+                "laravel/pint": "^1.13",
+                "orchestra/testbench": "^10.0|^11.0",
+                "pestphp/pest": "^4.0",
+                "phpstan/extension-installer": "^1.3",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "spatie/pest-plugin-snapshots": "^2.1",
+                "spatie/temporary-directory": "^2.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Spatie\\Sitemap\\SitemapServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\Sitemap\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Create and generate sitemaps with ease",
+            "homepage": "https://github.com/spatie/laravel-sitemap",
+            "keywords": [
+                "laravel-sitemap",
+                "spatie"
+            ],
+            "support": {
+                "source": "https://github.com/spatie/laravel-sitemap/tree/8.2.0"
+            },
+            "funding": [
+                {
+                    "url": "https://spatie.be/open-source/support-us",
+                    "type": "custom"
+                }
+            ],
+            "time": "2026-06-24T07:59:14+00:00"
+        },
+        {
+            "name": "spatie/robots-txt",
+            "version": "2.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/robots-txt.git",
+                "reference": "a416c58e9572c8680d3c3720184b8ffb8320720d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/robots-txt/zipball/a416c58e9572c8680d3c3720184b8ffb8320720d",
+                "reference": "a416c58e9572c8680d3c3720184b8ffb8320720d",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.4.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.4.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\Robots\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Brent Roose",
+                    "email": "brent@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Determine if a page may be crawled from robots.txt and robots meta tags",
+            "homepage": "https://github.com/spatie/robots-txt",
+            "keywords": [
+                "robots-txt",
+                "spatie"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/robots-txt/issues",
+                "source": "https://github.com/spatie/robots-txt/tree/2.6.0"
+            },
+            "funding": [
+                {
+                    "url": "https://spatie.be/open-source/support-us",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-11-06T12:00:00+00:00"
         },
         {
             "name": "spatie/shiki-php",
@@ -7494,6 +7860,76 @@
                 }
             ],
             "time": "2026-09-16T14:15:10+00:00"
+        },
+        {
+            "name": "symfony/dom-crawler",
+            "version": "v8.1.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/dom-crawler.git",
+                "reference": "aa0674b52e1bd00502756fbaba8c982b446472e6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/aa0674b52e1bd00502756fbaba8c982b446472e6",
+                "reference": "aa0674b52e1bd00502756fbaba8c982b446472e6",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4.1",
+                "symfony/polyfill-ctype": "^1.8",
+                "symfony/polyfill-mbstring": "^1.0"
+            },
+            "require-dev": {
+                "symfony/css-selector": "^7.4|^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\DomCrawler\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Eases DOM navigation for HTML and XML documents",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/dom-crawler/tree/v8.1.10"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-10-25T14:40:25+00:00"
         },
         {
             "name": "symfony/error-handler",
