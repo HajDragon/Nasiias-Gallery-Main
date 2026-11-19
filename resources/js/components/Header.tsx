@@ -16,7 +16,6 @@ import {
     Sheet,
     SheetContent,
     SheetTrigger,
-    SheetHeader,
 } from '@/components/ui/sheet';
 import { useAppearance } from '@/hooks/use-appearance';
 import { useInitials } from '@/hooks/use-initials';
