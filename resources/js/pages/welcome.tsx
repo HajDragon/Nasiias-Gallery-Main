@@ -29,11 +29,13 @@ interface WelcomeProps {
 
 function FeedCard({
     artwork,
+    imagesReady,
     liked,
     onSelect,
     onLike,
 }: {
     artwork: Artwork;
+    imagesReady: boolean;
     liked: boolean;
     onSelect: (artwork: Artwork) => void;
     onLike: (artwork: Artwork) => void;
@@ -85,8 +87,12 @@ function FeedCard({
             >
                 <div className="h-full w-full bg-card">
                     <img
-                        src={artwork.image_url}
-                        srcSet={artwork.image_srcset ?? undefined}
+                        src={imagesReady ? artwork.image_url : undefined}
+                        srcSet={
+                            imagesReady
+                                ? (artwork.image_srcset ?? undefined)
+                                : undefined
+                        }
                         sizes="100vw"
                         decoding="async"
                         alt={artwork.alt_text}
@@ -162,6 +168,28 @@ export default function Welcome({
     const { t } = useTranslation();
     const [visibleArtworks, setVisibleArtworks] = useState(artworks.data);
     const [loadingMore, setLoadingMore] = useState(false);
+    const collectionRef = useRef<HTMLElement>(null);
+    const [collectionImagesReady, setCollectionImagesReady] = useState(false);
+
+    useEffect(() => {
+        const collection = collectionRef.current;
+        if (!collection) return;
+        if (!('IntersectionObserver' in window)) {
+            setCollectionImagesReady(true);
+            return;
+        }
+
+        // Native lazy loading can fetch images a full screen below the intro.
+        // Start collection downloads when its heading enters the viewport.
+        const observer = new IntersectionObserver((entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) {
+                setCollectionImagesReady(true);
+                observer.disconnect();
+            }
+        });
+        observer.observe(collection);
+        return () => observer.disconnect();
+    }, []);
     const activeCategory =
         categories.find((category) => category.slug === selectedCategory)
             ?.name ?? '';
@@ -245,6 +273,7 @@ export default function Welcome({
 
                     <section
                         id="art-library"
+                        ref={collectionRef}
                         className="mx-auto max-w-[1440px] px-5 pb-20 sm:px-8 sm:pb-28 lg:px-12"
                         aria-label={t('welcome.aria_collection')}
                     >
@@ -277,6 +306,7 @@ export default function Welcome({
                                 <FeedCard
                                     key={artwork.id}
                                     artwork={artwork}
+                                    imagesReady={collectionImagesReady}
                                     liked={likedIds.has(artwork.id)}
                                     onSelect={openArtwork}
                                     onLike={likeArtwork}
@@ -302,23 +332,22 @@ export default function Welcome({
                                     >
                                         <div className="aspect-[4/5] w-full bg-card">
                                             <img
-                                                src={artwork.image_url}
-                                                srcSet={
-                                                    artwork.image_srcset ??
-                                                    undefined
+                                                src={
+                                                    collectionImagesReady
+                                                        ? artwork.image_url
+                                                        : undefined
                                                 }
-                                                sizes="(min-width: 1024px) 440px, 100vw"
+                                                srcSet={
+                                                    collectionImagesReady
+                                                        ? (artwork.image_srcset ??
+                                                          undefined)
+                                                        : undefined
+                                                }
+                                                sizes="(min-width: 1440px) 427px, (min-width: 1024px) calc((100vw - 160px) / 3), calc(100vw - 64px)"
                                                 decoding="async"
                                                 alt={artwork.alt_text}
                                                 className="h-full w-full rounded-lg object-contain transition-transform duration-700 ease-out group-hover/image:scale-[1.035]"
-                                                loading={
-                                                    index < 3 ? 'eager' : 'lazy'
-                                                }
-                                                fetchPriority={
-                                                    index === 0
-                                                        ? 'high'
-                                                        : undefined
-                                                }
+                                                loading="lazy"
                                             />
                                         </div>
                                         <span className="absolute top-4 right-4 grid h-8 w-8 place-items-center rounded-full bg-accent/90 text-[10px] font-semibold backdrop-blur-sm">

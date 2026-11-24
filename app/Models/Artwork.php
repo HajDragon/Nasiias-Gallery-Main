@@ -80,6 +80,12 @@ class Artwork extends Model implements HasMedia
     {
         $media = $this->getFirstMedia('images');
         $original = $media?->getUrl() ?: $this->image_url;
+        // Remote demo artwork needs responsive sources too; it has no media conversions.
+        if ($media === null && parse_url($original, PHP_URL_HOST) === 'images.unsplash.com'
+            && parse_url($original, PHP_URL_SCHEME) === 'https') {
+            return $this->unsplashImageSources($original, $detail);
+        }
+
         $preferred = $detail ? 'display' : 'card';
         $url = $media?->hasGeneratedConversion($preferred) ? $media->getUrl($preferred) : $original;
         $sources = [];
@@ -96,6 +102,28 @@ class Artwork extends Model implements HasMedia
         }
 
         return ['image_url' => $url, 'image_srcset' => $sources === [] ? null : implode(', ', $sources)];
+    }
+
+    /** @return array{image_url: string, image_srcset: string} */
+    private function unsplashImageSources(string $original, bool $detail): array
+    {
+        parse_str(parse_url($original, PHP_URL_QUERY) ?: '', $parameters);
+        $base = 'https://images.unsplash.com'.parse_url($original, PHP_URL_PATH);
+        $sources = [];
+        $urls = [];
+
+        foreach ([160, 320, 600, 800, 1200, 1600] as $width) {
+            $query = array_replace($parameters, ['auto' => 'format', 'q' => 80, 'dpr' => 1, 'w' => $width]);
+            // Preserve an explicitly requested crop's proportions at every size.
+            if (isset($parameters['h'], $parameters['w']) && is_numeric($parameters['h'])
+                && is_numeric($parameters['w']) && (float) $parameters['w'] > 0) {
+                $query['h'] = max(1, (int) round((float) $parameters['h'] * $width / (float) $parameters['w']));
+            }
+            $urls[$width] = $base.'?'.http_build_query($query, '', '&', PHP_QUERY_RFC3986);
+            $sources[] = $urls[$width].' '.$width.'w';
+        }
+
+        return ['image_url' => $urls[$detail ? 1600 : 600], 'image_srcset' => implode(', ', $sources)];
     }
 
     /**

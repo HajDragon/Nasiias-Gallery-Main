@@ -312,9 +312,10 @@ export function createLiveOrb(
     alpha: true,
     antialias: false,
     depth: false,
+    failIfMajorPerformanceCaveat: true,
     stencil: false,
     premultipliedAlpha: false,
-    powerPreference: "high-performance",
+    powerPreference: "low-power",
   })
   if (!gl) return null
 
@@ -562,6 +563,11 @@ export function LiveOrb({
   const [hasGl, setHasGl] = useState(false)
 
   useEffect(() => {
+    // Shader compilation and the render loop are unnecessary while hidden.
+    if (!isVisible) {
+      setHasGl(false)
+      return
+    }
     const canvas = canvasRef.current
     if (!canvas) return
     instanceRef.current = createLiveOrb(canvas, {
@@ -578,7 +584,7 @@ export function LiveOrb({
       instanceRef.current?.destroy()
       instanceRef.current = null
     }
-  }, [])
+  }, [isVisible])
 
   useEffect(() => {
     instanceRef.current?.setOptions({

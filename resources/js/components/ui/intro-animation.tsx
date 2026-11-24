@@ -72,7 +72,7 @@ function FlipCard({ src, srcSet, alt, onClick, onHoverChange, target, width, hei
                     className="absolute inset-0 h-full w-full overflow-hidden rounded-xl shadow-lg bg-gray-200"
                     style={{ backfaceVisibility: 'hidden' }}
                 >
-                    <img src={src} srcSet={srcSet} sizes={`${width}px`} decoding="async" alt={alt} className="h-full w-full object-cover" />
+                    <img src={src} srcSet={srcSet} sizes={`${Math.ceil(width * Math.max(1, target.scale))}px`} decoding="async" alt={alt} className="h-full w-full object-cover" />
                     <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-transparent" />
                 </div>
 
@@ -119,6 +119,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
     const TOTAL_IMAGES = items.length;
     const isMobile = containerSize.width < 768;
     const prefersReducedMotion = useReducedMotion();
+    const playOrb = inView && pageVisible && !prefersReducedMotion;
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -255,6 +256,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
     const isDesktop = containerSize.width >= 1024;
     const cardWidth = isDesktop ? 112 : containerSize.width < 768 ? 56 : 84;
     const cardHeight = isDesktop ? 154 : containerSize.width < 768 ? 77 : 116;
+    const lineY = cardHeight / 2 + 24;
 
     const [morphValue, setMorphValue] = useState(0);
     const [rotateValue, setRotateValue] = useState(0);
@@ -299,11 +301,11 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
             <div className="flex h-full w-full flex-col items-center justify-center perspective-1000">
                 <div className="absolute z-0 flex flex-col items-center justify-center text-center pointer-events-none top-1/2 -translate-y-1/2">
                     <motion.h1
-                        initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
+                        initial={false}
                         animate={
-                            introPhase === 'circle' && morphValue < 0.5
-                                ? { opacity: 1 - morphValue * 2, y: 0, filter: 'blur(0px)' }
-                                : { opacity: 0, filter: 'blur(10px)' }
+                            morphValue < 0.5
+                                ? { opacity: 1 - morphValue * 2 }
+                                : { opacity: 0 }
                         }
                         transition={prefersReducedMotion ? { duration: 0 } : { duration: 1 }}
                         className="text-xl font-medium tracking-tight text-gray-800 dark:text-foreground md:text-4xl"
@@ -342,7 +344,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                             variant="custom"
                             color="#98C1D9"
                             eyeColor="#293241"
-                            isVisible={introPhase === 'circle' && morphValue < 0.5}
+                            isVisible={playOrb && introPhase === 'circle' && morphValue < 0.5}
                         />
                     </motion.div>
                 </div>
@@ -373,7 +375,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                             variant="custom"
                             color="#98C1D9"
                             eyeColor="#293241"
-                            isVisible={contentVisible}
+                            isVisible={playOrb && contentVisible}
                         />
                     </div>
                 </motion.div>
@@ -387,7 +389,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                             const lineSpacing = cardWidth + 24;
                             const lineTotalWidth = TOTAL_IMAGES * lineSpacing;
                             const lineX = i * lineSpacing - lineTotalWidth / 2;
-                            target = { x: lineX, y: 0, rotation: 0, scale: 1, opacity: 1 };
+                            target = { x: lineX, y: lineY, rotation: 0, scale: 1, opacity: 1 };
                         } else {
                             const minDimension = Math.min(
                                 containerSize.width,
