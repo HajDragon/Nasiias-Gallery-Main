@@ -7,11 +7,16 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ArtworkCardResource;
 use App\Models\Artwork;
 use App\Models\Category;
+use App\Services\SEOService;
 use Illuminate\Http\Request;
 use Inertia\Response;
 
 class HomeController extends Controller
 {
+    public function __construct(
+        private SEOService $seoService
+    ) {}
+
     /**
      * Render a bounded collection and a separate, small intro selection.
      */
@@ -30,7 +35,7 @@ class HomeController extends Controller
         // Pills follow the design: seed order, and only categories that
         // actually have a painting (no empty filters).
         $categories = Category::query()
-            ->whereHas('artworks')
+            ->has('artworks')
             ->orderBy('id')
             ->get();
 
@@ -43,6 +48,7 @@ class HomeController extends Controller
                 ->map(fn (Artwork $artwork) => (new ArtworkCardResource($artwork))->resolve()),
             'categories' => $categories,
             'selectedCategory' => $request->string('category')->toString(),
+            'seo' => $this->seoService->getSEOData(),
         ]);
     }
 }

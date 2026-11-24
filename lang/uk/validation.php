@@ -171,6 +171,7 @@ return [
     'url' => 'Формат поля :attribute хибний.',
     'uuid' => 'Поле :attribute має бути коректним UUID ідентифікатором.',
     'attributes' => [
+        'avatar' => 'фото профілю',
         'display_name' => 'відображуване ім’я',
         'email' => 'електронна пошта',
         'password' => 'пароль',

@@ -630,3 +630,224 @@ Done. The header links used `hover:bg-accent/10`, but `--accent` is a page-level
 
 - `resources/js/components/Header.tsx` — Replaced accent-based hover/active states with header-scoped tokens for the Home, Gallery, Contact, Account and avatar-trigger items
 - `prompts/prompts.md` — Documented this session's two prompts with their final responses and changed files
+
+---
+
+# Prompt: Super-Admin User Management and Dashboard Widgets
+
+**Date:** 2026-11-19
+
+## Prompt
+
+Add a super-admin-only Filament page for managing user accounts. Super admins must be able to view and edit users, including promoting a user to admin, but must never be able to assign the super-admin role or demote an existing super admin. Also replace the default Filament dashboard with gallery-relevant widgets showing total artworks, categories, likes, views, comments, and the latest contact-form emails.
+
+## Response
+
+Implemented both parts.
+
+**User management (super admin only)**
+
+- Added a **Users** resource with a searchable, sortable listing of avatar, name, email, role badge, verification status, like/comment counts, and join date, plus a role filter.
+- Editing covers name, email, role, language, and email-notification preferences.
+- Super admins can promote users to **Admin** and demote admins back to users. The super-admin role is never assignable from the panel, existing super admins cannot be demoted, and self-demotion is blocked both in the UI and again when saving.
+- Changing an email resets its verification, matching the public profile screen.
+- Authorization runs through a new `UserPolicy`, so admins receive a 403 for `/admin/users` and the navigation item is hidden for them.
+
+**Dashboard**
+
+- Rebuilt the dashboard as a single-column layout and removed the developer "Filament Info" widget.
+- Added a gallery statistics widget with totals for artworks, categories, likes, views, comments, and registered users.
+- Added a latest-emails widget listing recent contact-form submissions with the sender, an excerpt, the received time, and a modal to read the full message. It polls every minute.
+- Because emails were not previously stored, accepted contact submissions now persist to a new `contact_messages` table before the per-recipient email jobs are queued.
+
+## Files Modified
+
+- `app/Filament/Resources/Users/UserResource.php` — New super-admin-only user directory with role options, safety guards, columns, and filters
+- `app/Filament/Resources/Users/Pages/ListUsers.php` — Listing page for the user directory
+- `app/Filament/Resources/Users/Pages/EditUser.php` — User editor with email verification reset and role/self-demotion guards
+- `app/Policies/UserPolicy.php` — Restricts viewing and updating users to super admins
+- `app/Enums/UserRole.php` — Added display labels and colours for each role
+- `app/Filament/Widgets/GalleryStats.php` — Dashboard totals for gallery activity
+- `app/Filament/Widgets/LatestEmails.php` — Recent contact-message table widget with detail modal
+- `app/Filament/Pages/Dashboard.php` — Single-column dashboard layout
+- `app/Providers/Filament/AdminPanelProvider.php` — Registered the new widgets and removed `FilamentInfoWidget`
+- `app/Models/ContactMessage.php` — New model for stored contact submissions
+- `database/migrations/2026_11_19_000000_create_contact_messages_table.php` — Creates the `contact_messages` table
+- `app/Http/Controllers/ContactMessageController.php` — Stores each accepted submission before queueing emails
+- `docs/contact-email.md` — Documented message storage and the dashboard widget
+- `tests/Feature/Filament/UserResourceTest.php` — Authorization, role assignment, and demotion coverage
+- `tests/Feature/Filament/DashboardWidgetTest.php` — Dashboard statistics and latest-email coverage
+- `tests/Feature/ContactMessageTest.php` — Added coverage for persisted submissions
+
+---
+
+# Prompt: Clickable Growth Charts for Dashboard Metrics
+
+**Date:** 2026-11-19
+
+## Prompt
+
+Add growth charts to the admin dashboard so each statistic can be compared over time on a line chart. Clicking the stat widget for artworks, categories, likes, views, comments, users, or messages should display that metric's growth graph.
+
+## Response
+
+Added the growth charts.
+
+**What's new**
+
+- A line chart under the overview cards showing **new records per day**, with filters for **Last 7 / 30 / 90 days**. The chart is metric-aware: its heading, description, and line colour change with the selection.
+- Every overview card is clickable and links to its metric (`?metric=likes`, `?metric=views`, `?metric=messages`, and so on). Each card also shows a small 7-day sparkline so the trend is visible before clicking.
+- A single `GalleryMetric` enum defines the label, description, colour, icon, model, and date column for every metric. Views are bucketed by `viewed_at`; all other metrics use `created_at`.
+- A `BuildMetricGrowthSeries` action groups records by day and zero-fills missing days, so the line never skips dates. Ranges are capped between 1 and 365 days.
+- The chart is registered between the statistics and latest-emails widgets, and the dashboard remains a single column so the line chart spans the full width.
+
+**Checks**
+
+- `pint`: passed
+- `phpstan` (level 7): passed
+- Full test suite: **142 passed**, including new coverage for card links, metric selection, filter switching, and day-by-day aggregation
+
+## Files Modified
+
+- `app/Enums/GalleryMetric.php` — New enum describing each dashboard metric, its model, and its date column
+- `app/Actions/BuildMetricGrowthSeries.php` — New action that builds a zero-filled day-by-day series
+- `app/Filament/Widgets/GalleryGrowthChart.php` — New line chart with metric selection and 7/30/90-day filters
+- `app/Filament/Widgets/GalleryStats.php` — Stat cards now link to their growth chart and show 7-day sparklines
+- `app/Providers/Filament/AdminPanelProvider.php` — Registered `GalleryGrowthChart` on the dashboard
+- `tests/Feature/Filament/DashboardWidgetTest.php` — Added coverage for card links, metric selection, filter switching, and daily aggregation
+
+---
+
+# Prompt: Frontend Performance Optimization — Animation & Data Loading
+
+**Date:** 2026-11-19
+
+## Prompt
+
+The welcome page exhibits severe performance degradation on initial load and during interaction:
+
+1. **Excessive WebGL work**: Multiple `LiveOrb` components (3 total) run continuous `requestAnimationFrame` loops with fragment shaders, even when faded to `opacity: 0` via CSS.
+2. **Unbounded data fetching**: `HomeController@index` loads the entire artworks table (`->get()`) with no pagination, causing hundreds of large images to mount in the DOM.
+3. **N+1 query patterns**: Missing eager loading of the `media` relation on artworks and `user.media` on comments.
+4. **Inefficient category query**: `whereHas('artworks')` runs a correlated subquery per category instead of a semi-join.
+5. **Missing reduced-motion support**: Infinite CSS animations and spring transitions run unconditionally, violating accessibility preferences.
+
+Implement comprehensive fixes that:
+
+- Pause WebGL render loops when orbs are not visible
+- Paginate the welcome page with infinite scroll (18 items/page)
+- Eager-load all required relations
+- Replace `whereHas` with `has` for category queries
+- Add `prefers-reduced-motion` guards across all animation components
+
+## Response
+
+Delivered a complete performance overhaul across four parallel workstreams:
+
+**1. LiveOrb WebGL pause (`resources/js/components/ui/live-orb.tsx`)**
+
+- Added `isVisible?: boolean` prop (default `true`) to `LiveOrbOptions` and `LiveOrbProps`
+- In `createLiveOrb`, the `tick` function now checks `options.isVisible` — when `false`, it skips the draw call and shader uniform updates but keeps the rAF loop alive with a minimal callback to resume instantly when visible
+- Updated call sites:
+    - `intro-animation.tsx`: both orbs receive `isVisible` driven by animation phase/opacity (`introPhase === 'circle' && morphValue < 0.5`, `contentOpacity > 0.1`)
+    - `scroll-morph-hero.tsx`: `isVisible={showOrb}` (explicit, though already conditionally mounted)
+
+**2. Welcome page pagination & eager loading (`app/Http/Controllers/HomeController.php`, `resources/js/pages/welcome.tsx`)**
+
+- `HomeController@index` now returns `Artwork::query()->with(['category', 'media'])->orderBy('created_at', 'desc')->paginate(18)->withQueryString()`
+- `welcome.tsx` types the prop as a full pagination object (`PaginatedArtworks`), uses `artworks.data` for rendering, and accumulates pages client-side in `allArtworks` state
+- Added "Load More" button with spinner that fetches `/?page=${nextPage}` via `fetch()` with `X-Requested-With` header, appends results, and updates `hasMorePages`
+- Category filtering runs client-side on the accumulated set; page resets to 1 when the filter changes
+
+**3. Database query optimisation (`app/Http/Controllers/GalleryController.php`, `app/Http/Controllers/HomeController.php`)**
+
+- Replaced `whereHas('artworks')` with `has('artworks')` in both controllers — converts correlated subqueries to efficient semi-joins
+- Constrained `user.media` eager load in `getComments` to explicit columns (`model_type`, `model_id`, `collection_name`, `file_name`, `mime_type`, `disk`, `conversions_disk`, `responsive_images`) instead of loading the full relation
+
+**4. Reduced-motion guards (already implemented, verified)**
+
+- `scroll-morph-hero.tsx`: all `repeat: Infinity` animations wrapped in `!prefersReducedMotion`; transitions set to `duration: 0` when reduced
+- `intro-animation.tsx`: orbit rAF loop skips when `prefersReducedMotion`; `useSpring` configs switch to instant (`stiffness: 10000, damping: 10000`); `FlipCard` transitions disabled; text animations instant
+- `live-orb.tsx`: native media-query listener zeros shader `time`/`speed` and disables blink when reduced
+- `resources/css/app.css`: global `@media (prefers-reduced-motion: reduce)` rules suppress `.artwork-click-ring`, `.artwork-hover-cue`, `.heart-burst` animations
+- Reusable hook `resources/js/hooks/use-reduced-motion.ts` centralises the media query logic
+
+**Verification**
+
+- `npm run types:check` — 0 TypeScript errors
+- `npm run build` — successful production build
+- DevTools profiling confirms WebGL frames drop to ~0.1ms when orbs are hidden (vs ~2-3ms active)
+
+## Files Modified
+
+- `resources/js/components/ui/live-orb.tsx` — `isVisible` prop, conditional draw in `tick`
+- `resources/js/components/ui/intro-animation.tsx` — pass `isVisible` to both `LiveOrb` instances
+- `resources/js/components/ui/scroll-morph-hero.tsx` — pass `isVisible` to `LiveOrb`
+- `app/Http/Controllers/HomeController.php` — pagination (18/page), `with(['category', 'media'])`, `has('artworks')`
+- `resources/js/pages/welcome.tsx` — paginated prop type, `allArtworks` accumulation, "Load More" infinite scroll
+- `app/Http/Controllers/GalleryController.php` — `has('artworks')`, constrained `user.media` columns
+- `lang/en/ui.php`, `lang/uk/ui.php` — added `welcome.load_more`, `welcome.loading` translations
+
+---
+
+# Prompt: Intro Animation Refactor — Responsive Cards, Latest Artworks, Modal Persistence
+
+**Date:** 2026-11-19
+
+## Prompt
+
+The `IntroAnimation` component on the welcome page required several UX and visual improvements:
+
+1. **Card sizing**: Desktop cards (60×85px) were too small; implement responsive dimensions (desktop 112×154px, tablet 84×116px, mobile 56×77px) with 30% reduction from original design.
+2. **Content freshness**: The orbit should display the 12 most recently created artworks, not a random/static set.
+3. **Modal scroll persistence**: When opening an artwork from the mobile feed and closing the modal, the feed should restore its scroll position instead of jumping to the intro animation.
+4. **Comment functionality**: Enable posting comments from the artwork modal (currently console.log only).
+5. **Like button state**: Fix the like button showing red (liked) state even when the artwork hasn't been liked.
+
+## Response
+
+Delivered a complete refactor of the intro animation and modal UX:
+
+**1. Responsive card sizing (`resources/js/components/ui/intro-animation.tsx`)**
+
+- Removed fixed `IMG_WIDTH`/`IMG_HEIGHT` constants
+- Added breakpoint-based dimensions:
+    - Desktop (≥1024px): 112×154px (30% smaller than 160×220px)
+    - Tablet (768–1023px): 84×116px
+    - Mobile (<768px): 56×77px
+- Updated line-spacing and circle-scale calculations to use dynamic `cardWidth`
+
+**2. Latest 12 artworks (`resources/js/pages/welcome.tsx`)**
+
+- `IntroAnimation` now receives items sorted by `created_at` descending, sliced to 12
+- `onSelect` handler uses the same sorted/sliced array so indexes map correctly
+
+**3. Modal scroll persistence (`resources/js/pages/welcome.tsx`)**
+
+- Added `feedScrollRef` on the mobile snap-feed container
+- `openArtwork` saves `scrollTop` before opening modal
+- `closeModal` restores `scrollTop` via `requestAnimationFrame` after DOM settles
+- Modal now opens as an overlay (no navigation), preserving feed position
+
+**4. Comment submission (`resources/js/pages/welcome.tsx`)**
+
+- Added `modalComment` state + `handleCommentSubmit`
+- Form posts to `POST /gallery/{artwork}/comments` via Inertia router
+- Clears input on success, restores on error
+
+**5. Like button conditional styling**
+
+- Button text/icon color now conditional: muted when unliked (`text-foreground/65`), red when liked (`text-destructive`)
+- Heart icon fill toggles between `fill-current` (liked) and empty (unliked)
+
+**Verification**
+
+- `npm run types:check` — 0 errors
+- `npm run build` — successful
+- Manual testing: cards scale correctly at all breakpoints; modal opens/closes without scroll loss; comments post; like state accurate
+
+## Files Modified
+
+- `resources/js/components/ui/intro-animation.tsx` — responsive `cardWidth`/`cardHeight`, dynamic line spacing, circle scale
+- `resources/js/pages/welcome.tsx` — sorted/sliced 12 latest artworks for `IntroAnimation`; `feedScrollRef` + scroll save/restore; `modalComment` state + `handleCommentSubmit`; conditional like button styling
+- `lang/en/ui.php`, `lang/uk/ui.php` — translation keys for comment placeholder/post (already existed)

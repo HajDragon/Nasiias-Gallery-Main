@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -18,6 +19,10 @@ use Illuminate\Support\Carbon;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Spatie\Image\Enums\Fit;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * @property int $id
@@ -28,21 +33,30 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property UserRole $role
  * @property string|null $locale
  * @property bool|null $notify_on_new_artwork
+ * @property bool $notify_on_contact_message
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read string|null $avatar
  */
-#[Fillable(['display_name', 'email', 'password_hash', 'role', 'locale', 'notify_on_new_artwork'])]
+#[Fillable(['display_name', 'email', 'password_hash', 'role', 'locale', 'notify_on_new_artwork', 'notify_on_contact_message'])]
 #[Hidden(['password_hash', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable implements FilamentUser, HasName, MustVerifyEmail, PasskeyUser
+class User extends Authenticatable implements FilamentUser, HasAvatar, HasMedia, HasName, MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+    use HasFactory, InteractsWithMedia, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     protected $authPasswordName = 'password_hash';
+
+    /**
+     * Expose the avatar URL to Inertia and API responses.
+     *
+     * @var list<string>
+     */
+    protected $appends = ['avatar'];
 
     public function canAccessPanel(Panel $panel): bool
     {
@@ -52,6 +66,40 @@ class User extends Authenticatable implements FilamentUser, HasName, MustVerifyE
     public function getFilamentName(): string
     {
         return $this->display_name;
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return $this->avatar;
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('avatar')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('avatar')
+            ->nonQueued()
+            ->fit(Fit::Crop, 256, 256)
+            ->quality(85);
+    }
+
+    /**
+     * The URL of the user's profile photo, or null when none was uploaded.
+     */
+    public function getAvatarAttribute(): ?string
+    {
+        $url = $this->getFirstMediaUrl('avatar', 'avatar');
+
+        if ($url === '') {
+            $url = $this->getFirstMediaUrl('avatar');
+        }
+
+        return $url !== '' ? $url : null;
     }
 
     /**
@@ -90,6 +138,7 @@ class User extends Authenticatable implements FilamentUser, HasName, MustVerifyE
             'password_hash' => 'hashed',
             'role' => UserRole::class,
             'notify_on_new_artwork' => 'boolean',
+            'notify_on_contact_message' => 'boolean',
             'two_factor_confirmed_at' => 'datetime',
         ];
     }

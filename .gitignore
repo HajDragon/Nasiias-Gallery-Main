@@ -10,11 +10,13 @@
 /public/js/filament
 /public/js/pjedesigns
 /public/storage
+/public/sitemap.xml
 /storage/*.key
 /storage/pail
 /resources/js/actions
 /resources/js/routes
 /resources/js/wayfinder
+/resources/views/vendor
 /vendor
 .DS_Store
 .env
@@ -50,3 +52,4 @@ yarn-error.log
 /nul
 /testing*
 .vitest/
+/.ai/mcp/mcp.json

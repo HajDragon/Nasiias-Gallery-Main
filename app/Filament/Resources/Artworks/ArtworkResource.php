@@ -19,6 +19,7 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -91,6 +92,12 @@ class ArtworkResource extends Resource
                             ->maxLength(255)
                             ->helperText('Defaults to title if left blank.')
                             ->live(onBlur: true),
+
+                        Toggle::make('notify_subscribers')
+                            ->label('Email subscribers')
+                            ->helperText('Send an email to users who opted in to new artwork notifications.')
+                            ->default(true)
+                            ->visible(fn (string $operation): bool => $operation === 'create'),
 
                         ImageEditor::make('file')
                             ->label('Artwork Photo')

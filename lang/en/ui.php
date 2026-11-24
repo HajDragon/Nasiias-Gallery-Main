@@ -64,6 +64,8 @@ return [
         'intro' => 'Every canvas here is a quiet invitation — to pause, to feel, and to find the piece that speaks the moment you see it. Stay a while; the right work has a way of finding you.',
         'scroll' => 'Scroll ! ↓',
         'double_tap_to_like' => 'Double-tap :title to like, tap to open',
+        'load_more' => 'Load more',
+        'loading' => 'Loading...',
     ],
 
     'home' => [
@@ -123,6 +125,9 @@ return [
         'privacy_policy' => 'privacy policy',
         'consent_after' => '. (Placeholder)',
         'send' => 'Send message',
+        'sending' => 'Sending...',
+        'submitted' => 'Thank you. Your message has been submitted. We will be in touch.',
+        'consent' => 'I agree that my details and message will be used to respond to my enquiry.',
     ],
 
     'intro' => [
@@ -222,6 +227,11 @@ return [
         'title' => 'Profile settings',
         'heading' => 'Profile',
         'description' => 'Update your display name and email address',
+        'photo' => 'Profile photo',
+        'photo_hint' => 'Shown next to your comments. Without a photo your initials are used. JPG, PNG or WebP, max 10 MB.',
+        'photo_upload' => 'Upload photo',
+        'photo_change' => 'Change photo',
+        'photo_remove' => 'Remove photo',
         'display_name' => 'Display name',
         'display_name_placeholder' => 'Full name',
         'email' => 'Email address',
@@ -229,6 +239,8 @@ return [
         'language' => 'Language',
         'language_hint' => 'Choose the language used across the site.',
         'notifications' => 'Email notifications',
+        'notify_contact' => 'Receive contact form emails',
+        'notify_contact_hint' => 'Email me when someone sends a message through Contact us.',
         'notify_new_artwork' => 'Email me when new artwork is uploaded',
         'notify_new_artwork_hint' => 'Get a notification whenever a new artwork is added to the gallery. You can change this at any time.',
         'unverified' => 'Your email address is unverified.',

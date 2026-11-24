@@ -33,6 +33,7 @@ export type LiveOrbOptions = {
   colors?: string[]
   interactive?: boolean
   blink?: boolean
+  isVisible?: boolean
   onHasGl?: (ok: boolean) => void
 }
 
@@ -294,11 +295,12 @@ export function createLiveOrb(
   canvas: HTMLCanvasElement,
   initial: LiveOrbOptions = {},
 ): LiveOrbInstance | null {
-  let options: Required<Pick<LiveOrbOptions, "variant" | "interactive" | "blink">> & LiveOrbOptions =
+  let options: Required<Pick<LiveOrbOptions, "variant" | "interactive" | "blink" | "isVisible">> & LiveOrbOptions =
     {
       variant: "white",
       interactive: true,
       blink: true,
+      isVisible: true,
       ...initial,
     }
 
@@ -438,6 +440,11 @@ export function createLiveOrb(
   const tick = (now: number) => {
     if (!running) return
 
+    if (!options.isVisible) {
+      raf = requestAnimationFrame(tick)
+      return
+    }
+
     const resolved = resolveVariant(
       options.variant,
       options.color,
@@ -548,6 +555,7 @@ export function LiveOrb({
   colors,
   interactive = true,
   blink = true,
+  isVisible = true,
 }: LiveOrbProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const instanceRef = useRef<LiveOrbInstance | null>(null)
@@ -563,6 +571,7 @@ export function LiveOrb({
       colors,
       interactive,
       blink,
+      isVisible,
       onHasGl: setHasGl,
     })
     return () => {
@@ -579,9 +588,10 @@ export function LiveOrb({
       colors,
       interactive,
       blink,
+      isVisible,
       onHasGl: setHasGl,
     })
-  }, [variant, color, eyeColor, colors, interactive, blink])
+  }, [variant, color, eyeColor, colors, interactive, blink, isVisible])
 
   const resolved = resolveVariant(variant, color, eyeColor, colors)
 
