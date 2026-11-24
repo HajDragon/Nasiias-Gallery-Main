@@ -233,6 +233,7 @@ export default function Welcome({
                         <IntroAnimation
                             items={introArtworks.map((artwork) => ({
                                 image: artwork.image_url,
+                                srcSet: artwork.image_srcset ?? undefined,
                                 alt: artwork.alt_text,
                             }))}
                             onSelect={(index) => {
