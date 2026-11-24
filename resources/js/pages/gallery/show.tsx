@@ -2,7 +2,7 @@
 
 import { Head } from '@inertiajs/react';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { X, Heart } from 'lucide-react';
+import { X, Heart, ChevronDown, LoaderCircle } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import Header from '@/components/Header';
 import { useTranslation } from '@/lib/i18n';
@@ -352,20 +352,6 @@ function ArtworkModal({
                                             {interactionError}
                                         </p>
                                     )}
-                                    {nextCommentsUrl && (
-                                        <button
-                                            type="button"
-                                            disabled={loadingOlderComments}
-                                            onClick={() =>
-                                                void loadOlderComments()
-                                            }
-                                            className="mb-4 text-sm text-main-blue underline disabled:opacity-50"
-                                        >
-                                            {loadingOlderComments
-                                                ? t('gallery.loading_comments')
-                                                : t('gallery.older_comments')}
-                                        </button>
-                                    )}
                                     {loadingComments ? (
                                         <div className="py-3 text-center text-sm text-foreground/55">
                                             {t('gallery.loading_comments')}
@@ -409,6 +395,38 @@ function ArtworkModal({
                                             <p className="mt-1 text-xs text-foreground/55">
                                                 {t('gallery.share_feeling')}
                                             </p>
+                                        </div>
+                                    )}
+                                    {!loadingComments && nextCommentsUrl && (
+                                        <div className="mt-6 flex justify-center border-t border-border/15 pt-4">
+                                            <button
+                                                type="button"
+                                                disabled={loadingOlderComments}
+                                                aria-busy={loadingOlderComments}
+                                                onClick={() =>
+                                                    void loadOlderComments()
+                                                }
+                                                className="inline-flex min-h-11 max-w-full items-center justify-center gap-2 rounded-full border border-foreground/15 bg-foreground/3 px-5 py-2.5 text-[10px] font-semibold tracking-[0.14em] text-foreground/70 uppercase transition-colors hover:border-foreground/30 hover:bg-foreground/7 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground disabled:cursor-wait disabled:opacity-50"
+                                            >
+                                                {loadingOlderComments ? (
+                                                    <LoaderCircle
+                                                        className="h-3.5 w-3.5 shrink-0 motion-safe:animate-spin"
+                                                        aria-hidden="true"
+                                                    />
+                                                ) : (
+                                                    <ChevronDown
+                                                        className="h-3.5 w-3.5 shrink-0"
+                                                        aria-hidden="true"
+                                                    />
+                                                )}
+                                                {loadingOlderComments
+                                                    ? t(
+                                                          'gallery.loading_comments',
+                                                      )
+                                                    : t(
+                                                          'gallery.older_comments',
+                                                      )}
+                                            </button>
                                         </div>
                                     )}
                                 </div>
