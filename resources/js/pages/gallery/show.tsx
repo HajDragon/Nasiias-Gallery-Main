@@ -40,6 +40,8 @@ function ArtworkModal({
     const [comments, setComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState('');
     const [loadingComments, setLoadingComments] = useState(true);
+    const [loadingOlderComments, setLoadingOlderComments] = useState(false);
+    const [nextCommentsUrl, setNextCommentsUrl] = useState<string | null>(null);
     const [submittingComment, setSubmittingComment] = useState(false);
     const [togglingLike, setTogglingLike] = useState(false);
     const commentTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -55,7 +57,8 @@ function ArtworkModal({
             });
             if (response.ok) {
                 const data = await response.json();
-                setComments(data);
+                setComments(data.data);
+                setNextCommentsUrl(data.next_page_url);
             }
         } catch (error) {
             console.error('Failed to fetch comments:', error);
@@ -63,6 +66,32 @@ function ArtworkModal({
             setLoadingComments(false);
         }
     }, [artwork.id]);
+
+    const loadOlderComments = async () => {
+        if (!nextCommentsUrl || loadingOlderComments) return;
+        setLoadingOlderComments(true);
+        try {
+            const response = await fetch(nextCommentsUrl, {
+                headers: { Accept: 'application/json' },
+            });
+            if (!response.ok) return;
+            const data = await response.json();
+            setComments((current) =>
+                Array.from(
+                    new Map(
+                        [...current, ...(data.data as Comment[])].map(
+                            (comment) => [comment.id, comment],
+                        ),
+                    ).values(),
+                ),
+            );
+            setNextCommentsUrl(data.next_page_url);
+        } catch (error) {
+            console.error('Failed to load older comments:', error);
+        } finally {
+            setLoadingOlderComments(false);
+        }
+    };
 
     useEffect(() => {
         void fetchComments();
@@ -290,6 +319,20 @@ function ArtworkModal({
                                 </div>
 
                                 <div className="mt-5 border-t border-border/15 pt-5">
+                                    {nextCommentsUrl && (
+                                        <button
+                                            type="button"
+                                            disabled={loadingOlderComments}
+                                            onClick={() =>
+                                                void loadOlderComments()
+                                            }
+                                            className="mb-4 text-sm text-main-blue underline disabled:opacity-50"
+                                        >
+                                            {loadingOlderComments
+                                                ? t('gallery.loading_comments')
+                                                : t('gallery.older_comments')}
+                                        </button>
+                                    )}
                                     {loadingComments ? (
                                         <div className="py-3 text-center text-sm text-foreground/55">
                                             {t('gallery.loading_comments')}

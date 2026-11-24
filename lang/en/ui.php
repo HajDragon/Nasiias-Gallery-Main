@@ -90,6 +90,7 @@ return [
     ],
 
     'gallery' => [
+        'older_comments' => 'Load older comments',
         'title' => 'Gallery',
         'eyebrow' => 'The dense hang',
         'heading_1' => 'Wall to',

@@ -96,20 +96,25 @@ class GalleryController extends Controller
     {
         $comments = $artwork->comments()
             ->with('user:id,display_name')
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($comment) {
-                return [
-                    'id' => $comment->id,
-                    'body' => $comment->body,
-                    'user' => [
-                        'display_name' => $comment->user->display_name,
-                    ],
-                    'created_at' => $comment->created_at?->toISOString(),
-                ];
-            });
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->cursorPaginate(20)
+            ->withQueryString();
 
-        return response()->json($comments);
+        // Generate cursors from database values before formatting dates for clients.
+        $page = $comments->toArray();
+        $page['data'] = $comments->getCollection()->map(function ($comment) {
+            return [
+                'id' => $comment->id,
+                'body' => $comment->body,
+                'user' => [
+                    'display_name' => $comment->user->display_name,
+                ],
+                'created_at' => $comment->created_at?->toISOString(),
+            ];
+        });
+
+        return response()->json($page);
     }
 
     public function storeComment(Request $request, Artwork $artwork, StoreCommentAction $storeComment): JsonResponse
