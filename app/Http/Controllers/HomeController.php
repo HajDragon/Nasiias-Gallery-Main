@@ -6,21 +6,25 @@ namespace App\Http\Controllers;
 
 use App\Models\Artwork;
 use App\Models\Category;
+use Illuminate\Http\Request;
 use Inertia\Response;
 
 class HomeController extends Controller
 {
     /**
-     * Render the landing page with every artwork (the design shows the full
-     * collection; filtering happens client-side).
+     * Render a bounded collection and a separate, small intro selection.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $artworks = Artwork::query()
-            ->with('category')
+        $query = Artwork::query()
+            ->select(['id', 'category_id', 'title', 'image_url', 'alt_text'])
+            ->with('category:id,name,slug')
             ->orderBy('created_at', 'desc')
-            ->orderBy('id')
-            ->get();
+            ->orderBy('id');
+
+        if ($request->filled('category')) {
+            $query->whereHas('category', fn ($category) => $category->where('slug', $request->string('category')));
+        }
 
         // Pills follow the design: seed order, and only categories that
         // actually have a painting (no empty filters).
@@ -30,8 +34,12 @@ class HomeController extends Controller
             ->get();
 
         return inertia('welcome', [
-            'artworks' => $artworks,
+            'artworks' => fn () => $query->simplePaginate(18)->withQueryString(),
+            'introArtworks' => fn () => Artwork::query()
+                ->select(['id', 'image_url', 'alt_text'])
+                ->orderByDesc('created_at')->orderBy('id')->limit(12)->get(),
             'categories' => $categories,
+            'selectedCategory' => $request->string('category')->toString(),
         ]);
     }
 }

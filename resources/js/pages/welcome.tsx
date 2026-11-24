@@ -20,8 +20,10 @@ interface Artwork {
 }
 
 interface WelcomeProps {
-    artworks: Artwork[];
+    artworks: { data: Artwork[]; next_page_url: string | null };
+    introArtworks: Artwork[];
     categories: Array<{ id: number; name: string; slug: string }>;
+    selectedCategory: string;
 }
 
 function FeedCard({
@@ -147,17 +149,58 @@ function FeedCard({
     );
 }
 
-export default function Welcome({ artworks, categories }: WelcomeProps) {
+export default function Welcome({
+    artworks,
+    introArtworks,
+    categories,
+    selectedCategory,
+}: WelcomeProps) {
     const { t } = useTranslation();
-    const [activeCategory, setActiveCategory] = useState('');
+    const [visibleArtworks, setVisibleArtworks] = useState(artworks.data);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const activeCategory =
+        categories.find((category) => category.slug === selectedCategory)
+            ?.name ?? '';
     const [likedIds, setLikedIds] = useState<Set<number>>(new Set());
 
-    const visibleArtworks =
-        activeCategory === ''
-            ? artworks
-            : artworks.filter(
-                  (artwork) => artwork.category?.name === activeCategory,
-              );
+    const changeCategory = (name: string) => {
+        const slug = categories.find(
+            (category) => category.name === name,
+        )?.slug;
+        router.get('/', slug ? { category: slug } : {}, {
+            preserveScroll: true,
+        });
+    };
+
+    const loadMore = () => {
+        if (!artworks.next_page_url || loadingMore) return;
+        setLoadingMore(true);
+        router.get(
+            artworks.next_page_url,
+            {},
+            {
+                only: ['artworks'],
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: (page) => {
+                    const next = (
+                        page.props.artworks as WelcomeProps['artworks']
+                    ).data;
+                    setVisibleArtworks((current) =>
+                        Array.from(
+                            new Map(
+                                [...current, ...next].map((artwork) => [
+                                    artwork.id,
+                                    artwork,
+                                ]),
+                            ).values(),
+                        ),
+                    );
+                },
+                onFinish: () => setLoadingMore(false),
+            },
+        );
+    };
 
     const openArtwork = (artwork: Artwork) => {
         router.visit(`/gallery/${artwork.id}`);
@@ -184,12 +227,12 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                         aria-label={t('welcome.aria_intro')}
                     >
                         <IntroAnimation
-                            items={artworks.map((artwork) => ({
+                            items={introArtworks.map((artwork) => ({
                                 image: artwork.image_url,
                                 alt: artwork.alt_text,
                             }))}
                             onSelect={(index) => {
-                                const artwork = artworks[index];
+                                const artwork = introArtworks[index];
                                 if (artwork) openArtwork(artwork);
                             }}
                         />
@@ -213,7 +256,7 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                         <div className="sticky top-0 z-30 -mx-5 bg-background px-5 sm:static sm:z-auto sm:mx-0 sm:px-0">
                             <FilterBar
                                 active={activeCategory}
-                                onChange={setActiveCategory}
+                                onChange={changeCategory}
                                 categories={categories.map(
                                     (category) => category.name,
                                 )}
@@ -291,6 +334,18 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                                 </article>
                             ))}
                         </div>
+                        {artworks.next_page_url && (
+                            <button
+                                type="button"
+                                onClick={loadMore}
+                                disabled={loadingMore}
+                                className="mx-auto mt-8 block rounded-full bg-main-blue px-6 py-3 text-white disabled:opacity-50"
+                            >
+                                {loadingMore
+                                    ? t('welcome.loading')
+                                    : t('welcome.load_more')}
+                            </button>
+                        )}
                     </section>
                 </main>
                 <ContactFooter />
