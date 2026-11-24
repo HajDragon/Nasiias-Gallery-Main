@@ -115,7 +115,7 @@ class GalleryController extends Controller
     public function storeComment(Request $request, Artwork $artwork, StoreCommentAction $storeComment): JsonResponse
     {
         $request->validate([
-            'body' => 'required|string|max:280',
+            'body' => 'required|string|max:'.StoreCommentAction::MAX_INPUT_LENGTH,
         ]);
 
         $comment = $storeComment(

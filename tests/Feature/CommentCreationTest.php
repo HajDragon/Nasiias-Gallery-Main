@@ -56,13 +56,62 @@ class CommentCreationTest extends TestCase
         });
 
         // Act: exercise missing, empty, non-string, and oversized bodies.
-        foreach ([[], ['body' => ''], ['body' => ['invalid']], ['body' => str_repeat('a', 281)]] as $payload) {
+        foreach ([[], ['body' => ''], ['body' => ['invalid']], ['body' => str_repeat('a', StoreCommentAction::MAX_INPUT_LENGTH + 1)]] as $payload) {
             $response = $this->actingAs($user)->postJson(route('gallery.comments.store', $artwork), $payload);
 
             // Assert: retain the current validation errors and create no records.
             $response->assertUnprocessable()->assertJsonValidationErrors('body');
         }
         $this->assertDatabaseCount('comments', 0);
+    }
+
+    public function test_submitted_markup_is_cleaned_in_both_the_database_and_response(): void
+    {
+        // Arrange: send markup, an executable block, and normal multilingual text.
+        $user = User::factory()->create();
+        $artwork = Artwork::factory()->create();
+
+        // Act: submit through the real HTTP endpoint.
+        $response = $this->actingAs($user)->postJson(route('gallery.comments.store', $artwork), [
+            'body' => "  <b>Heyy</b><script>alert(1)</script>\nЧудова робота 🎨  ",
+        ]);
+
+        // Assert: clients and persistent storage receive the same cleaned plain text.
+        $response->assertCreated()->assertJsonPath('body', "Heyy\nЧудова робота 🎨");
+        $this->assertDatabaseHas('comments', [
+            'id' => $response->json('id'), 'body' => "Heyy\nЧудова робота 🎨",
+        ]);
+    }
+
+    public function test_comments_that_are_empty_or_too_long_after_cleaning_are_rejected(): void
+    {
+        // Arrange: these bodies pass the raw limit but fail the cleaned-text rules.
+        $user = User::factory()->create();
+        $artwork = Artwork::factory()->create();
+
+        // Act: submit each invalid plain-text result.
+        foreach (['<b> </b>', '<script>alert(1)</script>', '<img src=x onerror=alert(1)>', str_repeat('a', 281)] as $body) {
+            $response = $this->actingAs($user)->postJson(route('gallery.comments.store', $artwork), ['body' => $body]);
+
+            // Assert: cleaning cannot result in an empty or oversized database record.
+            $response->assertUnprocessable()->assertJsonValidationErrors('body');
+        }
+        $this->assertDatabaseCount('comments', 0);
+    }
+
+    public function test_length_is_checked_on_cleaned_text_instead_of_markup(): void
+    {
+        // Arrange: markup makes the request longer than 280 characters.
+        $user = User::factory()->create();
+        $artwork = Artwork::factory()->create();
+        $text = str_repeat('я', 280);
+
+        // Act: submit a comment exactly at the cleaned-text limit.
+        $response = $this->actingAs($user)->postJson(route('gallery.comments.store', $artwork), ['body' => '<b>'.$text.'</b>']);
+
+        // Assert: all 280 characters are preserved without truncation.
+        $response->assertCreated()->assertJsonPath('body', $text);
+        $this->assertDatabaseHas('comments', ['body' => $text]);
     }
 
     public function test_guests_cannot_create_comments(): void
