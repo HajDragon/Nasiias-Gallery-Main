@@ -1,0 +1,160 @@
+﻿{
+    "captured_at_utc": "2026-11-24T08:50:43+00:00",
+    "commit": "cd524695d3802502d661741c74f7ff8e275144d6",
+    "php": "8.4.16",
+    "os": "Windows",
+    "database": "SQLite :memory:",
+    "method": "Controller and JSON serialization only; 2 warmups and 9 timed repetitions. Excludes middleware, network, browser and image downloads. One synthetic category, descriptions 240 ASCII characters, comments 200 ASCII characters. Asset sizes require a fresh build. No production data.",
+    "measurements": [
+        {
+            "case": "home",
+            "records": 20,
+            "queries": 3,
+            "json_bytes": 12923,
+            "samples_ms": [
+                6.0503, 5.9125, 6.0437, 6.1493, 5.9031, 6.0064, 5.9748, 5.8931,
+                6.0602
+            ],
+            "median_ms": 6.0064,
+            "max_ms": 6.1493
+        },
+        {
+            "case": "gallery",
+            "records": 20,
+            "queries": 5,
+            "json_bytes": 12513,
+            "samples_ms": [
+                6.0906, 6.1721, 6.3651, 6.2009, 6.1654, 6.1903, 6.1815, 6.1813,
+                6.1648
+            ],
+            "median_ms": 6.1813,
+            "max_ms": 6.3651
+        },
+        {
+            "case": "home",
+            "records": 200,
+            "queries": 3,
+            "json_bytes": 127886,
+            "samples_ms": [
+                49.6166, 50.0981, 51.0478, 49.948, 49.2794, 49.8081, 49.323,
+                51.1199, 49.4721
+            ],
+            "median_ms": 49.8081,
+            "max_ms": 51.1199
+        },
+        {
+            "case": "gallery",
+            "records": 200,
+            "queries": 5,
+            "json_bytes": 13335,
+            "samples_ms": [
+                6.3246, 6.1006, 5.9515, 6.2374, 6.2688, 6.3166, 6.1377, 6.124,
+                6.2094
+            ],
+            "median_ms": 6.2094,
+            "max_ms": 6.3246
+        },
+        {
+            "case": "home",
+            "records": 1000,
+            "queries": 3,
+            "json_bytes": 639889,
+            "samples_ms": [
+                243.777, 248.576, 246.7065, 258.1251, 269.694, 261.8153,
+                260.1757, 262.4493, 266.9708
+            ],
+            "median_ms": 260.1757,
+            "max_ms": 269.694
+        },
+        {
+            "case": "gallery",
+            "records": 1000,
+            "queries": 5,
+            "json_bytes": 13378,
+            "samples_ms": [
+                6.7287, 7.0608, 6.951, 6.7173, 6.7005, 6.7712, 6.6746, 6.8899,
+                6.8814
+            ],
+            "median_ms": 6.7712,
+            "max_ms": 7.0608
+        },
+        {
+            "case": "comments",
+            "records": 20,
+            "queries": 2,
+            "json_bytes": 6072,
+            "samples_ms": [
+                2.2977, 2.1635, 2.1375, 2.1151, 2.1362, 2.1415, 2.219, 2.2035,
+                2.1629
+            ],
+            "median_ms": 2.1629,
+            "max_ms": 2.2977
+        },
+        {
+            "case": "comments",
+            "records": 200,
+            "queries": 2,
+            "json_bytes": 60922,
+            "samples_ms": [
+                16.9687, 17.0499, 17.685, 17.6215, 17.5329, 16.5635, 16.2627,
+                16.1823, 16.0906
+            ],
+            "median_ms": 16.9687,
+            "max_ms": 17.685
+        },
+        {
+            "case": "comments",
+            "records": 1000,
+            "queries": 2,
+            "json_bytes": 305222,
+            "samples_ms": [
+                79.6694, 81.0637, 79.7712, 81.5501, 81.5206, 80.5109, 80.413,
+                82.6425, 80.4938
+            ],
+            "median_ms": 80.5109,
+            "max_ms": 82.6425
+        }
+    ],
+    "repeated_detail_requests": 20,
+    "detail_write_queries": 20,
+    "query_plans": {
+        "artworks": [
+            {
+                "id": 4,
+                "parent": 0,
+                "notused": 216,
+                "detail": "SCAN artworks"
+            },
+            {
+                "id": 24,
+                "parent": 0,
+                "notused": 0,
+                "detail": "USE TEMP B-TREE FOR ORDER BY"
+            }
+        ],
+        "comments": [
+            {
+                "id": 4,
+                "parent": 0,
+                "notused": 216,
+                "detail": "SCAN comments"
+            },
+            {
+                "id": 22,
+                "parent": 0,
+                "notused": 0,
+                "detail": "USE TEMP B-TREE FOR ORDER BY"
+            }
+        ]
+    },
+    "assets": {
+        "resources/css/app.css": {
+            "bytes": 762581,
+            "gzip_bytes_estimate": 83052
+        },
+        "resources/js/app.tsx": {
+            "bytes": 199970,
+            "gzip_bytes_estimate": 62010
+        }
+    }
+}

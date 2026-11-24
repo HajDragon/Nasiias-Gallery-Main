@@ -1,0 +1,10 @@
+
+> check
+> vp check --fix
+
+pass: Formatting completed for checked files (4.4s)
+pass: Found no warnings or lint errors in 77 files (833ms, 16 threads)
+pass: Formatting completed for checked files (3.8s)
+pass: Found no warnings or lint errors in 77 files (820ms, 16 threads)
+{"tool":"pint","result":"passed"}
+{"tool":"phpstan","result":"passed","errors":0}

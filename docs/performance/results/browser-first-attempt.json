@@ -1,0 +1,11 @@
+{
+    "captured_at": "2026-11-24T09:18:08.837Z",
+    "browser": "158.0.8127.37",
+    "checks": [
+        "desktop: bounded home, intro, animation pause, load more, server filter"
+    ],
+    "screenshots": ["home-desktop.png", "gallery-desktop-dark.png"],
+    "errors": [],
+    "result": "failed",
+    "failure": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('Synthetic comment 49', { exact: true }) to be visible\u001b[22m\n\n    at C:\\Projects\\Nastiia's Gallery\\Nasiias-Gallery-Main\\scripts\\performance\\browser-check.mjs:59:75"
+}

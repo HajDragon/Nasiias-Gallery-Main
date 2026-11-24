@@ -279,6 +279,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
         <MotionConfig reducedMotion="user">
         <div
             ref={containerRef}
+            data-testid="intro-animation"
             className="relative w-full h-full bg-[#EEF3F8] dark:bg-background overflow-hidden"
             onClick={advanceStage}
         >
@@ -362,7 +363,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                     </div>
                 </motion.div>
 
-                <motion.div style={{ rotate: orbitRotation }} className="relative flex items-center justify-center w-full h-full">
+                <motion.div data-testid="intro-orbit" style={{ rotate: orbitRotation }} className="relative flex items-center justify-center w-full h-full">
                     {items.map((item, i) => {
                         let target = { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1 };
                         if (introPhase === 'scatter') {

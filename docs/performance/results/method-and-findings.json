@@ -1,0 +1,69 @@
+﻿{
+    "learning_objective": "Leerdoel 17: testresultaten en feedback analyseren om verbetermogelijkheden te identificeren",
+    "scope": "Performance and shared action integration; no changes to real application data",
+    "baseline_commit": "cd524695d3802502d661741c74f7ff8e275144d6",
+    "measured_core_commit": "2e0fdf7ed353b40c2a94a9d811f32abe8a78af93",
+    "environment": {
+        "browser": "Chrome 158.0.8127.37",
+        "php": "8.4.16",
+        "database": "SQLite :memory:",
+        "node": "22.19.0",
+        "os": "Windows"
+    },
+    "method": {
+        "queue": "image-processing.json compares identical conversion work using sync vs database queue on the optimized code, not old vs new release. One warmup and five samples. Worker time is measured separately.",
+        "fixtures": "Synthetic data only. Twenty, 200 and 1000 records; fixed description/comment sizes. Browser uses an isolated file database with 45 artworks and 50 comments.",
+        "controller": "Two warmups and nine raw timed samples per dataset. Median, maximum, SQL count and JSON bytes retained. Controller and serialization only, excluding middleware, network, browser and images.",
+        "css": "before-css.json was measured after a fresh production build immediately before changing CSS. Its CSS size matches before.json. after.json uses the new production build."
+    },
+    "limitations": [
+        "SQLite results do not establish MySQL production performance. Confirm EXPLAIN and concurrent load in staging.",
+        "No production TTFB, LCP or end-user device CPU benchmark was performed. No numeric browser CPU reduction is claimed.",
+        "Small comment collections incur pagination/response metadata overhead; all sizes are retained in comparison.json.",
+        "The number of homepage queries rises from 3 to 6, but all retrieved collections are bounded.",
+        "View-write comparison uses array cache; database-backed cache adds its own queries. Cache::has avoids repeated cache inserts; Redis is an optional deployment choice.",
+        "More image variants require storage and worker CPU. Queueing reduces request waiting, not total work. Synthetic compression ratios do not replace visual review of real art.",
+        "Admin production CSP already prevents Alpine execution. It was not weakened; browser.json retains all admin errors and stack traces. Admin CSS was checked separately using test-only bypassCSP.",
+        "Synthetic browser screenshots are functional evidence, not stakeholder approval of the design."
+    ],
+    "feedback": [
+        "The requester explicitly approved all research priorities and emphasized using the existing Actions.",
+        "No visitor interviews or usability reviews have been invented; gather those before writing the stakeholder-feedback section of the portfolio."
+    ],
+    "findings_during_work": [
+        "Cursor regression: formatting created_at before deriving the next cursor repeated pages. Generate cursors from database values before transforming response data. Regression test now passes.",
+        "Refresh test initially simulated new guest sessions. Persisting the session cookie verifies real same-visitor deduplication. First attempt retained.",
+        "Async conversion flags are updated by a worker on a different model instance. Unit assertions refresh media; the database-queue integration test verifies commit timing and original fallback.",
+        "Browser selectors initially ignored the author prefix inside comment paragraphs. The test was corrected and made self-resetting; first attempts are retained.",
+        "Existing SQLite rollback migration issue was encountered with DatabaseMigrations. Queue test uses normal RefreshDatabase transaction isolation; unrelated migrations were not changed.",
+        "Generated Filament assets were refreshed during verification. The public-site source does not load admin CSS. Real admin CSP still blocks Alpine; test-only bypass is explicitly labelled in browser.json and screenshots."
+    ],
+    "deployment": [
+        "Run php artisan migrate to install feed indexes.",
+        "Build assets using pnpm run build.",
+        "Use QUEUE_CONNECTION=database (or a configured queue service); MEDIA_QUEUE=media separates conversion work.",
+        "Run a supervised worker: php artisan queue:work --queue=media,default --tries=3 --timeout=60 --memory=256 . Start with one media worker and measure capacity. Restart workers after deployment.",
+        "Keep worker timeout below the queue retry_after setting to avoid simultaneous duplicate execution; the recommended 60-second timeout fits the default 90-second database retry_after.",
+        "For legacy uploads, enqueue missing variants: php artisan media-library:regenerate --only=intro --only=card --only=display --only-missing . Existing originals remain the fallback.",
+        "Legacy media without saved dimensions still uses generated card/display URLs safely but omits srcset until metadata is available. Remote URL-only artworks retain their existing source."
+    ],
+    "reproduce": [
+        "php scripts/performance/measure.php \u003e results.json",
+        "For a historical baseline, copy the same probe into a checkout of baseline_commit with dependencies installed; use a fresh build when comparing assets. Do not mix dev/HMR and production build measurements.",
+        "php scripts/performance/prepare-fixture.php",
+        "php scripts/performance/measure-images.php \u003e image-processing.json",
+        "php -S 127.0.0.1:8787 -t public scripts/performance/browser-router.php",
+        "Install Playwright outside the repository, set PERFORMANCE_PLAYWRIGHT_MODULE to its index.mjs file URL and PERFORMANCE_BROWSER_CHANNEL to the installed Chrome/Edge channel, then run node scripts/performance/browser-check.mjs. It resets only the isolated fixture."
+    ],
+    "commit_map": [
+        "60cb207 Format existing prompt examples consistently",
+        "2e0fdf7 Queue artwork conversions and keep originals available during processing",
+        "ea4248d Separate public styling from Filament admin assets",
+        "b209653 Pause offscreen intro motion and avoid per-frame React renders",
+        "7243dc2 Use shared interaction actions and limit repeated requests",
+        "47e2f11 Index artwork and comment feeds for stable pagination",
+        "c52aef7 Serve right-sized artwork images with responsive sources",
+        "4c670bd Load comments in stable cursor pages",
+        "0406921 Paginate the home collection and limit intro artwork data"
+    ]
+}

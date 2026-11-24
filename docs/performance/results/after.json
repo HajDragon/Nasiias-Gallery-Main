@@ -1,0 +1,148 @@
+﻿{
+    "captured_at_utc": "2026-11-24T09:26:06+00:00",
+    "commit": "2e0fdf7ed353b40c2a94a9d811f32abe8a78af93",
+    "php": "8.4.16",
+    "os": "Windows",
+    "database": "SQLite :memory:",
+    "method": "Controller and JSON serialization only; 2 warmups and 9 timed repetitions. Excludes middleware, network, browser and image downloads. One synthetic category, descriptions 240 ASCII characters, comments 200 ASCII characters. Asset sizes require a fresh build. No production data.",
+    "measurements": [
+        {
+            "case": "home",
+            "records": 20,
+            "queries": 6,
+            "json_bytes": 5179,
+            "samples_ms": [
+                4.6995, 4.6471, 5.082, 4.6311, 4.4856, 4.5024, 4.6833, 4.4748,
+                4.4594
+            ],
+            "median_ms": 4.6311,
+            "max_ms": 5.082
+        },
+        {
+            "case": "gallery",
+            "records": 20,
+            "queries": 5,
+            "json_bytes": 4005,
+            "samples_ms": [
+                3.3146, 3.2771, 3.2763, 3.2715, 3.3147, 3.6513, 3.4465, 3.4552,
+                3.4715
+            ],
+            "median_ms": 3.3147,
+            "max_ms": 3.6513
+        },
+        {
+            "case": "home",
+            "records": 200,
+            "queries": 6,
+            "json_bytes": 5280,
+            "samples_ms": [
+                4.9106, 6.0289, 5.1948, 4.9355, 5.737, 5.162, 5.4187, 5.3496,
+                5.1586
+            ],
+            "median_ms": 5.1948,
+            "max_ms": 6.0289
+        },
+        {
+            "case": "gallery",
+            "records": 200,
+            "queries": 5,
+            "json_bytes": 4902,
+            "samples_ms": [
+                3.686, 3.6196, 3.567, 4.0058, 3.5016, 3.5122, 3.5515, 3.6037,
+                3.5628
+            ],
+            "median_ms": 3.567,
+            "max_ms": 4.0058
+        },
+        {
+            "case": "home",
+            "records": 1000,
+            "queries": 6,
+            "json_bytes": 5285,
+            "samples_ms": [
+                4.9397, 5.1767, 5.0372, 5.1138, 5.3823, 4.9638, 4.8853, 5.0772,
+                4.9574
+            ],
+            "median_ms": 5.0372,
+            "max_ms": 5.3823
+        },
+        {
+            "case": "gallery",
+            "records": 1000,
+            "queries": 5,
+            "json_bytes": 4948,
+            "samples_ms": [
+                3.7596, 3.7164, 3.5356, 3.6206, 3.7577, 3.5581, 3.6475, 3.561,
+                3.6523
+            ],
+            "median_ms": 3.6475,
+            "max_ms": 3.7596
+        },
+        {
+            "case": "comments",
+            "records": 20,
+            "queries": 2,
+            "json_bytes": 6225,
+            "samples_ms": [
+                5.1386, 5.3356, 5.2878, 5.1661, 5.2615, 5.2503, 5.1581, 5.2158,
+                5.1337
+            ],
+            "median_ms": 5.2158,
+            "max_ms": 5.3356
+        },
+        {
+            "case": "comments",
+            "records": 200,
+            "queries": 2,
+            "json_bytes": 6488,
+            "samples_ms": [
+                4.9947, 4.8031, 4.9804, 5.018, 4.9075, 5.0016, 4.9247, 4.8149,
+                5.3227
+            ],
+            "median_ms": 4.9804,
+            "max_ms": 5.3227
+        },
+        {
+            "case": "comments",
+            "records": 1000,
+            "queries": 2,
+            "json_bytes": 6510,
+            "samples_ms": [
+                5.1696, 5.1551, 5.5347, 5.384, 5.2353, 5.564, 5.4019, 5.3279,
+                6.2128
+            ],
+            "median_ms": 5.384,
+            "max_ms": 6.2128
+        }
+    ],
+    "repeated_detail_requests": 20,
+    "detail_write_queries": 2,
+    "query_plans": {
+        "artworks": [
+            {
+                "id": 5,
+                "parent": 0,
+                "notused": 223,
+                "detail": "SCAN artworks USING INDEX artworks_feed_order"
+            }
+        ],
+        "comments": [
+            {
+                "id": 5,
+                "parent": 0,
+                "notused": 62,
+                "detail": "SEARCH comments USING INDEX comments_feed_order (artwork_id=?)"
+            }
+        ]
+    },
+    "assets": {
+        "resources/css/app.css": {
+            "bytes": 108816,
+            "gzip_bytes_estimate": 18004
+        },
+        "resources/js/app.tsx": {
+            "bytes": 199970,
+            "gzip_bytes_estimate": 62005
+        }
+    }
+}
