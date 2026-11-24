@@ -18,12 +18,15 @@ class RecordArtworkViewAction
     public function __invoke(Artwork $artwork, ?User $user = null): ?ArtworkView
     {
         $request = request();
+        if ($request->isMethod('HEAD') || str_contains(strtolower($request->header('Purpose', '').' '.$request->header('Sec-Purpose', '')), 'prefetch')) {
+            return null;
+        }
         $visitor = $user !== null
             ? 'user:'.$user->id
             : 'guest:'.hash('sha256', $request->hasSession() ? $request->session()->getId() : (string) $request->ip());
         $key = 'artwork-view:'.$artwork->id.':'.$visitor;
 
-        if (! Cache::add($key, true, 60)) {
+        if (Cache::has($key) || ! Cache::add($key, true, 60)) {
             return null;
         }
 

@@ -8,8 +8,8 @@ Route::middleware('web')->group(function () {
     Route::get('/gallery/{artwork}', [GalleryController::class, 'show'])->name('gallery.show');
 
     Route::middleware(['auth'])->group(function () {
-        Route::post('/gallery/{artwork}/like', [GalleryController::class, 'toggleLike'])->name('gallery.like');
-        Route::get('/gallery/{artwork}/comments', [GalleryController::class, 'getComments'])->name('gallery.comments.index');
-        Route::post('/gallery/{artwork}/comments', [GalleryController::class, 'storeComment'])->name('gallery.comments.store');
+        Route::post('/gallery/{artwork}/like', [GalleryController::class, 'toggleLike'])->middleware('throttle:likes-write')->name('gallery.like');
+        Route::get('/gallery/{artwork}/comments', [GalleryController::class, 'getComments'])->middleware('throttle:comments-read')->name('gallery.comments.index');
+        Route::post('/gallery/{artwork}/comments', [GalleryController::class, 'storeComment'])->middleware('throttle:comments-write')->name('gallery.comments.store');
     });
 });

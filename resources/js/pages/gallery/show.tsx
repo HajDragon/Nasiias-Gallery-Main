@@ -45,6 +45,7 @@ function ArtworkModal({
     const [nextCommentsUrl, setNextCommentsUrl] = useState<string | null>(null);
     const [submittingComment, setSubmittingComment] = useState(false);
     const [togglingLike, setTogglingLike] = useState(false);
+    const [interactionError, setInteractionError] = useState('');
     const commentTextareaRef = useRef<HTMLTextAreaElement>(null);
     const { t } = useTranslation();
 
@@ -123,6 +124,7 @@ function ArtworkModal({
     const toggleLike = async () => {
         if (togglingLike) return;
         setTogglingLike(true);
+        setInteractionError('');
         try {
             const response = await fetch(`/gallery/${artwork.id}/like`, {
                 method: 'POST',
@@ -142,6 +144,14 @@ function ArtworkModal({
             } else if (response.status === 401) {
                 // Redirect to login if not authenticated
                 window.location.href = '/login';
+            } else {
+                setInteractionError(
+                    t(
+                        response.status === 429
+                            ? 'gallery.rate_limited'
+                            : 'gallery.request_failed',
+                    ),
+                );
             }
         } catch (error) {
             console.error('Failed to toggle like:', error);
@@ -186,6 +196,7 @@ function ArtworkModal({
         if (!trimmed || submittingComment) return;
 
         setSubmittingComment(true);
+        setInteractionError('');
         try {
             const response = await fetch(`/gallery/${artwork.id}/comments`, {
                 method: 'POST',
@@ -207,6 +218,16 @@ function ArtworkModal({
                 requestAnimationFrame(adjustTextareaHeight);
             } else if (response.status === 401) {
                 window.location.href = '/login';
+            } else {
+                const data = await response.json();
+                setInteractionError(
+                    data.errors?.body?.[0] ??
+                        t(
+                            response.status === 429
+                                ? 'gallery.rate_limited'
+                                : 'gallery.request_failed',
+                        ),
+                );
             }
         } catch (error) {
             console.error('Failed to submit comment:', error);
@@ -323,6 +344,14 @@ function ArtworkModal({
                                 </div>
 
                                 <div className="mt-5 border-t border-border/15 pt-5">
+                                    {interactionError && (
+                                        <p
+                                            role="alert"
+                                            className="mb-4 text-sm text-destructive"
+                                        >
+                                            {interactionError}
+                                        </p>
+                                    )}
                                     {nextCommentsUrl && (
                                         <button
                                             type="button"

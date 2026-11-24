@@ -90,6 +90,8 @@ return [
     ],
 
     'gallery' => [
+        'rate_limited' => 'Too many requests. Please wait a moment and try again.',
+        'request_failed' => 'Something went wrong. Please try again.',
         'older_comments' => 'Load older comments',
         'title' => 'Gallery',
         'eyebrow' => 'The dense hang',

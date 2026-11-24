@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\RecordArtworkViewAction;
 use App\Actions\StoreCommentAction;
+use App\Actions\ToggleLikeAction;
 use App\Http\Resources\ArtworkCardResource;
 use App\Models\Artwork;
 use App\Models\Category;
-use App\Models\Like;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Response;
@@ -43,12 +44,11 @@ class GalleryController extends Controller
         ]);
     }
 
-    public function show(Artwork $artwork): Response
+    public function show(Request $request, Artwork $artwork, RecordArtworkViewAction $recordView): Response
     {
         $artwork->load(['category', 'media']);
 
-        // Increment view count
-        $artwork->increment('view_count');
+        $recordView($artwork, $request->user());
 
         return inertia('gallery/show', [
             'artwork' => [
@@ -68,29 +68,13 @@ class GalleryController extends Controller
         ]);
     }
 
-    public function toggleLike(Request $request, Artwork $artwork): JsonResponse
+    public function toggleLike(Request $request, Artwork $artwork, ToggleLikeAction $toggleLike): JsonResponse
     {
-        $user = $request->user();
-        $existingLike = Like::where('user_id', $user->id)
-            ->where('artwork_id', $artwork->id)
-            ->first();
-
-        if ($existingLike) {
-            $existingLike->delete();
-            $artwork->decrement('like_count');
-            $liked = false;
-        } else {
-            Like::create([
-                'user_id' => $user->id,
-                'artwork_id' => $artwork->id,
-            ]);
-            $artwork->increment('like_count');
-            $liked = true;
-        }
+        $liked = $toggleLike($request->user(), $artwork);
 
         return response()->json([
             'liked' => $liked,
-            'like_count' => $artwork->fresh()->like_count,
+            'like_count' => $artwork->like_count,
         ]);
     }
 
