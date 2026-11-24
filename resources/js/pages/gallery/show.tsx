@@ -14,6 +14,7 @@ interface GalleryShowProps {
         description: string | null;
         alt_text: string;
         image_url: string;
+        image_srcset?: string | null;
         category: { name: string; slug: string } | null;
         view_count: number;
         like_count: number;
@@ -233,6 +234,9 @@ function ArtworkModal({
                         <div className="min-h-0 min-w-0 bg-foreground sm:h-full">
                             <img
                                 src={imageUrl}
+                                srcSet={artwork.image_srcset ?? undefined}
+                                sizes="(min-width: 640px) 700px, 100vw"
+                                decoding="async"
                                 alt={artwork.alt_text}
                                 className="h-full max-h-[46vh] w-full object-contain sm:max-h-none"
                             />

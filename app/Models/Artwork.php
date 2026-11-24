@@ -46,6 +46,10 @@ class Artwork extends Model implements HasMedia
 
     public function registerMediaConversions(?Media $media = null): void
     {
+        foreach (['card' => 600, 'display' => 1600] as $name => $size) {
+            $this->addMediaConversion($name)->nonQueued()->fit(Fit::Max, $size, $size)->format('webp')->quality(80);
+        }
+
         $this->addMediaConversion('compressed')
             ->nonQueued()
             ->quality(80);
@@ -54,6 +58,29 @@ class Artwork extends Model implements HasMedia
             ->nonQueued()
             ->fit(Fit::Crop, 300, 300)
             ->quality(80);
+    }
+
+    /** @return array{image_url: string, image_srcset: string|null} */
+    public function imageSources(bool $detail = false): array
+    {
+        $media = $this->getFirstMedia('images');
+        $original = $media?->getUrl() ?: $this->image_url;
+        $preferred = $detail ? 'display' : 'card';
+        $url = $media?->hasGeneratedConversion($preferred) ? $media->getUrl($preferred) : $original;
+        $sources = [];
+        $width = (int) $media?->getCustomProperty('width', 0);
+        $height = (int) $media?->getCustomProperty('height', 0);
+
+        if ($media !== null && $width > 0 && $height > 0) {
+            foreach (['card' => 600, 'display' => 1600] as $name => $size) {
+                if ($media->hasGeneratedConversion($name)) {
+                    $actualWidth = Fit::Max->calculateSize($width, $height, $size, $size)->width;
+                    $sources[$actualWidth] = $media->getUrl($name).' '.$actualWidth.'w';
+                }
+            }
+        }
+
+        return ['image_url' => $url, 'image_srcset' => $sources === [] ? null : implode(', ', $sources)];
     }
 
     /**

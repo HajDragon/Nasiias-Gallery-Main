@@ -14,6 +14,7 @@ interface Artwork {
     description: string | null;
     alt_text: string;
     image_url: string;
+    image_srcset?: string | null;
     category: { name: string; slug: string } | null;
     view_count: number;
     like_count: number;
@@ -125,6 +126,12 @@ export default function GalleryIndex({
                                         >
                                             <img
                                                 src={artwork.image_url}
+                                                srcSet={
+                                                    artwork.image_srcset ??
+                                                    undefined
+                                                }
+                                                sizes="(min-width: 1024px) 220px, (min-width: 640px) 30vw, 50vw"
+                                                decoding="async"
                                                 alt={artwork.alt_text}
                                                 className="h-full w-full rounded-lg object-contain transition-transform duration-700 ease-out group-hover/image:scale-[1.3]"
                                                 loading="lazy"

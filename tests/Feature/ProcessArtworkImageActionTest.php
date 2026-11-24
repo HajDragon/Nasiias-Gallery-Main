@@ -72,4 +72,26 @@ class ProcessArtworkImageActionTest extends TestCase
         $this->assertEquals($secondMedia->id, $artwork->getFirstMedia('images')?->id);
         $this->assertEquals($secondMedia->getUrl(), $artwork->image_url);
     }
+
+    public function test_responsive_sources_preserve_aspect_ratio_and_fall_back_before_conversion(): void
+    {
+        // Arrange: a portrait image must be scaled without cropping or upscaling.
+        $artwork = Artwork::factory()->create();
+        $file = UploadedFile::fake()->image('portrait.jpg', 900, 1600);
+
+        // Act: create media and inspect the generated dimensions and public sources.
+        $media = (new ProcessArtworkImageAction)->execute($artwork, $file);
+        $artwork->refresh();
+        $dimensions = getimagesize($media->getPath('card'));
+
+        // Assert: the descriptor matches the real file, and metadata is not exposed.
+        $this->assertSame(600, $dimensions[1]);
+        $this->assertStringContainsString($dimensions[0].'w', $artwork->imageSources()['image_srcset']);
+        $this->assertSame($media->getUrl('card'), $artwork->imageSources()['image_url']);
+        $this->assertSame($media->getUrl('display'), $artwork->imageSources(true)['image_url']);
+        $media->setAttribute('generated_conversions', []);
+        $artwork->setRelation('media', collect([$media]));
+        $this->assertSame($media->getUrl(), $artwork->imageSources()['image_url']);
+        $this->assertNull($artwork->imageSources()['image_srcset']);
+    }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\StoreCommentAction;
+use App\Http\Resources\ArtworkCardResource;
 use App\Models\Artwork;
 use App\Models\Category;
 use App\Models\Like;
@@ -27,7 +28,8 @@ class GalleryController extends Controller
             });
         }
 
-        $artworks = $query->paginate(18)->withQueryString();
+        $artworks = $query->paginate(18)->withQueryString()
+            ->through(fn (Artwork $artwork) => (new ArtworkCardResource($artwork))->resolve());
         // Same pill list as the home page: seed order, artwork-backed only.
         $categories = Category::query()
             ->whereHas('artworks')
@@ -54,7 +56,7 @@ class GalleryController extends Controller
                 'title' => $artwork->title,
                 'description' => $artwork->description,
                 'alt_text' => $artwork->alt_text,
-                'image_url' => $artwork->getFirstMediaUrl('images') ?: $artwork->image_url,
+                ...$artwork->imageSources(detail: true),
                 'category' => $artwork->category ? [
                     'name' => $artwork->category->name,
                     'slug' => $artwork->category->slug,

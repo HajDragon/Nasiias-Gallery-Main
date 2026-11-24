@@ -13,6 +13,7 @@ interface Artwork {
     description: string | null;
     alt_text: string;
     image_url: string;
+    image_srcset?: string | null;
     category: { name: string; slug: string } | null;
     view_count: number;
     like_count: number;
@@ -85,6 +86,9 @@ function FeedCard({
                 <div className="h-full w-full bg-card">
                     <img
                         src={artwork.image_url}
+                        srcSet={artwork.image_srcset ?? undefined}
+                        sizes="100vw"
+                        decoding="async"
                         alt={artwork.alt_text}
                         className="h-full w-full rounded-lg object-contain"
                         loading="lazy"
@@ -298,6 +302,12 @@ export default function Welcome({
                                         <div className="aspect-[4/5] w-full bg-card">
                                             <img
                                                 src={artwork.image_url}
+                                                srcSet={
+                                                    artwork.image_srcset ??
+                                                    undefined
+                                                }
+                                                sizes="(min-width: 1024px) 440px, 100vw"
+                                                decoding="async"
                                                 alt={artwork.alt_text}
                                                 className="h-full w-full rounded-lg object-contain transition-transform duration-700 ease-out group-hover/image:scale-[1.035]"
                                                 loading={
