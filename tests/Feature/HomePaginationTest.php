@@ -21,7 +21,7 @@ class HomePaginationTest extends TestCase
         foreach ([1 => 18, 2 => 18, 3 => 4] as $page => $count) {
             $this->get('/?page='.$page)->assertOk()->assertInertia(fn (Assert $response) => $response
                 ->has('artworks.data', $count)->has('introArtworks', 12)
-                ->where('artworks.data.0.id', ($page - 1) * 18 + 1));
+                ->where('artworks.data.0.id', 40 - ($page - 1) * 18));
         }
     }
 

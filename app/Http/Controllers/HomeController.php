@@ -21,7 +21,7 @@ class HomeController extends Controller
             ->select(['id', 'category_id', 'title', 'image_url', 'alt_text'])
             ->with(['category:id,name,slug', 'media'])
             ->orderBy('created_at', 'desc')
-            ->orderBy('id');
+            ->orderByDesc('id');
 
         if ($request->filled('category')) {
             $query->whereHas('category', fn ($category) => $category->where('slug', $request->string('category')));
@@ -39,7 +39,7 @@ class HomeController extends Controller
                 ->through(fn (Artwork $artwork) => (new ArtworkCardResource($artwork))->resolve()),
             'introArtworks' => fn () => Artwork::query()
                 ->select(['id', 'image_url', 'alt_text'])
-                ->with('media')->orderByDesc('created_at')->orderBy('id')->limit(12)->get()
+                ->with('media')->orderByDesc('created_at')->orderByDesc('id')->limit(12)->get()
                 ->map(fn (Artwork $artwork) => (new ArtworkCardResource($artwork))->resolve()),
             'categories' => $categories,
             'selectedCategory' => $request->string('category')->toString(),

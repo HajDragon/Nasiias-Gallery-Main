@@ -20,7 +20,7 @@ class GalleryController extends Controller
         $query = Artwork::query()
             ->with(['category', 'media'])
             ->orderBy('created_at', 'desc')
-            ->orderBy('id');
+            ->orderByDesc('id');
 
         if ($request->filled('category')) {
             $query->whereHas('category', function ($q) use ($request) {
