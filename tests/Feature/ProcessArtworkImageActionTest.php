@@ -18,6 +18,8 @@ class ProcessArtworkImageActionTest extends TestCase
     {
         parent::setUp();
         Storage::fake('public');
+        // Unit-level conversion assertions run immediately; the real queue has its own test.
+        config(['media-library.queue_connection_name' => 'sync', 'media-library.queue_conversions_after_database_commit' => false]);
     }
 
     public function test_processes_and_attaches_uploaded_image_to_artwork(): void
@@ -49,6 +51,7 @@ class ProcessArtworkImageActionTest extends TestCase
         $media = $action->execute($artwork, $file);
 
         // Assert
+        $media->refresh(); // A queued worker updates its own serialized media instance.
         $this->assertTrue($media->hasGeneratedConversion('compressed'));
         $this->assertTrue($media->hasGeneratedConversion('thumbnail'));
     }

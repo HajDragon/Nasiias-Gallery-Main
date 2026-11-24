@@ -46,16 +46,16 @@ class Artwork extends Model implements HasMedia
 
     public function registerMediaConversions(?Media $media = null): void
     {
-        foreach (['card' => 600, 'display' => 1600] as $name => $size) {
-            $this->addMediaConversion($name)->nonQueued()->fit(Fit::Max, $size, $size)->format('webp')->quality(80);
+        foreach (['intro' => 160, 'card' => 600, 'display' => 1600] as $name => $size) {
+            $this->addMediaConversion($name)->queued()->fit(Fit::Max, $size, $size)->format('webp')->quality(80);
         }
 
         $this->addMediaConversion('compressed')
-            ->nonQueued()
+            ->queued()
             ->quality(80);
 
         $this->addMediaConversion('thumbnail')
-            ->nonQueued()
+            ->queued()
             ->fit(Fit::Crop, 300, 300)
             ->quality(80);
     }
@@ -72,7 +72,7 @@ class Artwork extends Model implements HasMedia
         $height = (int) $media?->getCustomProperty('height', 0);
 
         if ($media !== null && $width > 0 && $height > 0) {
-            foreach (['card' => 600, 'display' => 1600] as $name => $size) {
+            foreach (['intro' => 160, 'card' => 600, 'display' => 1600] as $name => $size) {
                 if ($media->hasGeneratedConversion($name)) {
                     $actualWidth = Fit::Max->calculateSize($width, $height, $size, $size)->width;
                     $sources[$actualWidth] = $media->getUrl($name).' '.$actualWidth.'w';
