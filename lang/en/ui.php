@@ -36,6 +36,7 @@ return [
         'documentation' => 'Documentation',
         'navigation_menu' => 'Navigation menu',
         'main' => 'Main',
+        'menu' => 'Open menu',
     ],
 
     'artwork' => [

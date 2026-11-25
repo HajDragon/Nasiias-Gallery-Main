@@ -100,14 +100,14 @@ function FeedCard({
                     />
                 </div>
 
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-foreground/85 via-foreground/30 to-transparent" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#293241]/85 via-[#293241]/30 to-transparent" />
 
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-5 pb-8">
                     <div className="min-w-0">
-                        <h2 className="font-display text-3xl text-primary-on-blue drop-shadow-sm">
+                        <h2 className="font-display text-3xl text-[#F0F7FF] drop-shadow-sm">
                             {artwork.title || t('artwork.untitled')}
                         </h2>
-                        <p className="mt-1.5 text-[10px] font-semibold tracking-[0.18em] text-primary-on-blue/75 uppercase">
+                        <p className="mt-1.5 text-[10px] font-semibold tracking-[0.18em] text-[#F0F7FF]/75 uppercase">
                             {artwork.category?.name ||
                                 t('artwork.gallery_piece')}
                         </p>
@@ -115,9 +115,7 @@ function FeedCard({
                     <svg
                         viewBox="0 0 24 24"
                         className={`h-7 w-7 shrink-0 drop-shadow-md ${
-                            liked
-                                ? 'text-destructive'
-                                : 'text-primary-on-blue/40'
+                            liked ? 'text-destructive' : 'text-[#F0F7FF]/40'
                         }`}
                         aria-hidden="true"
                     >
@@ -145,8 +143,8 @@ function FeedCard({
                         >
                             <path
                                 d="M20.8 4.9a5.5 5.5 0 0 0-7.8 0L12 5.9l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21.5l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8Z"
-                                fill="var(--color-primary-on-blue)"
-                                stroke="var(--color-primary)"
+                                fill="#F0F7FF"
+                                stroke="#293241"
                                 strokeWidth="1.2"
                                 strokeLinejoin="round"
                             />
@@ -254,7 +252,7 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                                 {t('welcome.art_library')}
                             </span>
                         </h2>
-                        <p className="mb-8 max-w-2xl text-sm leading-7 text-foreground/70 sm:text-base sm:leading-8">
+                        <p className="mb-8 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base sm:leading-8">
                             {t('welcome.intro')}
                         </p>
 
@@ -268,7 +266,7 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                             />
                         </div>
 
-                        <p className="mt-2 mb-2 text-center text-[11px] font-semibold tracking-[0.3em] text-foreground/55 uppercase sm:hidden">
+                        <p className="mt-2 mb-2 text-center text-[11px] font-semibold tracking-[0.3em] text-muted-foreground uppercase sm:hidden">
                             {t('welcome.scroll')}
                         </p>
 
@@ -315,7 +313,7 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                                                 }
                                             />
                                         </div>
-                                        <span className="absolute top-4 right-4 grid h-8 w-8 place-items-center rounded-full bg-accent/90 text-[10px] font-semibold backdrop-blur-sm">
+                                        <span className="absolute top-4 right-4 grid h-8 w-8 place-items-center rounded-full bg-[#EEF3F8]/90 text-[10px] font-semibold text-[#293241] backdrop-blur-sm">
                                             {String(index + 1).padStart(2, '0')}
                                         </span>
                                         <ArtworkHoverCue />
@@ -331,7 +329,7 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                                                 aria-hidden="true"
                                             />
                                         </div>
-                                        <p className="mt-1.5 text-[10px] font-semibold tracking-[0.18em] text-foreground/55 uppercase">
+                                        <p className="mt-1.5 text-[10px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
                                             {artwork.category?.name ||
                                                 t('artwork.gallery_piece')}
                                         </p>

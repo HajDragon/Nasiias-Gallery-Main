@@ -224,11 +224,13 @@
    The body background is scoped to the gallery pages so the admin theme keeps
    its own canvas colour. */
 body:has(.gallery-surface) {
-    background: #eef3f8;
+    background: var(--background);
 }
 
-.dark body:has(.gallery-surface) {
-    background: var(--background);
+@media (prefers-reduced-motion: no-preference) {
+    html:has(.gallery-surface) {
+        scroll-behavior: smooth;
+    }
 }
 
 ::selection {

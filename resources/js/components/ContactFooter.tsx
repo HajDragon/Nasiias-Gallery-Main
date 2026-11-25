@@ -17,7 +17,7 @@ export default function ContactFooter() {
     return (
         <footer
             id="contact"
-            className="border-t border-transparent bg-[#293241] text-[#F0F7FF] dark:border-border dark:bg-card dark:text-card-foreground"
+            className="border-t border-transparent bg-header text-header-foreground dark:border-border dark:bg-card dark:text-card-foreground"
         >
             <div className="mx-auto grid max-w-[1440px] gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20 lg:px-12 lg:py-20">
                 <div className="flex flex-col justify-between gap-10">

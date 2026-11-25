@@ -37,7 +37,7 @@ export default function FilterBar({
                             className={`shrink-0 rounded-full border px-4 py-2 text-[10px] font-semibold tracking-[0.15em] uppercase transition-colors sm:text-[11px] ${
                                 isActive
                                     ? 'border-primary bg-primary text-primary-foreground'
-                                    : 'border-border/20 text-foreground hover:border-primary-blue hover:bg-primary-blue/20'
+                                    : 'border-border/20 text-foreground hover:border-primary-blue hover:bg-accent'
                             }`}
                             aria-pressed={isActive}
                         >

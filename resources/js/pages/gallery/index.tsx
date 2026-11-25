@@ -69,7 +69,7 @@ export default function GalleryIndex({
     return (
         <>
             <Head title={t('gallery.title')} />
-            <div className="min-h-screen bg-background text-foreground">
+            <div className="gallery-surface min-h-screen bg-background text-foreground">
                 <Header />
                 <main id="gallery">
                     <section className="mx-auto max-w-[1440px] px-5 pt-14 pb-10 sm:px-8 sm:pt-20 sm:pb-12 lg:px-12 lg:pt-24">
@@ -85,8 +85,8 @@ export default function GalleryIndex({
                                     {t('gallery.heading_2')}
                                 </span>
                             </h1>
-                            <div className="mt-8 flex items-end justify-between border-t border-foreground/20 pt-4 lg:mx-auto lg:mt-12 lg:w-72 lg:flex-col lg:items-center lg:gap-3 lg:text-center">
-                                <p className="max-w-48 text-sm leading-6 text-foreground/70 lg:max-w-none">
+                            <div className="mt-8 flex items-end justify-between border-t border-border/20 pt-4 lg:mx-auto lg:mt-12 lg:w-72 lg:flex-col lg:items-center lg:gap-3 lg:text-center">
+                                <p className="max-w-48 text-sm leading-6 text-muted-foreground lg:max-w-none">
                                     {t('gallery.quote')}
                                 </p>
                             </div>
@@ -143,7 +143,7 @@ export default function GalleryIndex({
                                                 aria-hidden="true"
                                             />
                                         </div>
-                                        <p className="mt-1.5 text-[9px] font-semibold tracking-[0.18em] text-foreground/55 uppercase">
+                                        <p className="mt-1.5 text-[9px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
                                             {artwork.category?.name ||
                                                 t('artwork.gallery_piece')}
                                         </p>
@@ -177,7 +177,7 @@ export default function GalleryIndex({
                                         <ChevronLeft className="h-5 w-5" />
                                     </button>
                                 )}
-                                <span className="text-sm text-foreground/60">
+                                <span className="text-sm text-muted-foreground">
                                     {t('gallery.page_of', {
                                         current: artworks.current_page,
                                         last: artworks.last_page,

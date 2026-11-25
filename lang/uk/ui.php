@@ -36,6 +36,7 @@ return [
         'documentation' => 'Документація',
         'navigation_menu' => 'Меню навігації',
         'main' => 'Головне меню',
+        'menu' => 'Відкрити меню',
     ],
 
     'artwork' => [

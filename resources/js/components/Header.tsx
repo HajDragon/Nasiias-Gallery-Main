@@ -101,7 +101,18 @@ export default function Header() {
                             className="flex flex-1 flex-col overflow-y-auto px-4 py-6"
                             aria-label={t('nav.main')}
                         >
-                            <div className="h-4" aria-hidden="true" />
+                            <div className="flex items-center gap-3 px-2 pb-2">
+                                <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-full bg-header">
+                                    <img
+                                        src="/nastias-gallery-logo.png"
+                                        alt=""
+                                        className="h-6 w-auto object-contain invert"
+                                    />
+                                </span>
+                                <span className="min-w-0 truncate font-display text-lg tracking-tight text-foreground">
+                                    nastiia.gallery
+                                </span>
+                            </div>
                             {user ? (
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
@@ -174,8 +185,10 @@ export default function Header() {
                                     {t('nav.account')}
                                 </Link>
                             )}
-                            <div className="flex items-center justify-between gap-4 border-t border-border/15 pt-4">
-                                <LanguageSwitcher />
+                            <div className="mt-2 flex items-center justify-between gap-4 border-t border-border/15 pt-4">
+                                <span className="text-[10px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
+                                    {t('settings.appearance')}
+                                </span>
                                 <Switch
                                     checked={resolvedAppearance === 'dark'}
                                     onChange={() =>
@@ -185,9 +198,12 @@ export default function Header() {
                                                 : 'dark',
                                         )
                                     }
-                                    aria-label="Toggle theme"
+                                    aria-label={t('settings.appearance')}
                                     className="[--sky-toggle-size:11px]"
                                 />
+                            </div>
+                            <div className="mt-3">
+                                <LanguageSwitcher />
                             </div>
                             <div className="mt-4 flex flex-col space-y-2">
                                 {navigationLinks.map((link) => (
@@ -340,7 +356,7 @@ export default function Header() {
                                         : 'dark',
                                 )
                             }
-                            aria-label="Toggle theme"
+                            aria-label={t('settings.appearance')}
                             className="flex shrink-0 items-center [--sky-toggle-size:10px] sm:ml-1 sm:[--sky-toggle-size:11px]"
                         />
                     </nav>

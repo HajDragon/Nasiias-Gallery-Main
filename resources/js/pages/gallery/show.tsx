@@ -191,20 +191,20 @@ function ArtworkModal({
     return (
         <>
             <Head title={artwork.title || t('gallery.show_title')} />
-            <div className="min-h-screen bg-background text-foreground">
+            <div className="gallery-surface min-h-screen bg-background text-foreground">
                 <Header />
                 <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-sm sm:p-6"
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-[#293241]/85 backdrop-blur-sm sm:p-6"
                     role="presentation"
                     onMouseDown={handleBackdropClick}
                 >
                     <div
-                        className="grid h-full w-full min-w-0 grid-cols-1 grid-rows-[auto_minmax(0,1fr)] overflow-hidden bg-background shadow-2xl sm:h-[min(82vh,760px)] sm:max-w-5xl sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] sm:grid-rows-[minmax(0,1fr)]"
+                        className="grid h-full w-full min-w-0 grid-cols-1 grid-rows-[auto_minmax(0,1fr)] overflow-hidden bg-card shadow-2xl sm:h-[min(82vh,760px)] sm:max-w-5xl sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] sm:grid-rows-[minmax(0,1fr)]"
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="artwork-dialog-title"
                     >
-                        <div className="min-h-0 min-w-0 bg-foreground sm:h-full">
+                        <div className="min-h-0 min-w-0 bg-[#293241] sm:h-full">
                             <img
                                 src={imageUrl}
                                 alt={artwork.alt_text}
@@ -214,11 +214,11 @@ function ArtworkModal({
 
                         <div className="flex min-h-0 min-w-0 flex-col sm:h-full">
                             <div className="flex min-w-0 shrink-0 items-center gap-3 border-b border-border/15 px-4 py-3 sm:px-5">
-                                <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-foreground">
+                                <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-[#293241]">
                                     <img
                                         src="/nastias-gallery-logo.png"
                                         alt=""
-                                        className="h-5 w-auto object-contain invert dark:invert-0"
+                                        className="h-5 w-auto object-contain invert"
                                     />
                                 </span>
                                 <p className="min-w-0 flex-1 truncate text-sm font-semibold">
@@ -227,7 +227,7 @@ function ArtworkModal({
                                 <button
                                     type="button"
                                     onClick={onClose}
-                                    className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border/15 transition-colors hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+                                    className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border/15 transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                                     aria-label={t('artwork.close')}
                                 >
                                     <X className="h-4 w-4" aria-hidden="true" />
@@ -243,7 +243,7 @@ function ArtworkModal({
                                     className={`flex items-center gap-2 text-xs font-semibold tracking-[0.15em] uppercase transition-colors ${
                                         liked
                                             ? 'text-destructive'
-                                            : 'text-foreground/65 hover:text-foreground'
+                                            : 'text-muted-foreground hover:text-foreground'
                                     } disabled:cursor-not-allowed disabled:opacity-50`}
                                 >
                                     <Heart
@@ -263,11 +263,11 @@ function ArtworkModal({
 
                             <div className="min-h-0 min-w-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5">
                                 <div className="flex min-w-0 gap-3">
-                                    <span className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-foreground">
+                                    <span className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-[#293241]">
                                         <img
                                             src="/nastias-gallery-logo.png"
                                             alt=""
-                                            className="h-4 w-auto object-contain invert dark:invert-0"
+                                            className="h-4 w-auto object-contain invert"
                                         />
                                     </span>
                                     <div className="min-w-0 flex-1">
@@ -278,7 +278,7 @@ function ArtworkModal({
                                             {artwork.title ||
                                                 t('artwork.untitled')}
                                         </h2>
-                                        <p className="mt-1 text-[9px] font-semibold tracking-[0.18em] text-foreground/55 uppercase">
+                                        <p className="mt-1 text-[9px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
                                             {artwork.category?.name ||
                                                 t('artwork.gallery_piece')}
                                         </p>
@@ -294,7 +294,7 @@ function ArtworkModal({
 
                                 <div className="mt-5 border-t border-border/15 pt-5">
                                     {loadingComments ? (
-                                        <div className="py-3 text-center text-sm text-foreground/55">
+                                        <div className="py-3 text-center text-sm text-muted-foreground">
                                             {t('gallery.loading_comments')}
                                         </div>
                                     ) : comments.length > 0 ? (
@@ -316,7 +316,7 @@ function ArtworkModal({
                                                                     .display_name
                                                             }
                                                         />
-                                                        <AvatarFallback className="bg-primary-blue/35 text-[10px] font-semibold">
+                                                        <AvatarFallback className="bg-accent text-[10px] font-semibold text-accent-foreground">
                                                             {getInitials(
                                                                 comment.user
                                                                     .display_name,
@@ -344,7 +344,7 @@ function ArtworkModal({
                                                     'gallery.start_conversation',
                                                 )}
                                             </p>
-                                            <p className="mt-1 text-xs text-foreground/55">
+                                            <p className="mt-1 text-xs text-muted-foreground">
                                                 {t('gallery.share_feeling')}
                                             </p>
                                         </div>
@@ -374,7 +374,7 @@ function ArtworkModal({
                                         )}
                                         maxLength={280}
                                         rows={1}
-                                        className="w-full min-w-0 resize-none overflow-y-auto border-0 bg-transparent py-2 text-sm [overflow-wrap:anywhere] outline-none placeholder:text-foreground/40"
+                                        className="w-full min-w-0 resize-none overflow-y-auto border-0 bg-transparent py-2 text-sm [overflow-wrap:anywhere] outline-none placeholder:text-muted-foreground/60"
                                         style={{
                                             height: 'auto',
                                             maxHeight: '128px',
@@ -383,7 +383,7 @@ function ArtworkModal({
                                 </div>
                                 <div className="flex shrink-0 items-center gap-3">
                                     <span
-                                        className={`text-[10px] font-semibold tracking-[0.16em] uppercase ${newComment.length > 250 ? 'text-destructive' : 'text-foreground/40'}`}
+                                        className={`text-[10px] font-semibold tracking-[0.16em] uppercase ${newComment.length > 250 ? 'text-destructive' : 'text-muted-foreground'}`}
                                     >
                                         {newComment.length}/280
                                     </span>
