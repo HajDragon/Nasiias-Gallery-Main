@@ -48,6 +48,7 @@ function ArtworkModal({
     const [submittingComment, setSubmittingComment] = useState(false);
     const [togglingLike, setTogglingLike] = useState(false);
     const [interactionError, setInteractionError] = useState('');
+    const [commentError, setCommentError] = useState('');
     const commentTextareaRef = useRef<HTMLTextAreaElement>(null);
     const { t } = useTranslation();
     const getInitials = useInitials();
@@ -75,11 +76,21 @@ function ArtworkModal({
     const loadOlderComments = async () => {
         if (!nextCommentsUrl || loadingOlderComments) return;
         setLoadingOlderComments(true);
+        setCommentError('');
         try {
             const response = await fetch(nextCommentsUrl, {
                 headers: { Accept: 'application/json' },
             });
-            if (!response.ok) return;
+            if (!response.ok) {
+                setCommentError(
+                    t(
+                        response.status === 429
+                            ? 'gallery.rate_limited'
+                            : 'gallery.request_failed',
+                    ),
+                );
+                return;
+            }
             const data = await response.json();
             setComments((current) =>
                 Array.from(
@@ -93,6 +104,7 @@ function ArtworkModal({
             setNextCommentsUrl(data.next_page_url);
         } catch (error) {
             console.error('Failed to load older comments:', error);
+            setCommentError(t('gallery.request_failed'));
         } finally {
             setLoadingOlderComments(false);
         }
@@ -199,7 +211,7 @@ function ArtworkModal({
         if (!trimmed || submittingComment) return;
 
         setSubmittingComment(true);
-        setInteractionError('');
+        setCommentError('');
         try {
             const response = await fetch(`/gallery/${artwork.id}/comments`, {
                 method: 'POST',
@@ -222,9 +234,9 @@ function ArtworkModal({
             } else if (response.status === 401) {
                 window.location.href = '/login';
             } else {
-                const data = await response.json();
-                setInteractionError(
-                    data.errors?.body?.[0] ??
+                const data = await response.json().catch(() => null);
+                setCommentError(
+                    data?.errors?.body?.[0] ??
                         t(
                             response.status === 429
                                 ? 'gallery.rate_limited'
@@ -234,6 +246,7 @@ function ArtworkModal({
             }
         } catch (error) {
             console.error('Failed to submit comment:', error);
+            setCommentError(t('gallery.request_failed'));
         } finally {
             setSubmittingComment(false);
         }
@@ -446,6 +459,14 @@ function ArtworkModal({
                                 </div>
                             </div>
 
+                            {commentError && (
+                                <p
+                                    role="alert"
+                                    className="shrink-0 px-4 pt-2 text-sm text-destructive sm:px-5"
+                                >
+                                    {commentError}
+                                </p>
+                            )}
                             <form
                                 className="flex min-w-0 shrink-0 flex-col gap-2 border-t border-border/15 px-4 py-3 sm:flex-row sm:items-center sm:px-5"
                                 onSubmit={submitComment}
