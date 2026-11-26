@@ -350,7 +350,7 @@ export default function Home({ artworks, categories }: HomeProps) {
                 <Header />
 
                 {/* Intro Animation Section */}
-                <ScrollMorphHero artworks={artworks} />
+                <ScrollMorphHero />
 
                 {/* Art Library Section */}
                 <section

@@ -26,7 +26,7 @@ class RecordArtworkViewAction
             : 'guest:'.hash('sha256', $request->hasSession() ? $request->session()->getId() : (string) $request->ip());
         $key = 'artwork-view:'.$artwork->id.':'.$visitor;
 
-        if (Cache::has($key) || ! Cache::add($key, true, 60)) {
+        if (! Cache::add($key, true, 60)) {
             return null;
         }
 

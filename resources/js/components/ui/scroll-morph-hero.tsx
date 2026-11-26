@@ -6,21 +6,8 @@ import { LiveOrb } from "./live-orb"
 import { cn } from "@/lib/utils"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 
-interface Artwork {
-  id: number
-  title: string | null
-  description: string | null
-  alt_text: string
-  image_url: string
-  category: { name: string; slug: string } | null
-  view_count: number
-  like_count: number
-  created_at: string | null
-}
-
 interface ScrollMorphHeroProps {
   className?: string
-  artworks?: Artwork[]
 }
 
 export function ScrollMorphHero({ className }: ScrollMorphHeroProps) {
