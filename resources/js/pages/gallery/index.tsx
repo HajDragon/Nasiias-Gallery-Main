@@ -5,7 +5,9 @@ import { ChevronLeft } from 'lucide-react';
 import Header from '@/components/Header';
 import FilterBar from '@/components/FilterBar';
 import ArtworkHoverCue from '@/components/ArtworkHoverCue';
+import { ArtworkModal } from '@/components/ArtworkModal';
 import ContactFooter from '@/components/ContactFooter';
+import { useArtworkModal } from '@/hooks/use-artwork-modal';
 import { useTranslation } from '@/lib/i18n';
 
 interface Artwork {
@@ -44,6 +46,7 @@ export default function GalleryIndex({
     selectedCategory,
 }: GalleryIndexProps) {
     const { t } = useTranslation();
+    const modal = useArtworkModal();
 
     // FilterBar works with category names, but the URL/back-end use slugs.
     const activeCategoryName =
@@ -110,6 +113,17 @@ export default function GalleryIndex({
                                 >
                                     <Link
                                         href={`/gallery/${artwork.id}`}
+                                        onClick={(event) => {
+                                            // Keep new-tab/modified clicks native.
+                                            if (
+                                                event.metaKey ||
+                                                event.ctrlKey ||
+                                                event.shiftKey
+                                            )
+                                                return;
+                                            event.preventDefault();
+                                            void modal.open(artwork.id);
+                                        }}
                                         className="group/image relative block w-full cursor-zoom-in overflow-hidden hover:z-10"
                                         aria-label={t('artwork.open', {
                                             title:
@@ -215,6 +229,9 @@ export default function GalleryIndex({
                 </main>
                 <ContactFooter />
             </div>
+            {modal.artwork && (
+                <ArtworkModal artwork={modal.artwork} onClose={modal.close} />
+            )}
         </>
     );
 }

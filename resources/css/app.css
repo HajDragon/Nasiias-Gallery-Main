@@ -265,3 +265,11 @@ body:has(.gallery-surface) {
         opacity: 0;
     }
 }
+
+/* Mobile feed on the homepage: let the page settle on the artwork feed so one
+   artwork fits the screen. Proximity keeps the hero/footer freely scrollable. */
+@media (max-width: 639px) {
+    html:has([data-feed]) {
+        scroll-snap-type: y proximity;
+    }
+}

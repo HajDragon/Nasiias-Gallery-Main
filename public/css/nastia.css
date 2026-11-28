@@ -17,7 +17,7 @@ h3,
 h4,
 .fi-header-heading,
 .fi-page-header-heading,
-.fi-modal-header-heading,
+.fi-modal-heading,
 .fi-section-header-heading {
     font-family: 'Magilio', Georgia, serif !important;
     letter-spacing: 0.02em;
@@ -29,12 +29,35 @@ h4,
     color: #293241 !important;
 }
 
-/* Active sidebar item matching nastiia's gallery palette */
-.fi-sidebar-item-active .fi-sidebar-item-button {
-    background-color: #293241 !important;
-    color: #f0f7ff !important;
+/* Active sidebar item matching nastiia's gallery palette (Filament 5 markup) */
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    background-color: #293241;
 }
 
-.fi-sidebar-item-active .fi-sidebar-item-icon {
-    color: #98c1d9 !important;
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn .fi-sidebar-item-label {
+    color: #f0f7ff;
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn .fi-sidebar-item-icon {
+    color: #98c1d9;
+}
+
+/* Dark mode: a navy pill vanishes on the dark sidebar, so tint with the accent instead */
+.dark .fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    background-color: rgb(152 193 217 / 0.16);
+}
+
+.dark .fi-sidebar-item.fi-active > .fi-sidebar-item-btn .fi-sidebar-item-label {
+    color: #98c1d9;
+}
+
+/* Numbers line up in columns and stat cards */
+.fi-ta-table,
+.fi-wi-stats-overview-stat {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Keyboard focus in the gallery's accent rather than the browser default */
+:focus-visible {
+    outline-color: #98c1d9;
 }

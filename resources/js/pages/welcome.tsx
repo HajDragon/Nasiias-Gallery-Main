@@ -4,7 +4,9 @@ import Header from '@/components/Header';
 import FilterBar from '@/components/FilterBar';
 import ArtworkHoverCue from '@/components/ArtworkHoverCue';
 import ContactFooter from '@/components/ContactFooter';
+import { ArtworkModal } from '@/components/ArtworkModal';
 import IntroAnimation from '@/components/ui/intro-animation';
+import { useArtworkModal } from '@/hooks/use-artwork-modal';
 import { useTranslation } from '@/lib/i18n';
 
 interface Artwork {
@@ -72,7 +74,7 @@ function FeedCard({
     };
 
     return (
-        <article className="relative h-[100dvh] touch-manipulation snap-start snap-always overflow-hidden bg-card">
+        <article className="relative h-full touch-manipulation snap-start snap-always overflow-hidden bg-card">
             <button
                 type="button"
                 onClick={handleTap}
@@ -162,6 +164,7 @@ export default function Welcome({
     selectedCategory,
 }: WelcomeProps) {
     const { t } = useTranslation();
+    const modal = useArtworkModal();
     const [visibleArtworks, setVisibleArtworks] = useState(artworks.data);
     const [loadingMore, setLoadingMore] = useState(false);
     const collectionRef = useRef<HTMLElement>(null);
@@ -185,6 +188,24 @@ export default function Welcome({
         });
         observer.observe(collection);
         return () => observer.disconnect();
+    }, []);
+    const filterBarRef = useRef<HTMLDivElement>(null);
+
+    // The sticky filter bar covers the top of the viewport, so the feed is sized
+    // and snapped to the space below it: one artwork then fills the visible screen.
+    useEffect(() => {
+        const bar = filterBarRef.current;
+        if (!bar) return;
+        const root = document.documentElement;
+        const sync = () =>
+            root.style.setProperty('--feed-bar', `${bar.offsetHeight}px`);
+        sync();
+        const observer = new ResizeObserver(sync);
+        observer.observe(bar);
+        return () => {
+            observer.disconnect();
+            root.style.removeProperty('--feed-bar');
+        };
     }, []);
     const activeCategory =
         categories.find((category) => category.slug === selectedCategory)
@@ -231,7 +252,7 @@ export default function Welcome({
     };
 
     const openArtwork = (artwork: Artwork) => {
-        router.visit(`/gallery/${artwork.id}`);
+        void modal.open(artwork.id);
     };
 
     const likeArtwork = (artwork: Artwork) => {
@@ -283,7 +304,10 @@ export default function Welcome({
                             {t('welcome.intro')}
                         </p>
 
-                        <div className="sticky top-0 z-30 -mx-5 bg-background px-5 sm:static sm:z-auto sm:mx-0 sm:px-0">
+                        <div
+                            ref={filterBarRef}
+                            className="sticky top-0 z-30 -mx-5 bg-background px-5 max-sm:*:mb-0 sm:static sm:z-auto sm:mx-0 sm:px-0"
+                        >
                             <FilterBar
                                 active={activeCategory}
                                 onChange={changeCategory}
@@ -297,7 +321,10 @@ export default function Welcome({
                             {t('welcome.scroll')}
                         </p>
 
-                        <div className="h-[100dvh] snap-y snap-mandatory [scrollbar-width:none] overflow-y-scroll sm:hidden [&::-webkit-scrollbar]:hidden">
+                        <div
+                            data-feed
+                            className="h-[calc(100dvh-var(--feed-bar,0px))] snap-y snap-mandatory snap-start scroll-mt-[var(--feed-bar,0px)] [scrollbar-width:none] overflow-y-scroll sm:hidden [&::-webkit-scrollbar]:hidden"
+                        >
                             {visibleArtworks.map((artwork) => (
                                 <FeedCard
                                     key={artwork.id}
@@ -412,6 +439,9 @@ export default function Welcome({
                 </main>
                 <ContactFooter />
             </div>
+            {modal.artwork && (
+                <ArtworkModal artwork={modal.artwork} onClose={modal.close} />
+            )}
         </>
     );
 }

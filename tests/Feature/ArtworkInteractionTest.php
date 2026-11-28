@@ -32,6 +32,18 @@ class ArtworkInteractionTest extends TestCase
         $this->assertDatabaseCount('artwork_views', 1);
     }
 
+    public function test_json_requests_return_the_artwork_detail_for_the_overlay_modal(): void
+    {
+        // Arrange: an artwork the overlay modal will open without navigating.
+        $artwork = Artwork::factory()->create();
+
+        // Act: request the detail as plain JSON.
+        $response = $this->getJson(route('gallery.show', $artwork));
+
+        // Assert: the same detail payload the standalone page receives.
+        $response->assertOk()->assertJsonPath('id', $artwork->id)->assertJsonStructure(['title', 'alt_text', 'image_url', 'like_count']);
+    }
+
     public function test_prefetch_and_head_requests_do_not_count_as_views(): void
     {
         // Arrange: speculative requests should not update popularity.

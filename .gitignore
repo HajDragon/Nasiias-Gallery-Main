@@ -13,6 +13,7 @@
 /public/sitemap.xml
 /storage/*.key
 /storage/pail
+/storage/media-library
 /resources/js/actions
 /resources/js/routes
 /resources/js/wayfinder

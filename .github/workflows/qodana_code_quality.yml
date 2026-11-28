@@ -25,6 +25,16 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+      # Qodana resolves Laravel/Filament classes from vendor/, so install it on the
+      # runner first; the scan container sees the checked-out workspace.
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+      - name: Install PHP dependencies
+        run: composer install --no-progress --no-interaction --prefer-dist
       - name: 'Qodana Scan'
         uses: JetBrains/qodana-action@v2026.2
         env:
