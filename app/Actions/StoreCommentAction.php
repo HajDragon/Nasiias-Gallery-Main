@@ -14,7 +14,7 @@ use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
 
 class StoreCommentAction
 {
-    public const MAX_INPUT_LENGTH = 10_000;
+    public const int MAX_INPUT_LENGTH = 10_000;
 
     /**
      * Store a comment on the artwork for the given user.
