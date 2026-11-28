@@ -855,3 +855,89 @@ Delivered a complete refactor of the intro animation and modal UX:
 - `resources/js/components/ui/intro-animation.tsx` — responsive `cardWidth`/`cardHeight`, dynamic line spacing, circle scale
 - `resources/js/pages/welcome.tsx` — sorted/sliced 12 latest artworks for `IntroAnimation`; `feedScrollRef` + scroll save/restore; `modalComment` state + `handleCommentSubmit`; conditional like button styling
 - `lang/en/ui.php`, `lang/uk/ui.php` — translation keys for comment placeholder/post (already existed)
+
+---
+
+# Prompt: Keep Scroll Position When Closing the Artwork Modal
+
+**Date:** 2026-11-28
+
+## Prompt
+
+Closing the artwork modal reloads the page and lands on the hero, on both mobile and desktop. Find the root cause and fix it so the page stays at the exact scroll position where the artwork was opened, with "load more" results intact.
+
+Entry points: `resources/js/pages/welcome.tsx` (`openArtwork`), `resources/js/pages/gallery/show.tsx` (`onClose`), `resources/js/pages/gallery/index.tsx`, `app/Http/Controllers/GalleryController.php`.
+
+Constraints: plan first and wait for approval; keep `/gallery/{id}` working for direct links and SEO; no new dependencies.
+
+Done: scroll position unchanged after close at desktop and mobile widths; `npm run types:check`, `npm run check` and the affected Pest tests pass.
+
+## Response
+
+Root cause: the modal was a separate Inertia page. Opening called `router.visit('/gallery/{id}')` and closing called `router.visit('/')`, a fresh visit that resets scroll and drops loaded-more artworks. Proposed two options (overlay vs. navigate-and-restore); option 1 (overlay) was approved and implemented:
+
+- The modal now opens as an overlay on `/` and `/gallery` without navigating
+- `GalleryController@show` returns the artwork detail as JSON when asked for JSON; the standalone page is unchanged
+- No history entries are pushed: Inertia's popstate handler reloads the page on state it did not write, so the URL stays put and Back leaves the page
+- If the detail fetch fails, it falls back to the standalone page
+
+Verified with `tsc`, `npm run check:fix`, PHPStan, Pint and the related Pest tests. Not verified in a real browser (Chrome unavailable to Playwright).
+
+## Files Modified
+
+- `resources/js/components/ArtworkModal.tsx` — new; modal extracted from `gallery/show.tsx`, exports `ArtworkModal` and `ArtworkDetail`
+- `resources/js/hooks/use-artwork-modal.ts` — new; `open(id)` fetches JSON, `close()` clears
+- `resources/js/pages/gallery/show.tsx` — thin standalone page around `ArtworkModal`
+- `resources/js/pages/welcome.tsx`, `resources/js/pages/gallery/index.tsx` — open the overlay instead of visiting `/gallery/{id}`
+- `app/Http/Controllers/GalleryController.php` — JSON branch in `show`
+- `tests/Feature/ArtworkInteractionTest.php` — JSON detail test
+
+---
+
+# Prompt: Project Context File for Fast Navigation
+
+**Date:** 2026-11-28
+
+## Prompt
+
+Analyze the site and write `.ai/rules/context.md` with project context and an index of where things live (routes, controllers, pages, components, tests, commands), so repetitive tasks and file lookups are fast. Register it in `.ai/rules/index.md`.
+
+## Response
+
+Added `.ai/rules/context.md` covering the stack, a route-to-controller-to-page table, the artwork modal pattern and its constraints, backend and frontend file locations, commands, and gotchas. Linked it from `.ai/rules/index.md`.
+
+## Files Modified
+
+- `.ai/rules/context.md` — new
+- `.ai/rules/index.md` — added the context row
+
+---
+
+# Prompt: Snap Mobile Artwork Feed to the Screen
+
+**Date:** 2026-11-28
+
+## Prompt
+
+On mobile the homepage shows artworks as an Instagram-style vertical feed. Make each artwork snap to fill the visible screen, so the user does not have to nudge the page to fit an artwork.
+
+Entry points: the `data-feed` scroller and `FeedCard` in `resources/js/pages/welcome.tsx`, `resources/css/app.css`.
+
+Constraints: mobile only (under 640px); keep the sticky category bar, double-tap like, and the desktop grid unchanged.
+
+Done: `npm run check:fix`, `npm run types:check` and `npm run build` pass.
+
+## Response
+
+The feed was a 100dvh scroller placed partway down the page and partly covered by the sticky category bar. Now:
+
+- The feed height is the screen height minus the measured filter bar height (`--feed-bar`), and each card fills the feed
+- The page uses proximity scroll snapping (mobile only, via `html:has([data-feed])`) so it settles with the feed under the bar
+- The filter bar's bottom margin is removed on mobile
+
+Not tested on a device; `:has()` needs iOS 15.4+, and iOS may need `mandatory` snapping if proximity is unreliable.
+
+## Files Modified
+
+- `resources/js/pages/welcome.tsx` — filter bar ref and height sync, feed sizing and snap classes, `FeedCard` height
+- `resources/css/app.css` — mobile page snap rule
