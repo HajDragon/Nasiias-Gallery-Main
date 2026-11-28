@@ -55,8 +55,6 @@ return [
     ],
 
     'welcome' => [
-        'load_more' => 'Load more artworks',
-        'loading' => 'Loading...',
         'aria_intro' => 'Intro animation',
         'aria_collection' => 'Painting collection',
         'my' => 'My',
