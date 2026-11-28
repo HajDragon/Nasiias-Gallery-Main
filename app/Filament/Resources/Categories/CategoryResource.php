@@ -79,7 +79,11 @@ class CategoryResource extends Resource
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('name')
+            ->emptyStateIcon(Heroicon::OutlinedTag)
+            ->emptyStateHeading('No categories yet')
+            ->emptyStateDescription('Categories group artworks and become the filter pills on the gallery.');
     }
 
     public static function getRelations(): array

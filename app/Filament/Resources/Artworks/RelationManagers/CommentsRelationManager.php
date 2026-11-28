@@ -62,6 +62,9 @@ class CommentsRelationManager extends RelationManager
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc')
+            ->emptyStateHeading('No comments yet')
+            ->emptyStateDescription('Visitor comments on this artwork will appear here.');
     }
 }

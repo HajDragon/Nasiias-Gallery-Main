@@ -40,6 +40,8 @@ class AdminPanelProvider extends PanelProvider
                 'info' => Color::hex('#98C1D9'),
                 'danger' => Color::hex('#E63946'),
             ])
+            ->brandName('nastiia.gallery')
+            ->favicon(asset('favicon.svg'))
             ->font('Libron', provider: LocalFontProvider::class)
             ->renderHook(
                 PanelsRenderHook::HEAD_END,

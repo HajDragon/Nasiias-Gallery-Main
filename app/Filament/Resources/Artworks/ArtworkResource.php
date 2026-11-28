@@ -27,6 +27,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
@@ -253,6 +254,10 @@ class ArtworkResource extends Resource
                                 $size = e($formattedSize);
                                 $src = e($imageUrl);
 
+                                $iconAttributes = 'xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"';
+                                $eyeIcon = "<svg {$iconAttributes}><path d=\"M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/></svg>";
+                                $heartIcon = "<svg {$iconAttributes}><path d=\"M20.8 4.9a5.5 5.5 0 0 0-7.8 0L12 5.9l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21.5l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8Z\"/></svg>";
+
                                 $descBlock = $description !== ''
                                     ? "<p style=\"margin: 0.5rem 0 0 0; font-size: 0.8rem; line-height: 1.45; color: rgba(240,247,255,0.75);\">{$description}</p>"
                                     : '';
@@ -272,8 +277,8 @@ class ArtworkResource extends Resource
                                                     {$categoryName}
                                                 </span>
                                                 <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.75rem; color: rgba(240,247,255,0.7);">
-                                                    <span>&#128065; {$viewCount}</span>
-                                                    <span style="color: #e63946; font-weight: 600;">&hearts; {$likeCount}</span>
+                                                    <span style="display: inline-flex; align-items: center; gap: 0.3rem;">{$eyeIcon} {$viewCount}</span>
+                                                    <span style="display: inline-flex; align-items: center; gap: 0.3rem; color: #e63946; font-weight: 600;">{$heartIcon} {$likeCount}</span>
                                                 </div>
                                             </div>
                                             <h3 style="font-family: 'Magilio', Georgia, serif; font-size: 1.35rem; color: #f0f7ff; margin: 0; line-height: 1.25;">
@@ -282,7 +287,7 @@ class ArtworkResource extends Resource
                                             {$descBlock}
                                             <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(240,247,255,0.15); display: flex; align-items: center; justify-content: space-between;">
                                                 <a href="{$src}" target="_blank" rel="noopener noreferrer" style="color: #98c1d9; font-size: 0.75rem; text-decoration: underline; font-weight: 600;">
-                                                    Open full resolution &nearr;
+                                                    Open full resolution
                                                 </a>
                                                 {$sizeBlock}
                                             </div>
@@ -335,10 +340,14 @@ class ArtworkResource extends Resource
 
                 TextColumn::make('view_count')
                     ->label('Views')
+                    ->numeric()
+                    ->alignEnd()
                     ->sortable(),
 
                 TextColumn::make('like_count')
                     ->label('Likes')
+                    ->numeric()
+                    ->alignEnd()
                     ->sortable(),
 
                 TextColumn::make('comments_count')
@@ -354,7 +363,9 @@ class ArtworkResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('category')
+                    ->relationship('category', 'name')
+                    ->preload(),
             ])
             ->recordActions([
                 EditAction::make(),
@@ -364,7 +375,11 @@ class ArtworkResource extends Resource
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc')
+            ->emptyStateIcon(Heroicon::OutlinedPhoto)
+            ->emptyStateHeading('No artworks yet')
+            ->emptyStateDescription('Upload the first artwork to publish it in the gallery.');
     }
 
     public static function getRelations(): array
