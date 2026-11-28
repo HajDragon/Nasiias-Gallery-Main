@@ -57,27 +57,34 @@ class GalleryController extends Controller
         ]);
     }
 
-    public function show(Request $request, Artwork $artwork, RecordArtworkViewAction $recordView): Response
+    public function show(Request $request, Artwork $artwork, RecordArtworkViewAction $recordView): Response|JsonResponse
     {
         $artwork->load(['category', 'media']);
 
         $recordView($artwork, $request->user());
 
+        $detail = [
+            'id' => $artwork->id,
+            'title' => $artwork->title,
+            'description' => $artwork->description,
+            'alt_text' => $artwork->alt_text,
+            ...$artwork->imageSources(detail: true),
+            'category' => $artwork->category ? [
+                'name' => $artwork->category->name,
+                'slug' => $artwork->category->slug,
+            ] : null,
+            'view_count' => $artwork->view_count,
+            'like_count' => $artwork->like_count,
+            'created_at' => $artwork->created_at?->toISOString(),
+        ];
+
+        // Overlay modals fetch the detail as plain JSON so the page underneath never navigates.
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
+            return response()->json($detail);
+        }
+
         return inertia('gallery/show', [
-            'artwork' => [
-                'id' => $artwork->id,
-                'title' => $artwork->title,
-                'description' => $artwork->description,
-                'alt_text' => $artwork->alt_text,
-                ...$artwork->imageSources(detail: true),
-                'category' => $artwork->category ? [
-                    'name' => $artwork->category->name,
-                    'slug' => $artwork->category->slug,
-                ] : null,
-                'view_count' => $artwork->view_count,
-                'like_count' => $artwork->like_count,
-                'created_at' => $artwork->created_at?->toISOString(),
-            ],
+            'artwork' => $detail,
             'seo' => $this->seoService->getSEOData($artwork),
         ]);
     }
