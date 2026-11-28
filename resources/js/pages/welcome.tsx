@@ -10,38 +10,28 @@ import { useTranslation } from '@/lib/i18n';
 interface Artwork {
     id: number;
     title: string | null;
-    description: string | null;
     alt_text: string;
     image_url: string;
+    image_srcset?: string | null;
     category: { name: string; slug: string } | null;
-    view_count: number;
-    like_count: number;
-    created_at: string | null;
-}
-
-interface PaginatedArtworks {
-    data: Artwork[];
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-    from: number | null;
-    to: number | null;
-    links: Array<{ url: string | null; label: string; active: boolean }>;
 }
 
 interface WelcomeProps {
-    artworks: PaginatedArtworks;
+    artworks: { data: Artwork[]; next_page_url: string | null };
+    introArtworks: Artwork[];
     categories: Array<{ id: number; name: string; slug: string }>;
+    selectedCategory: string;
 }
 
 function FeedCard({
     artwork,
+    imagesReady,
     liked,
     onSelect,
     onLike,
 }: {
     artwork: Artwork;
+    imagesReady: boolean;
     liked: boolean;
     onSelect: (artwork: Artwork) => void;
     onLike: (artwork: Artwork) => void;
@@ -93,7 +83,14 @@ function FeedCard({
             >
                 <div className="h-full w-full bg-card">
                     <img
-                        src={artwork.image_url}
+                        src={imagesReady ? artwork.image_url : undefined}
+                        srcSet={
+                            imagesReady
+                                ? (artwork.image_srcset ?? undefined)
+                                : undefined
+                        }
+                        sizes="100vw"
+                        decoding="async"
                         alt={artwork.alt_text}
                         className="h-full w-full rounded-lg object-contain"
                         loading="lazy"
@@ -158,51 +155,79 @@ function FeedCard({
     );
 }
 
-export default function Welcome({ artworks, categories }: WelcomeProps) {
+export default function Welcome({
+    artworks,
+    introArtworks,
+    categories,
+    selectedCategory,
+}: WelcomeProps) {
     const { t } = useTranslation();
-    const [activeCategory, setActiveCategory] = useState('');
-    const [likedIds, setLikedIds] = useState<Set<number>>(new Set());
-    const [currentPage, setCurrentPage] = useState(artworks.current_page);
-    const [allArtworks, setAllArtworks] = useState<Artwork[]>(artworks.data);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
-    const hasMorePages = artworks.current_page < artworks.last_page;
+    const [visibleArtworks, setVisibleArtworks] = useState(artworks.data);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const collectionRef = useRef<HTMLElement>(null);
+    const [collectionImagesReady, setCollectionImagesReady] = useState(false);
 
-    const visibleArtworks =
-        activeCategory === ''
-            ? allArtworks
-            : allArtworks.filter(
-                  (artwork) => artwork.category?.name === activeCategory,
-              );
-
-    // Reset pagination when category changes
     useEffect(() => {
-        setAllArtworks(artworks.data);
-        setCurrentPage(artworks.current_page);
-    }, [activeCategory, artworks.data, artworks.current_page]);
-
-    const loadMore = async () => {
-        if (isLoadingMore || !hasMorePages) return;
-
-        setIsLoadingMore(true);
-        const nextPage = currentPage + 1;
-
-        try {
-            const response = await fetch(
-                `/?page=${nextPage}${activeCategory ? `&category=${encodeURIComponent(activeCategory)}` : ''}`,
-                { headers: { 'X-Requested-With': 'XMLHttpRequest' } },
-            );
-            if (!response.ok) throw new Error('Failed to load more');
-
-            const data = await response.json();
-            const newArtworks = data.props.artworks.data as Artwork[];
-
-            setAllArtworks((prev) => [...prev, ...newArtworks]);
-            setCurrentPage(nextPage);
-        } catch (error) {
-            console.error('Load more failed:', error);
-        } finally {
-            setIsLoadingMore(false);
+        const collection = collectionRef.current;
+        if (!collection) return;
+        if (!('IntersectionObserver' in window)) {
+            setCollectionImagesReady(true);
+            return;
         }
+
+        // Native lazy loading can fetch images a full screen below the intro.
+        // Start collection downloads when its heading enters the viewport.
+        const observer = new IntersectionObserver((entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) {
+                setCollectionImagesReady(true);
+                observer.disconnect();
+            }
+        });
+        observer.observe(collection);
+        return () => observer.disconnect();
+    }, []);
+    const activeCategory =
+        categories.find((category) => category.slug === selectedCategory)
+            ?.name ?? '';
+    const [likedIds, setLikedIds] = useState<Set<number>>(new Set());
+
+    const changeCategory = (name: string) => {
+        const slug = categories.find(
+            (category) => category.name === name,
+        )?.slug;
+        router.get('/', slug ? { category: slug } : {}, {
+            preserveScroll: true,
+        });
+    };
+
+    const loadMore = () => {
+        if (!artworks.next_page_url || loadingMore) return;
+        setLoadingMore(true);
+        router.get(
+            artworks.next_page_url,
+            {},
+            {
+                only: ['artworks'],
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: (page) => {
+                    const next = (
+                        page.props.artworks as WelcomeProps['artworks']
+                    ).data;
+                    setVisibleArtworks((current) =>
+                        Array.from(
+                            new Map(
+                                [...current, ...next].map((artwork) => [
+                                    artwork.id,
+                                    artwork,
+                                ]),
+                            ).values(),
+                        ),
+                    );
+                },
+                onFinish: () => setLoadingMore(false),
+            },
+        );
     };
 
     const openArtwork = (artwork: Artwork) => {
@@ -230,14 +255,13 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                         aria-label={t('welcome.aria_intro')}
                     >
                         <IntroAnimation
-                            items={artworks.data
-                                .slice(0, 12)
-                                .map((artwork) => ({
-                                    image: artwork.image_url,
-                                    alt: artwork.alt_text,
-                                }))}
+                            items={introArtworks.map((artwork) => ({
+                                image: artwork.image_url,
+                                srcSet: artwork.image_srcset ?? undefined,
+                                alt: artwork.alt_text,
+                            }))}
                             onSelect={(index) => {
-                                const artwork = artworks.data[index];
+                                const artwork = introArtworks[index];
                                 if (artwork) openArtwork(artwork);
                             }}
                         />
@@ -245,6 +269,7 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
 
                     <section
                         id="art-library"
+                        ref={collectionRef}
                         className="mx-auto max-w-[1440px] px-5 pb-20 sm:px-8 sm:pb-28 lg:px-12"
                         aria-label={t('welcome.aria_collection')}
                     >
@@ -261,7 +286,7 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                         <div className="sticky top-0 z-30 -mx-5 bg-background px-5 sm:static sm:z-auto sm:mx-0 sm:px-0">
                             <FilterBar
                                 active={activeCategory}
-                                onChange={setActiveCategory}
+                                onChange={changeCategory}
                                 categories={categories.map(
                                     (category) => category.name,
                                 )}
@@ -277,6 +302,7 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                                 <FeedCard
                                     key={artwork.id}
                                     artwork={artwork}
+                                    imagesReady={collectionImagesReady}
                                     liked={likedIds.has(artwork.id)}
                                     onSelect={openArtwork}
                                     onLike={likeArtwork}
@@ -302,17 +328,22 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                                     >
                                         <div className="aspect-[4/5] w-full bg-card">
                                             <img
-                                                src={artwork.image_url}
-                                                alt={artwork.alt_text}
-                                                className="h-full w-full rounded-lg object-contain transition-transform duration-700 ease-out group-hover/image:scale-[1.035]"
-                                                loading={
-                                                    index < 3 ? 'eager' : 'lazy'
-                                                }
-                                                fetchPriority={
-                                                    index === 0
-                                                        ? 'high'
+                                                src={
+                                                    collectionImagesReady
+                                                        ? artwork.image_url
                                                         : undefined
                                                 }
+                                                srcSet={
+                                                    collectionImagesReady
+                                                        ? (artwork.image_srcset ??
+                                                          undefined)
+                                                        : undefined
+                                                }
+                                                sizes="(min-width: 1440px) 427px, (min-width: 1024px) calc((100vw - 160px) / 3), calc(100vw - 64px)"
+                                                decoding="async"
+                                                alt={artwork.alt_text}
+                                                className="h-full w-full rounded-lg object-contain transition-transform duration-700 ease-out group-hover/image:scale-[1.035]"
+                                                loading="lazy"
                                             />
                                         </div>
                                         <span className="absolute top-4 right-4 grid h-8 w-8 place-items-center rounded-full bg-accent/90 text-[10px] font-semibold backdrop-blur-sm">
@@ -339,16 +370,15 @@ export default function Welcome({ artworks, categories }: WelcomeProps) {
                                 </article>
                             ))}
                         </div>
-
-                        {hasMorePages && (
+                        {artworks.next_page_url && (
                             <div className="mt-12 text-center">
                                 <button
                                     type="button"
                                     onClick={loadMore}
-                                    disabled={isLoadingMore}
+                                    disabled={loadingMore}
                                     className="inline-flex items-center gap-2 rounded-full bg-primary-blue px-8 py-3 text-sm font-semibold tracking-[0.1em] text-primary-on-blue uppercase transition-colors hover:bg-primary-blue/90 active:bg-primary-blue/70 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
-                                    {isLoadingMore ? (
+                                    {loadingMore ? (
                                         <>
                                             <svg
                                                 className="h-5 w-5 animate-spin"

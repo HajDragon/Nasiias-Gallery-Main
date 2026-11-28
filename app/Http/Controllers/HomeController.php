@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ArtworkCardResource;
 use App\Models\Artwork;
 use App\Models\Category;
 use App\Services\SEOService;
@@ -17,23 +18,19 @@ class HomeController extends Controller
     ) {}
 
     /**
-     * Render the landing page with every artwork (the design shows the full
-     * collection; filtering happens client-side).
+     * Render a bounded collection and a separate, small intro selection.
      */
     public function index(Request $request): Response
     {
         $query = Artwork::query()
-            ->with(['category', 'media'])
+            ->select(['id', 'category_id', 'title', 'image_url', 'alt_text'])
+            ->with(['category:id,name,slug', 'media'])
             ->orderBy('created_at', 'desc')
-            ->orderBy('id');
+            ->orderByDesc('id');
 
         if ($request->filled('category')) {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('name', $request->string('category'));
-            });
+            $query->whereHas('category', fn ($category) => $category->where('slug', $request->string('category')));
         }
-
-        $artworks = $query->paginate(18)->withQueryString();
 
         // Pills follow the design: seed order, and only categories that
         // actually have a painting (no empty filters).
@@ -43,8 +40,14 @@ class HomeController extends Controller
             ->get();
 
         return inertia('welcome', [
-            'artworks' => $artworks,
+            'artworks' => fn () => $query->simplePaginate(18)->withQueryString()
+                ->through(fn (Artwork $artwork) => (new ArtworkCardResource($artwork))->resolve()),
+            'introArtworks' => fn () => Artwork::query()
+                ->select(['id', 'image_url', 'alt_text'])
+                ->with('media')->orderByDesc('created_at')->orderByDesc('id')->limit(12)->get()
+                ->map(fn (Artwork $artwork) => (new ArtworkCardResource($artwork))->resolve()),
             'categories' => $categories,
+            'selectedCategory' => $request->string('category')->toString(),
             'seo' => $this->seoService->getSEOData(),
         ]);
     }

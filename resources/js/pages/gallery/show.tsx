@@ -2,7 +2,7 @@
 
 import { Head } from '@inertiajs/react';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { X, Heart } from 'lucide-react';
+import { X, Heart, ChevronDown, LoaderCircle } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import Header from '@/components/Header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -16,6 +16,7 @@ interface GalleryShowProps {
         description: string | null;
         alt_text: string;
         image_url: string;
+        image_srcset?: string | null;
         category: { name: string; slug: string } | null;
         view_count: number;
         like_count: number;
@@ -42,8 +43,12 @@ function ArtworkModal({
     const [comments, setComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState('');
     const [loadingComments, setLoadingComments] = useState(true);
+    const [loadingOlderComments, setLoadingOlderComments] = useState(false);
+    const [nextCommentsUrl, setNextCommentsUrl] = useState<string | null>(null);
     const [submittingComment, setSubmittingComment] = useState(false);
     const [togglingLike, setTogglingLike] = useState(false);
+    const [interactionError, setInteractionError] = useState('');
+    const [commentError, setCommentError] = useState('');
     const commentTextareaRef = useRef<HTMLTextAreaElement>(null);
     const { t } = useTranslation();
     const getInitials = useInitials();
@@ -58,7 +63,8 @@ function ArtworkModal({
             });
             if (response.ok) {
                 const data = await response.json();
-                setComments(data);
+                setComments(data.data);
+                setNextCommentsUrl(data.next_page_url);
             }
         } catch (error) {
             console.error('Failed to fetch comments:', error);
@@ -66,6 +72,43 @@ function ArtworkModal({
             setLoadingComments(false);
         }
     }, [artwork.id]);
+
+    const loadOlderComments = async () => {
+        if (!nextCommentsUrl || loadingOlderComments) return;
+        setLoadingOlderComments(true);
+        setCommentError('');
+        try {
+            const response = await fetch(nextCommentsUrl, {
+                headers: { Accept: 'application/json' },
+            });
+            if (!response.ok) {
+                setCommentError(
+                    t(
+                        response.status === 429
+                            ? 'gallery.rate_limited'
+                            : 'gallery.request_failed',
+                    ),
+                );
+                return;
+            }
+            const data = await response.json();
+            setComments((current) =>
+                Array.from(
+                    new Map(
+                        [...current, ...(data.data as Comment[])].map(
+                            (comment) => [comment.id, comment],
+                        ),
+                    ).values(),
+                ),
+            );
+            setNextCommentsUrl(data.next_page_url);
+        } catch (error) {
+            console.error('Failed to load older comments:', error);
+            setCommentError(t('gallery.request_failed'));
+        } finally {
+            setLoadingOlderComments(false);
+        }
+    };
 
     useEffect(() => {
         void fetchComments();
@@ -96,6 +139,7 @@ function ArtworkModal({
     const toggleLike = async () => {
         if (togglingLike) return;
         setTogglingLike(true);
+        setInteractionError('');
         try {
             const response = await fetch(`/gallery/${artwork.id}/like`, {
                 method: 'POST',
@@ -115,6 +159,14 @@ function ArtworkModal({
             } else if (response.status === 401) {
                 // Redirect to login if not authenticated
                 window.location.href = '/login';
+            } else {
+                setInteractionError(
+                    t(
+                        response.status === 429
+                            ? 'gallery.rate_limited'
+                            : 'gallery.request_failed',
+                    ),
+                );
             }
         } catch (error) {
             console.error('Failed to toggle like:', error);
@@ -159,6 +211,7 @@ function ArtworkModal({
         if (!trimmed || submittingComment) return;
 
         setSubmittingComment(true);
+        setCommentError('');
         try {
             const response = await fetch(`/gallery/${artwork.id}/comments`, {
                 method: 'POST',
@@ -180,9 +233,20 @@ function ArtworkModal({
                 requestAnimationFrame(adjustTextareaHeight);
             } else if (response.status === 401) {
                 window.location.href = '/login';
+            } else {
+                const data = await response.json().catch(() => null);
+                setCommentError(
+                    data?.errors?.body?.[0] ??
+                        t(
+                            response.status === 429
+                                ? 'gallery.rate_limited'
+                                : 'gallery.request_failed',
+                        ),
+                );
             }
         } catch (error) {
             console.error('Failed to submit comment:', error);
+            setCommentError(t('gallery.request_failed'));
         } finally {
             setSubmittingComment(false);
         }
@@ -207,6 +271,9 @@ function ArtworkModal({
                         <div className="min-h-0 min-w-0 bg-foreground sm:h-full">
                             <img
                                 src={imageUrl}
+                                srcSet={artwork.image_srcset ?? undefined}
+                                sizes="(min-width: 640px) 700px, 100vw"
+                                decoding="async"
                                 alt={artwork.alt_text}
                                 className="h-full max-h-[46vh] w-full object-contain sm:max-h-none"
                             />
@@ -293,6 +360,14 @@ function ArtworkModal({
                                 </div>
 
                                 <div className="mt-5 border-t border-border/15 pt-5">
+                                    {interactionError && (
+                                        <p
+                                            role="alert"
+                                            className="mb-4 text-sm text-destructive"
+                                        >
+                                            {interactionError}
+                                        </p>
+                                    )}
                                     {loadingComments ? (
                                         <div className="py-3 text-center text-sm text-foreground/55">
                                             {t('gallery.loading_comments')}
@@ -349,9 +424,49 @@ function ArtworkModal({
                                             </p>
                                         </div>
                                     )}
+                                    {!loadingComments && nextCommentsUrl && (
+                                        <div className="mt-6 flex justify-center border-t border-border/15 pt-4">
+                                            <button
+                                                type="button"
+                                                disabled={loadingOlderComments}
+                                                aria-busy={loadingOlderComments}
+                                                onClick={() =>
+                                                    void loadOlderComments()
+                                                }
+                                                className="inline-flex min-h-11 max-w-full items-center justify-center gap-2 rounded-full border border-foreground/15 bg-foreground/3 px-5 py-2.5 text-[10px] font-semibold tracking-[0.14em] text-foreground/70 uppercase transition-colors hover:border-foreground/30 hover:bg-foreground/7 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground disabled:cursor-wait disabled:opacity-50"
+                                            >
+                                                {loadingOlderComments ? (
+                                                    <LoaderCircle
+                                                        className="h-3.5 w-3.5 shrink-0 motion-safe:animate-spin"
+                                                        aria-hidden="true"
+                                                    />
+                                                ) : (
+                                                    <ChevronDown
+                                                        className="h-3.5 w-3.5 shrink-0"
+                                                        aria-hidden="true"
+                                                    />
+                                                )}
+                                                {loadingOlderComments
+                                                    ? t(
+                                                          'gallery.loading_comments',
+                                                      )
+                                                    : t(
+                                                          'gallery.older_comments',
+                                                      )}
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
+                            {commentError && (
+                                <p
+                                    role="alert"
+                                    className="shrink-0 px-4 pt-2 text-sm text-destructive sm:px-5"
+                                >
+                                    {commentError}
+                                </p>
+                            )}
                             <form
                                 className="flex min-w-0 shrink-0 flex-col gap-2 border-t border-border/15 px-4 py-3 sm:flex-row sm:items-center sm:px-5"
                                 onSubmit={submitComment}

@@ -37,10 +37,10 @@ class CommentAvatarTest extends TestCase
         // Assert
         $response
             ->assertOk()
-            ->assertJsonPath('0.id', $comment->id)
-            ->assertJsonPath('0.user.display_name', $user->display_name);
+            ->assertJsonPath('data.0.id', $comment->id)
+            ->assertJsonPath('data.0.user.display_name', $user->display_name);
 
-        $this->assertNotNull($response->json('0.user.avatar'));
+        $this->assertNotNull($response->json('data.0.user.avatar'));
     }
 
     public function test_comment_avatar_is_null_without_a_profile_photo(): void
@@ -62,7 +62,7 @@ class CommentAvatarTest extends TestCase
         // Assert
         $response
             ->assertOk()
-            ->assertJsonPath('0.user.avatar', null);
+            ->assertJsonPath('data.0.user.avatar', null);
     }
 
     public function test_posted_comment_returns_the_author_avatar(): void

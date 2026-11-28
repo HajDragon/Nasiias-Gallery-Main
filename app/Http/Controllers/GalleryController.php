@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\RecordArtworkViewAction;
+use App\Actions\StoreCommentAction;
+use App\Actions\ToggleLikeAction;
+use App\Http\Resources\ArtworkCardResource;
 use App\Models\Artwork;
 use App\Models\Category;
-use App\Models\Comment;
-use App\Models\Like;
 use App\Services\SEOService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,7 +26,7 @@ class GalleryController extends Controller
         $query = Artwork::query()
             ->with(['category', 'media'])
             ->orderBy('created_at', 'desc')
-            ->orderBy('id');
+            ->orderByDesc('id');
 
         $selectedCategory = $request->string('category')->toString();
         $category = null;
@@ -39,7 +41,8 @@ class GalleryController extends Controller
             }
         }
 
-        $artworks = $query->paginate(18)->withQueryString();
+        $artworks = $query->paginate(18)->withQueryString()
+            ->through(fn (Artwork $artwork) => (new ArtworkCardResource($artwork))->resolve());
         // Same pill list as the home page: seed order, artwork-backed only.
         $categories = Category::query()
             ->has('artworks')
@@ -54,12 +57,11 @@ class GalleryController extends Controller
         ]);
     }
 
-    public function show(Artwork $artwork): Response
+    public function show(Request $request, Artwork $artwork, RecordArtworkViewAction $recordView): Response
     {
         $artwork->load(['category', 'media']);
 
-        // Increment view count
-        $artwork->increment('view_count');
+        $recordView($artwork, $request->user());
 
         return inertia('gallery/show', [
             'artwork' => [
@@ -67,7 +69,7 @@ class GalleryController extends Controller
                 'title' => $artwork->title,
                 'description' => $artwork->description,
                 'alt_text' => $artwork->alt_text,
-                'image_url' => $artwork->getFirstMediaUrl('images') ?: $artwork->image_url,
+                ...$artwork->imageSources(detail: true),
                 'category' => $artwork->category ? [
                     'name' => $artwork->category->name,
                     'slug' => $artwork->category->slug,
@@ -80,29 +82,13 @@ class GalleryController extends Controller
         ]);
     }
 
-    public function toggleLike(Request $request, Artwork $artwork): JsonResponse
+    public function toggleLike(Request $request, Artwork $artwork, ToggleLikeAction $toggleLike): JsonResponse
     {
-        $user = $request->user();
-        $existingLike = Like::where('user_id', $user->id)
-            ->where('artwork_id', $artwork->id)
-            ->first();
-
-        if ($existingLike) {
-            $existingLike->delete();
-            $artwork->decrement('like_count');
-            $liked = false;
-        } else {
-            Like::create([
-                'user_id' => $user->id,
-                'artwork_id' => $artwork->id,
-            ]);
-            $artwork->increment('like_count');
-            $liked = true;
-        }
+        $liked = $toggleLike($request->user(), $artwork);
 
         return response()->json([
             'liked' => $liked,
-            'like_count' => $artwork->fresh()->like_count,
+            'like_count' => $artwork->like_count,
         ]);
     }
 
@@ -113,34 +99,39 @@ class GalleryController extends Controller
                 'user:id,display_name',
                 'user.media:id,model_type,model_id,collection_name,file_name,mime_type,disk,conversions_disk,generated_conversions,manipulations,responsive_images',
             ])
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($comment) {
-                return [
-                    'id' => $comment->id,
-                    'body' => $comment->body,
-                    'user' => [
-                        'display_name' => $comment->user->display_name,
-                        'avatar' => $comment->user->avatar,
-                    ],
-                    'created_at' => $comment->created_at?->toISOString(),
-                ];
-            });
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->cursorPaginate(20)
+            ->withQueryString();
 
-        return response()->json($comments);
+        // Generate cursors from database values before formatting dates for clients.
+        $page = $comments->toArray();
+        $page['data'] = $comments->getCollection()->map(function ($comment) {
+            return [
+                'id' => $comment->id,
+                'body' => $comment->body,
+                'user' => [
+                    'display_name' => $comment->user->display_name,
+                    'avatar' => $comment->user->avatar,
+                ],
+                'created_at' => $comment->created_at?->toISOString(),
+            ];
+        });
+
+        return response()->json($page);
     }
 
-    public function storeComment(Request $request, Artwork $artwork): JsonResponse
+    public function storeComment(Request $request, Artwork $artwork, StoreCommentAction $storeComment): JsonResponse
     {
         $request->validate([
-            'body' => 'required|string|max:280',
+            'body' => 'required|string|max:'.StoreCommentAction::MAX_INPUT_LENGTH,
         ]);
 
-        $comment = Comment::create([
-            'user_id' => $request->user()->id,
-            'artwork_id' => $artwork->id,
-            'body' => $request->string('body')->toString(),
-        ]);
+        $comment = $storeComment(
+            $request->user(),
+            $artwork,
+            $request->string('body')->toString(),
+        );
 
         $comment->load(['user:id,display_name', 'user.media']);
 

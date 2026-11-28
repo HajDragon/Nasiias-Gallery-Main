@@ -1,19 +1,9 @@
-@import 'tailwindcss';
+@import 'tailwindcss' source(none);
 @import '../../public/css/fonts.css';
-@import '../../vendor/filament/support/resources/css/index.css';
-@import '../../vendor/filament/actions/resources/css/index.css';
-@import '../../vendor/filament/forms/resources/css/index.css';
-@import '../../vendor/filament/infolists/resources/css/index.css';
-@import '../../vendor/filament/notifications/resources/css/index.css';
-@import '../../vendor/filament/schemas/resources/css/index.css';
-@import '../../vendor/filament/tables/resources/css/index.css';
-@import '../../vendor/filament/widgets/resources/css/index.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
-@source '../**/*.vue';
+@source '../views';
+@source '../js';
 
 /* Design palette — ported from nastiia's gallery handoff (ontwerp-overdracht.html) */
 :root {

@@ -189,7 +189,11 @@ TELESCOPE_ENABLED=true
 2. Run migrations: `php artisan migrate --force`
 3. Build assets: `npm run build`
 4. Optimize: `php artisan optimize`
-5. Queue workers: `php artisan queue:work --sleep=3 --tries=3`
+5. Run a supervised queue worker from the deployed application directory. With
+   `MEDIA_QUEUE=media` as in `.env.example`, use
+   `php artisan queue:work --queue=media,default --sleep=3 --tries=3`.
+   If `MEDIA_QUEUE` is unset, the worker can listen to the default queue alone.
+   Restart workers after deployment with `php artisan queue:restart`.
 6. Schedule: `* * * * * php artisan schedule:run`
 
 ### Recommended Production Services

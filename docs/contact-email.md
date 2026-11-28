@@ -24,8 +24,10 @@ the admin dashboard. Run `php artisan migrate` after deploying so the table exis
     ```
 
 4. Refresh cached configuration with `php artisan config:cache`.
-5. Run a supervised `php artisan queue:work` process. Restart existing workers with
-   `php artisan queue:restart` after deployment.
+5. Run a supervised worker that listens to `default` for mail and to the queue
+   configured by `MEDIA_QUEUE` for image conversions. With the settings in
+   `.env.example`, use `php artisan queue:work --queue=media,default --sleep=3 --tries=3`.
+   Restart existing workers with `php artisan queue:restart` after deployment.
 
 The configured sender is used for domain authentication; Reply-To is the visitor's
 email address. Each recipient gets a separate email. User content is escaped in

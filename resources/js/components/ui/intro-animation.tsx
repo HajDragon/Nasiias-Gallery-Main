@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import type { MouseEvent as ReactMouseEvent } from 'react';
-import { motion, useTransform, useSpring, useMotionValue } from 'framer-motion';
+import { motion, useTransform, useSpring, useMotionValue, useInView, MotionConfig } from 'framer-motion';
 import LiveOrb from '@/components/ui/live-orb';
 import { useTranslation } from '@/lib/i18n';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
@@ -17,6 +17,7 @@ type FlipTarget = {
 
 interface FlipCardProps {
     src: string;
+    srcSet?: string;
     alt: string;
     target: FlipTarget;
     onClick: (event: ReactMouseEvent<HTMLButtonElement>) => void;
@@ -25,7 +26,7 @@ interface FlipCardProps {
     height: number;
 }
 
-function FlipCard({ src, alt, onClick, onHoverChange, target, width, height }: FlipCardProps) {
+function FlipCard({ src, srcSet, alt, onClick, onHoverChange, target, width, height }: FlipCardProps) {
     const { t } = useTranslation();
     const prefersReducedMotion = useReducedMotion();
 
@@ -71,7 +72,7 @@ function FlipCard({ src, alt, onClick, onHoverChange, target, width, height }: F
                     className="absolute inset-0 h-full w-full overflow-hidden rounded-xl shadow-lg bg-gray-200"
                     style={{ backfaceVisibility: 'hidden' }}
                 >
-                    <img src={src} alt={alt} className="h-full w-full object-cover" />
+                    <img src={src} srcSet={srcSet} sizes={`${Math.ceil(width * Math.max(1, target.scale))}px`} decoding="async" alt={alt} className="h-full w-full object-cover" />
                     <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-transparent" />
                 </div>
 
@@ -99,6 +100,7 @@ const lerp = (start: number, end: number, t: number) => start * (1 - t) + end * 
 
 type HeroItem = {
     image: string;
+    srcSet?: string;
     alt: string;
 };
 
@@ -112,9 +114,12 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
     const [introPhase, setIntroPhase] = useState<AnimationPhase>('scatter');
     const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
     const containerRef = useRef<HTMLDivElement>(null);
+    const inView = useInView(containerRef, { amount: 0.05 });
+    const [pageVisible, setPageVisible] = useState(true);
     const TOTAL_IMAGES = items.length;
     const isMobile = containerSize.width < 768;
     const prefersReducedMotion = useReducedMotion();
+    const playOrb = inView && pageVisible && !prefersReducedMotion;
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -169,23 +174,31 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
     }, [stage]);
 
     const [orbitPaused, setOrbitPaused] = useState(false);
-    const [orbitAngle, setOrbitAngle] = useState(0);
+    const orbitAngle = useMotionValue(0);
 
     useEffect(() => {
-        if (stage !== 1 || introPhase !== 'circle' || orbitPaused || prefersReducedMotion) return;
+        const updateVisibility = () => setPageVisible(!document.hidden);
+        updateVisibility();
+        document.addEventListener('visibilitychange', updateVisibility);
+        return () => document.removeEventListener('visibilitychange', updateVisibility);
+    }, []);
+
+    useEffect(() => {
+        if (stage !== 1 || introPhase !== 'circle' || orbitPaused || !inView || !pageVisible || prefersReducedMotion) return;
         let raf = 0;
         let last = performance.now();
         const tick = (now: number) => {
-            setOrbitAngle((angle) => (angle + ((now - last) / 30000) * 360) % 360);
+            orbitAngle.set((orbitAngle.get() + ((now - last) / 30000) * 360) % 360);
             last = now;
             raf = requestAnimationFrame(tick);
         };
         raf = requestAnimationFrame(tick);
         return () => cancelAnimationFrame(raf);
-    }, [stage, introPhase, orbitPaused, prefersReducedMotion]);
+    }, [stage, introPhase, orbitPaused, inView, pageVisible, prefersReducedMotion, orbitAngle]);
 
     const morphProgress = useTransform(virtualScroll, [0, 600], [0, 1]);
     const smoothMorph = useSpring(morphProgress, prefersReducedMotion ? { stiffness: 10000, damping: 10000 } : { stiffness: 90, damping: 22 });
+    const orbitRotation = useTransform([orbitAngle, smoothMorph], ([angle, progress]: number[]) => angle * (1 - progress));
     const scrollRotate = useTransform(virtualScroll, [600, 3000], [0, 360]);
     const smoothScrollRotate = useSpring(scrollRotate, prefersReducedMotion ? { stiffness: 10000, damping: 10000 } : {
         stiffness: 90,
@@ -211,6 +224,10 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
     }, [mouseX]);
 
     useEffect(() => {
+        if (prefersReducedMotion) {
+            setIntroPhase('circle');
+            return;
+        }
         const timer1 = setTimeout(
             () => setIntroPhase((current) => (current === 'scatter' ? 'line' : current)),
             500,
@@ -223,7 +240,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
             clearTimeout(timer1);
             clearTimeout(timer2);
         };
-    }, []);
+    }, [prefersReducedMotion]);
 
     const scatterPositions = useMemo(() => {
         return items.map(() => ({
@@ -239,6 +256,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
     const isDesktop = containerSize.width >= 1024;
     const cardWidth = isDesktop ? 112 : containerSize.width < 768 ? 56 : 84;
     const cardHeight = isDesktop ? 154 : containerSize.width < 768 ? 77 : 116;
+    const lineY = cardHeight / 2 + 24;
 
     const [morphValue, setMorphValue] = useState(0);
     const [rotateValue, setRotateValue] = useState(0);
@@ -273,19 +291,21 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
     }, [contentOpacity]);
 
     return (
+        <MotionConfig reducedMotion="user">
         <div
             ref={containerRef}
+            data-testid="intro-animation"
             className="relative w-full h-full bg-[#EEF3F8] dark:bg-background overflow-hidden"
             onClick={advanceStage}
         >
             <div className="flex h-full w-full flex-col items-center justify-center perspective-1000">
                 <div className="absolute z-0 flex flex-col items-center justify-center text-center pointer-events-none top-1/2 -translate-y-1/2">
                     <motion.h1
-                        initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
+                        initial={false}
                         animate={
-                            introPhase === 'circle' && morphValue < 0.5
-                                ? { opacity: 1 - morphValue * 2, y: 0, filter: 'blur(0px)' }
-                                : { opacity: 0, filter: 'blur(10px)' }
+                            morphValue < 0.5
+                                ? { opacity: 1 - morphValue * 2 }
+                                : { opacity: 0 }
                         }
                         transition={prefersReducedMotion ? { duration: 0 } : { duration: 1 }}
                         className="text-xl font-medium tracking-tight text-gray-800 dark:text-foreground md:text-4xl"
@@ -324,7 +344,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                             variant="custom"
                             color="#98C1D9"
                             eyeColor="#293241"
-                            isVisible={introPhase === 'circle' && morphValue < 0.5}
+                            isVisible={playOrb && introPhase === 'circle' && morphValue < 0.5}
                         />
                     </motion.div>
                 </div>
@@ -355,12 +375,12 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                             variant="custom"
                             color="#98C1D9"
                             eyeColor="#293241"
-                            isVisible={contentVisible}
+                            isVisible={playOrb && contentVisible}
                         />
                     </div>
                 </motion.div>
 
-                <div className="relative flex items-center justify-center w-full h-full">
+                <motion.div data-testid="intro-orbit" style={{ rotate: orbitRotation }} className="relative flex items-center justify-center w-full h-full">
                     {items.map((item, i) => {
                         let target = { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1 };
                         if (introPhase === 'scatter') {
@@ -369,7 +389,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                             const lineSpacing = cardWidth + 24;
                             const lineTotalWidth = TOTAL_IMAGES * lineSpacing;
                             const lineX = i * lineSpacing - lineTotalWidth / 2;
-                            target = { x: lineX, y: 0, rotation: 0, scale: 1, opacity: 1 };
+                            target = { x: lineX, y: lineY, rotation: 0, scale: 1, opacity: 1 };
                         } else {
                             const minDimension = Math.min(
                                 containerSize.width,
@@ -384,7 +404,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                             const arcPerCard = (2 * Math.PI * circleRadius) / TOTAL_IMAGES;
                             const circleScale = Math.min(1, (arcPerCard * 0.85) / cardWidth);
 
-                            const circleAngle = (i / TOTAL_IMAGES) * 360 + orbitAngle;
+                            const circleAngle = (i / TOTAL_IMAGES) * 360;
                             const circleRad = (circleAngle * Math.PI) / 180;
                             const circlePos = {
                                 x: Math.cos(circleRad) * circleRadius,
@@ -400,7 +420,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                             const arcCenterY = arcApexY + arcRadius;
                             const spreadAngle = isMobile ? 100 : 130;
                             const startAngle = -90 - spreadAngle / 2;
-                            const step = spreadAngle / (TOTAL_IMAGES - 1);
+                            const step = TOTAL_IMAGES > 1 ? spreadAngle / (TOTAL_IMAGES - 1) : 0;
                             const scrollProgress = Math.min(Math.max(rotateValue / 360, 0), 1);
                             const maxRotation = spreadAngle * 0.8;
                             const boundedRotation = -scrollProgress * maxRotation;
@@ -432,6 +452,7 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                             <FlipCard
                                 key={i}
                                 src={item.image}
+                                srcSet={item.srcSet}
                                 alt={item.alt}
                                 target={target}
                                 onClick={(event) => {
@@ -444,8 +465,9 @@ export default function IntroAnimation({ items, onSelect }: IntroAnimationProps)
                             />
                         );
                     })}
-                </div>
+                </motion.div>
             </div>
         </div>
+        </MotionConfig>
     );
 }

@@ -8,6 +8,7 @@ use App\Models\Artwork;
 use App\Rules\ValidArtworkImage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ProcessArtworkImageAction
@@ -28,7 +29,12 @@ class ProcessArtworkImageAction
             $artwork->save();
         }
 
+        $dimensions = getimagesize($file->getPathname());
+        if ($dimensions === false) {
+            throw ValidationException::withMessages(['image' => __('validation.image', ['attribute' => 'image'])]);
+        }
         $media = $artwork->addMedia($file)
+            ->withCustomProperties(['width' => $dimensions[0], 'height' => $dimensions[1]])
             ->toMediaCollection($collection);
 
         $artwork->forceFill([

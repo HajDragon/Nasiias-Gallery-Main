@@ -11,13 +11,10 @@ import { useTranslation } from '@/lib/i18n';
 interface Artwork {
     id: number;
     title: string | null;
-    description: string | null;
     alt_text: string;
     image_url: string;
+    image_srcset?: string | null;
     category: { name: string; slug: string } | null;
-    view_count: number;
-    like_count: number;
-    created_at: string | null;
 }
 
 interface GalleryIndexProps {
@@ -125,6 +122,12 @@ export default function GalleryIndex({
                                         >
                                             <img
                                                 src={artwork.image_url}
+                                                srcSet={
+                                                    artwork.image_srcset ??
+                                                    undefined
+                                                }
+                                                sizes="(min-width: 1024px) 220px, (min-width: 640px) 30vw, 50vw"
+                                                decoding="async"
                                                 alt={artwork.alt_text}
                                                 className="h-full w-full rounded-lg object-contain transition-transform duration-700 ease-out group-hover/image:scale-[1.3]"
                                                 loading="lazy"

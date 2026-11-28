@@ -55,6 +55,8 @@ return [
     ],
 
     'welcome' => [
+        'load_more' => 'Load more artworks',
+        'loading' => 'Loading...',
         'aria_intro' => 'Intro animation',
         'aria_collection' => 'Painting collection',
         'my' => 'My',
@@ -90,6 +92,9 @@ return [
     ],
 
     'gallery' => [
+        'rate_limited' => 'Too many requests. Please wait a moment and try again.',
+        'request_failed' => 'Something went wrong. Please try again.',
+        'older_comments' => 'Load older comments',
         'title' => 'Gallery',
         'eyebrow' => 'The dense hang',
         'heading_1' => 'Wall to',
