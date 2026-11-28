@@ -27,7 +27,7 @@ php:
     version: 8.3 #(Applied in CI/CD pipeline)
 
 #Execute shell command before Qodana execution (Applied in CI/CD pipeline)
-bootstrap: composer install --no-interaction --no-progress --prefer-dist --ignore-platform-reqs
+#bootstrap: sh ./prepare-qodana.sh
 
 #Install IDE plugins before Qodana execution (Applied in CI/CD pipeline)
 #plugins:
