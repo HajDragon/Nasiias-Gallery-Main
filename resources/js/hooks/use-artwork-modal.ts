@@ -13,16 +13,21 @@ export function useArtworkModal() {
 
     const open = useCallback(async (id: number) => {
         latestId.current = id;
-        try {
-            const response = await fetch(`/gallery/${id}`, {
-                headers: { Accept: 'application/json' },
-            });
-            if (!response.ok) throw new Error(String(response.status));
-            const detail = (await response.json()) as ArtworkDetail;
-            if (latestId.current === id) setArtwork(detail);
-        } catch {
+        const detail = await fetch(`/gallery/${id}`, {
+            headers: { Accept: 'application/json' },
+        })
+            .then((response) =>
+                response.ok
+                    ? (response.json() as Promise<ArtworkDetail>)
+                    : null,
+            )
+            .catch(() => null);
+
+        if (!detail) {
             router.visit(`/gallery/${id}`);
+            return;
         }
+        if (latestId.current === id) setArtwork(detail);
     }, []);
 
     const close = useCallback(() => {
