@@ -4,7 +4,9 @@ import Header from '@/components/Header';
 import FilterBar from '@/components/FilterBar';
 import ArtworkHoverCue from '@/components/ArtworkHoverCue';
 import ContactFooter from '@/components/ContactFooter';
+import { ArtworkModal } from '@/components/ArtworkModal';
 import IntroAnimation from '@/components/ui/intro-animation';
+import { useArtworkModal } from '@/hooks/use-artwork-modal';
 import { useTranslation } from '@/lib/i18n';
 
 interface Artwork {
@@ -162,6 +164,7 @@ export default function Welcome({
     selectedCategory,
 }: WelcomeProps) {
     const { t } = useTranslation();
+    const modal = useArtworkModal();
     const [visibleArtworks, setVisibleArtworks] = useState(artworks.data);
     const [loadingMore, setLoadingMore] = useState(false);
     const collectionRef = useRef<HTMLElement>(null);
@@ -231,7 +234,7 @@ export default function Welcome({
     };
 
     const openArtwork = (artwork: Artwork) => {
-        router.visit(`/gallery/${artwork.id}`);
+        void modal.open(artwork.id);
     };
 
     const likeArtwork = (artwork: Artwork) => {
@@ -412,6 +415,9 @@ export default function Welcome({
                 </main>
                 <ContactFooter />
             </div>
+            {modal.artwork && (
+                <ArtworkModal artwork={modal.artwork} onClose={modal.close} />
+            )}
         </>
     );
 }
